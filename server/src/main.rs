@@ -169,16 +169,32 @@ async fn init_axum(
         .into_iter()
         .filter(|(_, protected)| matches!(*protected, RouteProtectionLevel::Redirect))
         .fold(protected_router, |router, (route, _)| router.routes(route))
-        .layer(oidc_login_service);
+        .layer(oidc_login_service.clone());
 
     // Combine the routers
     let router = public_router.merge(protected_router);
 
     let router = router.layer(axum::extract::Extension(state.clone()));
-    let (router, api) = router
-        .route("/oidc", any(handle_oidc_redirect::<GroupClaims>))
-        .with_state(state)
-        .split_for_parts();
+
+    let oidc_handler_router: OpenApiRouter<AppState> = OpenApiRouter::with_openapi(ApiDoc::openapi())
+        // .layer(session_layer.clone()) // Apply session layer first
+        .layer(oidc_login_service)
+        .route(
+            "/oidc",
+            any(|session, oidc_client, query| async move {
+                match handle_oidc_redirect::<GroupClaims>(session, oidc_client, query).await {
+                    Ok(response) => response.into_response(),
+                    Err(e) => {
+                        error!(error = ?e, "OIDC redirect handler error: {}", e);
+                        (StatusCode::BAD_REQUEST, format!("OIDC error: {}", e)).into_response()
+                    }
+                }
+            }),
+        );
+
+    let router = router.merge(oidc_handler_router);
+
+    let (router, api) = router.with_state(state).split_for_parts();
 
     let openapi_prefix = "/apidoc";
     let spec_path = format!("{openapi_prefix}/openapi.json");

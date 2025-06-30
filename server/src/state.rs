@@ -2,6 +2,8 @@ use std::{ops::Deref, sync::Arc};
 
 use mongodb::Database;
 
+use crate::settings::Settings;
+
 #[derive(Clone)]
 pub struct AppState(Arc<InnerState>);
 
@@ -21,4 +23,5 @@ impl Deref for AppState {
 
 pub struct InnerState {
     pub database: Database,
+    pub settings: Arc<Settings>,
 }

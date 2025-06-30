@@ -89,7 +89,7 @@ version = "0.8.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "021e862c184ae977658b36c4500f7feac3221ca5da43e3f25bd04ab6c79a29b5"
 dependencies = [
- "axum-core 0.5.2",
+ "axum-core",
  "axum-macros",
  "bytes",
  "form_urlencoded",
@@ -116,26 +116,6 @@ dependencies = [
  "tower-layer",
  "tower-service",
  "tracing",
-]
-
-[[package]]
-name = "axum-core"
-version = "0.4.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "09f2bd6146b97ae3359fa0cc6d6b376d9539582c7b4220f041a33ec24c226199"
-dependencies = [
- "async-trait",
- "bytes",
- "futures-util",
- "http",
- "http-body",
- "http-body-util",
- "mime",
- "pin-project-lite",
- "rustversion",
- "sync_wrapper",
- "tower-layer",
- "tower-service",
 ]
 
 [[package]]
@@ -175,7 +155,7 @@ version = "0.6.0"
 source = "git+https://github.com/pfzetto/axum-oidc.git?branch=pfzetto#65cb17560304ab31d342ebdb37db6cf4ed3aae99"
 dependencies = [
  "axum",
- "axum-core 0.5.2",
+ "axum-core",
  "futures-util",
  "http",
  "openidconnect",
@@ -184,7 +164,7 @@ dependencies = [
  "thiserror 2.0.12",
  "tower-layer",
  "tower-service",
- "tower-sessions 0.14.0",
+ "tower-sessions",
  "urlencoding",
 ]
 
@@ -2869,7 +2849,7 @@ dependencies = [
  "tokio",
  "toml",
  "tower",
- "tower-sessions 0.11.1",
+ "tower-sessions",
  "tower-sessions-mongodb-store",
  "tracing",
  "tracing-error",
@@ -3339,28 +3319,11 @@ dependencies = [
 
 [[package]]
 name = "tower-cookies"
-version = "0.10.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4fd0118512cf0b3768f7fcccf0bef1ae41d68f2b45edc1e77432b36c97c56c6d"
-dependencies = [
- "async-trait",
- "axum-core 0.4.5",
- "cookie",
- "futures-util",
- "http",
- "parking_lot",
- "pin-project-lite",
- "tower-layer",
- "tower-service",
-]
-
-[[package]]
-name = "tower-cookies"
 version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "151b5a3e3c45df17466454bb74e9ecedecc955269bdedbf4d150dfa393b55a36"
 dependencies = [
- "axum-core 0.5.2",
+ "axum-core",
  "cookie",
  "futures-util",
  "http",
@@ -3402,24 +3365,6 @@ checksum = "8df9b6e13f2d32c91b9bd719c00d1958837bc7dec474d94952798cc8e69eeec3"
 
 [[package]]
 name = "tower-sessions"
-version = "0.11.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b27326208b21807803c5f5aa1020d30ca0432b78cfe251b51a67a05e0baea102"
-dependencies = [
- "async-trait",
- "http",
- "time",
- "tokio",
- "tower-cookies 0.10.0",
- "tower-layer",
- "tower-service",
- "tower-sessions-core 0.11.1",
- "tower-sessions-memory-store",
- "tracing",
-]
-
-[[package]]
-name = "tower-sessions"
 version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "43a05911f23e8fae446005fe9b7b97e66d95b6db589dc1c4d59f6a2d4d4927d3"
@@ -3428,10 +3373,11 @@ dependencies = [
  "http",
  "time",
  "tokio",
- "tower-cookies 0.11.0",
+ "tower-cookies",
  "tower-layer",
  "tower-service",
  "tower-sessions-core 0.14.0",
+ "tower-sessions-memory-store",
  "tracing",
 ]
 
@@ -3442,7 +3388,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "afd1c5040577134115d8cc758d7757da29e171f83102de3ed1b86e3a2405533f"
 dependencies = [
  "async-trait",
- "axum-core 0.4.5",
  "base64 0.22.1",
  "futures",
  "http",
@@ -3463,7 +3408,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ce8cce604865576b7751b7a6bc3058f754569a60d689328bb74c52b1d87e355b"
 dependencies = [
  "async-trait",
- "axum-core 0.5.2",
+ "axum-core",
  "base64 0.22.1",
  "futures",
  "http",
@@ -3479,14 +3424,14 @@ dependencies = [
 
 [[package]]
 name = "tower-sessions-memory-store"
-version = "0.11.1"
+version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "88ac75309918b8f6ba16d09865a2a64f81e01b05cf42d5e88e5d3c6cbf775486"
+checksum = "fb05909f2e1420135a831dd5df9f5596d69196d0a64c3499ca474c4bd3d33242"
 dependencies = [
  "async-trait",
  "time",
  "tokio",
- "tower-sessions-core 0.11.1",
+ "tower-sessions-core 0.14.0",
 ]
 
 [[package]]

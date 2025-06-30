@@ -1,8 +1,11 @@
 use color_eyre::eyre::Result;
 use mongodb::{Client, Database, bson::oid::ObjectId};
 use serde::{Deserialize, Serialize};
-use tower_sessions::{Expiry, SessionManagerLayer, cookie::time::Duration};
-use tower_sessions_mongodb_store::{MongoDBStore, mongodb::Client as SessionClient};
+use tower_sessions::{
+    Expiry, MemoryStore, SessionManagerLayer,
+    cookie::{SameSite, time::Duration},
+};
+// use tower_sessions_mongodb_store::{MongoDBStore, mongodb::Client as SessionClient};
 use utoipa::ToSchema;
 
 use crate::settings::Settings;
@@ -14,13 +17,16 @@ pub async fn init_database(settings: &Settings) -> Result<Database> {
     Ok(database)
 }
 
-pub async fn init_session_store(settings: &Settings) -> Result<SessionManagerLayer<MongoDBStore>> {
-    let client = SessionClient::with_uri_str(&settings.db.connection_string).await?;
-    let session_store = MongoDBStore::new(client, settings.db.database_name.clone());
+pub async fn init_session_store(_settings: &Settings) -> Result<SessionManagerLayer<MemoryStore>> {
+    // let client = SessionClient::with_uri_str(&settings.db.connection_string).await?;
+    // let session_store = MongoDBStore::new(client, settings.db.database_name.clone());
+
+    let session_store = MemoryStore::default();
 
     let session_layer = SessionManagerLayer::new(session_store)
         .with_secure(false)
-        .with_expiry(Expiry::OnInactivity(Duration::seconds(10)));
+        .with_same_site(SameSite::Lax)
+        .with_expiry(Expiry::OnInactivity(Duration::seconds(120)));
 
     Ok(session_layer)
 }

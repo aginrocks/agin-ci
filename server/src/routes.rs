@@ -11,6 +11,7 @@ pub fn routes() -> Vec<Route> {
 #[derive(Clone)]
 pub enum RouteProtectionLevel {
     Public,
+    Redirect,
     Authenticated,
     OrgAdmin,
     OrgMember,

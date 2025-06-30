@@ -70,8 +70,6 @@ pub struct Settings {
     pub oidc: Oidc,
 }
 
-pub type ArcSettings = Arc<Settings>;
-
 impl Settings {
     pub fn new() -> Result<Self, ConfigError> {
         let custom_config_file = env_var("CONFIG_FILE").ok();

@@ -12,7 +12,7 @@ use color_eyre::eyre::WrapErr;
 use tokio::net::TcpListener;
 use tower_sessions::SessionManagerLayer;
 use tower_sessions_mongodb_store::MongoDBStore;
-use tracing::{info, instrument, level_filters::LevelFilter, warn};
+use tracing::{info, instrument, level_filters::LevelFilter};
 use tracing_error::ErrorLayer;
 use tracing_subscriber::{
     fmt::format::FmtSpan, layer::SubscriberExt as _, util::SubscriberInitExt as _,

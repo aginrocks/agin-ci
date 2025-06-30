@@ -1,7 +1,12 @@
 use color_eyre::eyre::Result;
-use mongodb::{Client, Database};
+use mongodb::{
+    Client, Database,
+    bson::{de, oid::ObjectId},
+};
+use serde::{Deserialize, Serialize};
 use tower_sessions::{Expiry, SessionManagerLayer, cookie::time::Duration};
 use tower_sessions_mongodb_store::{MongoDBStore, mongodb::Client as SessionClient};
+use utoipa::ToSchema;
 
 use crate::settings::Settings;
 
@@ -21,4 +26,67 @@ pub async fn init_session_store(settings: &Settings) -> Result<SessionManagerLay
         .with_expiry(Expiry::OnInactivity(Duration::seconds(10)));
 
     Ok(session_layer)
+}
+
+#[derive(Serialize, Deserialize, ToSchema)]
+pub struct User {
+    #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
+    #[schema(value_type = Option<String>)]
+    pub id: Option<ObjectId>,
+    pub subject: String,
+    pub name: String,
+    pub email: String,
+}
+
+#[derive(Serialize, Deserialize, ToSchema)]
+#[serde(rename_all = "lowercase")]
+pub enum OrganizationRole {
+    Admin,
+    Member,
+    Viewer,
+}
+
+#[derive(Serialize, Deserialize, ToSchema)]
+pub struct Membership {
+    #[schema(value_type = Option<String>)]
+    pub user_id: ObjectId,
+    pub role: OrganizationRole,
+}
+
+#[derive(Serialize, Deserialize, ToSchema)]
+pub struct Organization {
+    #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
+    #[schema(value_type = Option<String>)]
+    pub id: Option<ObjectId>,
+    pub name: String,
+    pub description: String,
+    pub slug: String,
+    pub members: Vec<Membership>,
+}
+
+#[derive(Serialize, Deserialize, ToSchema)]
+#[serde(rename_all = "lowercase")]
+pub enum ProjectRepositorySource {
+    GitHub,
+    Forgejo,
+}
+
+#[derive(Serialize, Deserialize, ToSchema)]
+pub struct ProjectRepository {
+    pub url: String,
+    pub source: ProjectRepositorySource,
+    pub webhook_secret: String,
+    pub deploy_key: String,
+}
+
+#[derive(Serialize, Deserialize, ToSchema)]
+pub struct Project {
+    #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
+    #[schema(value_type = Option<String>)]
+    pub id: Option<ObjectId>,
+    #[schema(value_type = Option<String>)]
+    pub organization_id: ObjectId,
+    pub name: String,
+    pub slug: String,
+    pub repository: ProjectRepository,
 }

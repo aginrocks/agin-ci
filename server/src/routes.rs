@@ -12,6 +12,9 @@ pub fn routes() -> Vec<Route> {
 pub enum RouteProtectionLevel {
     Public,
     Authenticated,
+    OrgAdmin,
+    OrgMember,
+    OrgViewer,
 }
 
 type Route = (UtoipaMethodRouter<AppState>, RouteProtectionLevel);

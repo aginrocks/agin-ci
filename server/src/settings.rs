@@ -1,7 +1,4 @@
-use std::{
-    net::{Ipv4Addr, Ipv6Addr, SocketAddr},
-    sync::Arc,
-};
+use std::net::{Ipv4Addr, Ipv6Addr, SocketAddr};
 
 use color_eyre::{Section as _, eyre::Context as _};
 use config::{Config, ConfigError, Environment, File};

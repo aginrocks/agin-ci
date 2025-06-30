@@ -1,8 +1,5 @@
 use color_eyre::eyre::Result;
-use mongodb::{
-    Client, Database,
-    bson::{de, oid::ObjectId},
-};
+use mongodb::{Client, Database, bson::oid::ObjectId};
 use serde::{Deserialize, Serialize};
 use tower_sessions::{Expiry, SessionManagerLayer, cookie::time::Duration};
 use tower_sessions_mongodb_store::{MongoDBStore, mongodb::Client as SessionClient};
@@ -89,4 +86,12 @@ pub struct Project {
     pub name: String,
     pub slug: String,
     pub repository: ProjectRepository,
+}
+
+#[derive(Serialize, Deserialize, ToSchema)]
+pub struct Worker {
+    #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
+    #[schema(value_type = Option<String>)]
+    pub id: Option<ObjectId>,
+    pub token: String,
 }

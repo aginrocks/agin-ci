@@ -44,7 +44,7 @@ pub async fn init_session_store(
     Ok(session_layer)
 }
 
-#[derive(Serialize, Deserialize, ToSchema)]
+#[derive(Serialize, Deserialize, Clone, Debug, ToSchema)]
 pub struct User {
     #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
     #[schema(value_type = Option<String>)]

@@ -1,5 +1,6 @@
 mod axum_error;
 mod database;
+mod middlewares;
 mod routes;
 mod settings;
 mod state;

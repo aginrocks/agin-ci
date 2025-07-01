@@ -19,6 +19,7 @@ use serde::{Deserialize, Serialize};
 use tokio::net::TcpListener;
 use tower::ServiceBuilder;
 use tower_sessions::{MemoryStore, SessionManagerLayer};
+use tower_sessions_redis_store::{RedisStore, fred::prelude::Pool};
 use tracing::{Instrument, error, info, info_span, instrument, level_filters::LevelFilter};
 use tracing_error::ErrorLayer;
 use tracing_subscriber::{
@@ -42,9 +43,7 @@ use crate::{
 struct ApiDoc;
 
 #[derive(Deserialize, Serialize, Debug, Clone, Default)]
-pub struct GroupClaims {
-    groups: Vec<String>,
-}
+pub struct GroupClaims {}
 impl axum_oidc::AdditionalClaims for GroupClaims {}
 impl openidconnect::AdditionalClaims for GroupClaims {}
 
@@ -107,7 +106,7 @@ fn init_tracing() -> Result<()> {
 #[instrument(skip(state, session_layer))]
 async fn init_axum(
     state: AppState,
-    session_layer: SessionManagerLayer<MemoryStore>,
+    session_layer: SessionManagerLayer<RedisStore<Pool>>,
 ) -> Result<Router> {
     let oidc_login_service = ServiceBuilder::new()
         .layer(HandleErrorLayer::new(|e: MiddlewareError| async {
@@ -176,21 +175,22 @@ async fn init_axum(
 
     let router = router.layer(axum::extract::Extension(state.clone()));
 
-    let oidc_handler_router: OpenApiRouter<AppState> = OpenApiRouter::with_openapi(ApiDoc::openapi())
-        // .layer(session_layer.clone()) // Apply session layer first
-        .layer(oidc_login_service)
-        .route(
-            "/oidc",
-            any(|session, oidc_client, query| async move {
-                match handle_oidc_redirect::<GroupClaims>(session, oidc_client, query).await {
-                    Ok(response) => response.into_response(),
-                    Err(e) => {
-                        error!(error = ?e, "OIDC redirect handler error: {}", e);
-                        (StatusCode::BAD_REQUEST, format!("OIDC error: {}", e)).into_response()
+    let oidc_handler_router: OpenApiRouter<AppState> =
+        OpenApiRouter::with_openapi(ApiDoc::openapi())
+            // .layer(session_layer.clone()) // Apply session layer first
+            .layer(oidc_login_service)
+            .route(
+                "/oidc",
+                any(|session, oidc_client, query| async move {
+                    match handle_oidc_redirect::<GroupClaims>(session, oidc_client, query).await {
+                        Ok(response) => response.into_response(),
+                        Err(e) => {
+                            error!(error = ?e, "OIDC redirect handler error: {}", e);
+                            (StatusCode::BAD_REQUEST, format!("OIDC error: {}", e)).into_response()
+                        }
                     }
-                }
-            }),
-        );
+                }),
+            );
 
     let router = router.merge(oidc_handler_router);
 

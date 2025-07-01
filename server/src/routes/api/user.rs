@@ -24,7 +24,7 @@ pub fn routes() -> Vec<Route> {
 )]
 async fn get_user(claims: Option<OidcClaims<GroupClaims>>) -> impl IntoResponse {
     let iss = match claims {
-        Some(claims) => claims.issuer().to_string(),
+        Some(claims) => claims.subject().to_string(),
         None => "".to_string(),
     };
 

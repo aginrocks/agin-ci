@@ -54,6 +54,11 @@ pub struct Db {
 }
 
 #[derive(Debug, Deserialize, Serialize)]
+pub struct Redis {
+    pub connection_string: String,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
 pub struct Oidc {
     pub issuer: IssuerUrl,
     pub client_id: ClientId,
@@ -65,6 +70,7 @@ pub struct Settings {
     pub general: General,
     pub db: Db,
     pub oidc: Oidc,
+    pub redis: Redis,
 }
 
 impl Settings {
@@ -139,6 +145,9 @@ impl Settings {
                 issuer: IssuerUrl::new("https://example.com".to_string()).unwrap(),
                 client_id: ClientId::new("client_id".to_string()),
                 client_secret: Some(ClientSecret::new("client_secret".to_string())),
+            },
+            redis: Redis {
+                connection_string: "redis://localhost:6379".to_string(),
             },
         }
     }

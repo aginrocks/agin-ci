@@ -18,7 +18,7 @@ use color_eyre::eyre::WrapErr;
 use serde::{Deserialize, Serialize};
 use tokio::net::TcpListener;
 use tower::ServiceBuilder;
-use tower_sessions::{MemoryStore, SessionManagerLayer};
+use tower_sessions::SessionManagerLayer;
 use tower_sessions_redis_store::{RedisStore, fred::prelude::Pool};
 use tracing::{Instrument, error, info, info_span, instrument, level_filters::LevelFilter};
 use tracing_error::ErrorLayer;

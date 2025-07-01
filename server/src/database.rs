@@ -2,14 +2,13 @@ use color_eyre::eyre::Result;
 use mongodb::{Client, Database, bson::oid::ObjectId};
 use serde::{Deserialize, Serialize};
 use tower_sessions::{
-    Expiry, MemoryStore, SessionManagerLayer,
+    Expiry, SessionManagerLayer,
     cookie::{SameSite, time::Duration},
 };
 use tower_sessions_redis_store::{
     RedisStore,
     fred::prelude::{ClientLike, Config, Pool},
 };
-// use tower_sessions_mongodb_store::{MongoDBStore, mongodb::Client as SessionClient};
 use utoipa::ToSchema;
 
 use crate::settings::Settings;
@@ -21,7 +20,9 @@ pub async fn init_database(settings: &Settings) -> Result<Database> {
     Ok(database)
 }
 
-pub async fn init_session_store(settings: &Settings) -> Result<SessionManagerLayer<RedisStore<Pool>>> {
+pub async fn init_session_store(
+    settings: &Settings,
+) -> Result<SessionManagerLayer<RedisStore<Pool>>> {
     let config = Config::from_url(&settings.redis.connection_string)?;
     let pool = Pool::new(config, None, None, None, 6)?;
 

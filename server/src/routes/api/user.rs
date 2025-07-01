@@ -1,7 +1,6 @@
 use axum::{Json, response::IntoResponse};
 use axum_oidc::OidcClaims;
 use serde_json::json;
-use tower_sessions::Session;
 use utoipa_axum::routes;
 
 use crate::{GroupClaims, routes::RouteProtectionLevel};

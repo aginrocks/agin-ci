@@ -1,9 +1,4 @@
-use axum::{
-    Extension,
-    extract::{Path, Request},
-    middleware::Next,
-    response::Response,
-};
+use axum::{Extension, extract::Request, middleware::Next, response::Response};
 use color_eyre::eyre::{self, ContextCompat};
 use mongodb::bson::{doc, oid::ObjectId};
 use serde::{Deserialize, Serialize};
@@ -23,16 +18,34 @@ pub struct OrgData(pub Organization);
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct OrgId(pub ObjectId);
 
+// TODO: Find a better way to handle this
+
+/// Extract org_slug from any path that follows /api/organizations/{org_slug}/*
+fn extract_org_slug_from_path(path: &str) -> Option<String> {
+    // Expected pattern: /api/organizations/{org_slug} or /api/organizations/{org_slug}/...
+    let parts: Vec<&str> = path.split('/').collect();
+
+    // We need at least: ["", "api", "organizations", "{org_slug}"]
+    if parts.len() >= 4 && parts[1] == "api" && parts[2] == "organizations" {
+        Some(parts[3].to_string())
+    } else {
+        None
+    }
+}
+
 /// Middleware that ensures the user has sufficient permissions for the organization
 pub async fn require_org_permissions(
     Extension(state): Extension<AppState>,
     Extension(user): Extension<UserData>,
-    Path(org_slug): Path<String>,
     mut request: Request,
     next: Next,
     required_role: OrganizationRole,
 ) -> AxumResult<Response> {
     let user_id = user.0.id.wrap_err("User not found")?;
+
+    // Extract org_slug from the request path
+    let org_slug = extract_org_slug_from_path(request.uri().path())
+        .ok_or_else(|| AxumError::bad_request(eyre::eyre!("Invalid organization path")))?;
 
     let org = state
         .database
@@ -75,14 +88,12 @@ pub async fn require_org_permissions(
 pub async fn require_org_permissions_viewer(
     Extension(state): Extension<AppState>,
     Extension(user): Extension<UserData>,
-    Path(org_slug): Path<String>,
     request: Request,
     next: Next,
 ) -> AxumResult<Response> {
     require_org_permissions(
         Extension(state),
         Extension(user),
-        Path(org_slug),
         request,
         next,
         OrganizationRole::Viewer,
@@ -93,14 +104,12 @@ pub async fn require_org_permissions_viewer(
 pub async fn require_org_permissions_member(
     Extension(state): Extension<AppState>,
     Extension(user): Extension<UserData>,
-    Path(org_slug): Path<String>,
     request: Request,
     next: Next,
 ) -> AxumResult<Response> {
     require_org_permissions(
         Extension(state),
         Extension(user),
-        Path(org_slug),
         request,
         next,
         OrganizationRole::Member,
@@ -111,14 +120,12 @@ pub async fn require_org_permissions_member(
 pub async fn require_org_permissions_admin(
     Extension(state): Extension<AppState>,
     Extension(user): Extension<UserData>,
-    Path(org_slug): Path<String>,
     request: Request,
     next: Next,
 ) -> AxumResult<Response> {
     require_org_permissions(
         Extension(state),
         Extension(user),
-        Path(org_slug),
         request,
         next,
         OrganizationRole::Admin,
@@ -129,14 +136,12 @@ pub async fn require_org_permissions_admin(
 pub async fn require_org_permissions_owner(
     Extension(state): Extension<AppState>,
     Extension(user): Extension<UserData>,
-    Path(org_slug): Path<String>,
     request: Request,
     next: Next,
 ) -> AxumResult<Response> {
     require_org_permissions(
         Extension(state),
         Extension(user),
-        Path(org_slug),
         request,
         next,
         OrganizationRole::Owner,

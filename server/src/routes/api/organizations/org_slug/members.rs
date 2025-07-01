@@ -1,3 +1,5 @@
+mod member_id;
+
 use axum::{Extension, Json};
 use futures::TryStreamExt;
 use mongodb::bson::{doc, oid::ObjectId};
@@ -22,10 +24,14 @@ use super::Route;
 const PATH: &str = "/api/organizations/{org_slug}/members";
 
 pub fn routes() -> Vec<Route> {
-    vec![(
-        routes!(get_organization_members),
-        RouteProtectionLevel::OrgViewer,
-    )]
+    [
+        vec![(
+            routes!(get_organization_members),
+            RouteProtectionLevel::OrgViewer,
+        )],
+        member_id::routes(),
+    ]
+    .concat()
 }
 
 #[derive(Serialize, Deserialize, ToSchema)]

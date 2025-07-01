@@ -1,10 +1,7 @@
 use axum::{Extension, extract::Request, middleware::Next, response::Response};
 use axum_oidc::OidcClaims;
 use color_eyre::eyre::{self, ContextCompat};
-use mongodb::{
-    bson::doc,
-    options::{FindOneAndUpdateOptions, ReturnDocument},
-};
+use mongodb::{bson::doc, options::ReturnDocument};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
@@ -15,7 +12,7 @@ use crate::{
     state::AppState,
 };
 
-/// User ID type for request extensions
+/// User data type for request extensions
 #[derive(Clone, Debug, Serialize, ToSchema, Deserialize)]
 pub struct UserData(pub User);
 

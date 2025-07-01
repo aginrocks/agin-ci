@@ -1,5 +1,4 @@
 mod api;
-use axum::routing::MethodRouter;
 use utoipa_axum::router::UtoipaMethodRouter;
 
 use crate::state::AppState;

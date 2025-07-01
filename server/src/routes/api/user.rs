@@ -1,7 +1,11 @@
 use axum::{Extension, Json};
 use utoipa_axum::routes;
 
-use crate::{database::User, middlewares::require_auth::UserData, routes::RouteProtectionLevel};
+use crate::{
+    database::User,
+    middlewares::require_auth::{UnauthorizedError, UserData},
+    routes::RouteProtectionLevel,
+};
 
 use super::Route;
 
@@ -16,7 +20,8 @@ pub fn routes() -> Vec<Route> {
     method(get),
     path = PATH,
     responses(
-        (status = OK, description = "Success", body = User)
+        (status = OK, description = "Success", body = User),
+        (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError, content_type = "application/json")
     )
 )]
 async fn get_user(Extension(user): Extension<UserData>) -> Json<User> {

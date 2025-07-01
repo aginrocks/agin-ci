@@ -2757,6 +2757,7 @@ dependencies = [
  "color-eyre",
  "config",
  "dotenvy",
+ "futures",
  "http",
  "http-serde-ext",
  "mongodb",

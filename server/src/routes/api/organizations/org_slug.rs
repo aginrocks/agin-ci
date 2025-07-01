@@ -11,7 +11,7 @@ use crate::{
 
 use super::Route;
 
-const PATH: &str = "/api/organizations/{org_id}";
+const PATH: &str = "/api/organizations/{org_slug}";
 
 pub fn routes() -> Vec<Route> {
     vec![(routes!(get_organization), RouteProtectionLevel::OrgViewer)]

@@ -1,4 +1,4 @@
-mod org_id;
+mod org_slug;
 
 use axum::{Extension, Json};
 use color_eyre::eyre::{self, Context, ContextCompat};
@@ -24,7 +24,7 @@ pub fn routes() -> Vec<Route> {
             routes!(get_organizations, create_organization),
             RouteProtectionLevel::Authenticated,
         )],
-        org_id::routes(),
+        org_slug::routes(),
     ]
     .concat()
 }

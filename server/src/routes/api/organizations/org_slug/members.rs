@@ -1,5 +1,4 @@
 use axum::{Extension, Json};
-use color_eyre::eyre;
 use futures::TryStreamExt;
 use mongodb::bson::{doc, oid::ObjectId};
 use serde::{Deserialize, Serialize};
@@ -7,17 +6,14 @@ use utoipa::ToSchema;
 use utoipa_axum::routes;
 
 use crate::{
-    axum_error::{AxumError, AxumResult},
-    database::{MutableOrganization, Organization, OrganizationRole, User},
+    axum_error::AxumResult,
+    database::{Organization, OrganizationRole},
     middlewares::{
         require_auth::UnauthorizedError,
-        require_org_permissions::{ForbiddenError, OrgData, OrgId},
+        require_org_permissions::{ForbiddenError, OrgId},
     },
     mongo_id::object_id_as_string_required,
-    routes::{
-        RouteProtectionLevel,
-        api::{CreateSuccess, organizations::org_slug},
-    },
+    routes::RouteProtectionLevel,
     state::AppState,
 };
 
@@ -53,7 +49,6 @@ struct Member {
     )
 )]
 async fn get_organization_members(
-    Extension(org): Extension<OrgData>,
     Extension(state): Extension<AppState>,
     Extension(org_id): Extension<OrgId>,
 ) -> AxumResult<Json<Vec<Member>>> {

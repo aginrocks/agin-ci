@@ -19,7 +19,7 @@ pub fn routes() -> Vec<Route> {
 }
 
 #[derive(Serialize, ToSchema)]
-#[schema(example = json!({"success": true}))]
+#[schema(example = json!({"success": true,"id": "60c72b2f9b1d8c001c8e4f5a"}))]
 pub struct CreateSuccess {
     success: bool,
     id: String,

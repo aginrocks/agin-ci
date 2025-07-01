@@ -59,15 +59,17 @@ pub struct User {
     pub email: String,
 }
 
-#[derive(Serialize, Deserialize, ToSchema)]
+// NOTE: The order is VERY IMPORTANT, from least to most privileged.
+#[derive(Serialize, Deserialize, ToSchema, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 #[serde(rename_all = "lowercase")]
 pub enum OrganizationRole {
-    Admin,
-    Member,
     Viewer,
+    Member,
+    Admin,
+    Owner,
 }
 
-#[derive(Serialize, Deserialize, ToSchema)]
+#[derive(Serialize, Deserialize, Clone, Debug, ToSchema)]
 pub struct Membership {
     #[schema(value_type = Option<String>)]
     #[serde(with = "object_id_as_string_required")]
@@ -75,7 +77,7 @@ pub struct Membership {
     pub role: OrganizationRole,
 }
 
-#[derive(Serialize, Deserialize, ToSchema)]
+#[derive(Serialize, Deserialize, Clone, Debug, ToSchema)]
 pub struct Organization {
     #[serde(
         rename = "_id",

@@ -1,3 +1,5 @@
+mod org_id;
+
 use axum::{Extension, Json};
 use color_eyre::eyre::{self, Context, ContextCompat};
 use mongodb::bson::doc;
@@ -17,10 +19,14 @@ use super::Route;
 const PATH: &str = "/api/organizations";
 
 pub fn routes() -> Vec<Route> {
-    vec![(
-        routes!(get_organizations, create_organization),
-        RouteProtectionLevel::Authenticated,
-    )]
+    [
+        vec![(
+            routes!(get_organizations, create_organization),
+            RouteProtectionLevel::Authenticated,
+        )],
+        org_id::routes(),
+    ]
+    .concat()
 }
 
 /// Get all organizations
@@ -85,7 +91,7 @@ async fn create_organization(
         slug: body.slug.clone(),
         members: vec![crate::database::Membership {
             user_id,
-            role: crate::database::OrganizationRole::Admin,
+            role: crate::database::OrganizationRole::Owner,
         }],
     };
 

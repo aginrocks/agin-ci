@@ -1,3 +1,5 @@
+mod members;
+
 use axum::{Extension, Json};
 use color_eyre::eyre;
 use mongodb::bson::doc;
@@ -19,10 +21,14 @@ use super::Route;
 const PATH: &str = "/api/organizations/{org_slug}";
 
 pub fn routes() -> Vec<Route> {
-    vec![
-        (routes!(get_organization), RouteProtectionLevel::OrgViewer),
-        (routes!(edit_organization), RouteProtectionLevel::OrgAdmin),
+    [
+        vec![
+            (routes!(get_organization), RouteProtectionLevel::OrgViewer),
+            (routes!(edit_organization), RouteProtectionLevel::OrgAdmin),
+        ],
+        members::routes(),
     ]
+    .concat()
 }
 
 /// Get organization

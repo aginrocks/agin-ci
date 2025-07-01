@@ -1,16 +1,16 @@
-use axum::{Json, response::IntoResponse};
+use axum::{Extension, Json, response::IntoResponse};
 use axum_oidc::OidcClaims;
 use serde_json::json;
 use utoipa_axum::routes;
 
-use crate::{GroupClaims, routes::RouteProtectionLevel};
+use crate::{GroupClaims, middlewares::require_auth::UserData, routes::RouteProtectionLevel};
 
 use super::Route;
 
 const PATH: &str = "/api/user";
 
 pub fn routes() -> Vec<Route> {
-    vec![(routes!(get_user), RouteProtectionLevel::Public)]
+    vec![(routes!(get_user), RouteProtectionLevel::Authenticated)]
 }
 
 /// Get user details
@@ -21,14 +21,9 @@ pub fn routes() -> Vec<Route> {
         (status = OK, description = "Success", body = str)
     )
 )]
-async fn get_user(claims: Option<OidcClaims<GroupClaims>>) -> impl IntoResponse {
-    let iss = match claims {
-        Some(claims) => claims.subject().to_string(),
-        None => "".to_string(),
-    };
-
+async fn get_user(Extension(user): Extension<UserData>) -> impl IntoResponse {
     Json(json!({
-        "id": iss
+        "id": user.0
         // "id": claims.subject().to_string(),
     }))
 }

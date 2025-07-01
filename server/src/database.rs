@@ -11,6 +11,7 @@ use tower_sessions_redis_store::{
 };
 use utoipa::ToSchema;
 
+use crate::mongo_id::object_id_as_string;
 use crate::settings::Settings;
 
 pub async fn init_database(settings: &Settings) -> Result<Database> {
@@ -46,7 +47,11 @@ pub async fn init_session_store(
 
 #[derive(Serialize, Deserialize, Clone, Debug, ToSchema)]
 pub struct User {
-    #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        rename = "_id",
+        skip_serializing_if = "Option::is_none",
+        with = "object_id_as_string"
+    )]
     #[schema(value_type = Option<String>)]
     pub id: Option<ObjectId>,
     pub subject: String,
@@ -71,7 +76,11 @@ pub struct Membership {
 
 #[derive(Serialize, Deserialize, ToSchema)]
 pub struct Organization {
-    #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        rename = "_id",
+        skip_serializing_if = "Option::is_none",
+        with = "object_id_as_string"
+    )]
     #[schema(value_type = Option<String>)]
     pub id: Option<ObjectId>,
     pub name: String,
@@ -97,7 +106,11 @@ pub struct ProjectRepository {
 
 #[derive(Serialize, Deserialize, ToSchema)]
 pub struct Project {
-    #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        rename = "_id",
+        skip_serializing_if = "Option::is_none",
+        with = "object_id_as_string"
+    )]
     #[schema(value_type = Option<String>)]
     pub id: Option<ObjectId>,
     #[schema(value_type = Option<String>)]
@@ -109,7 +122,11 @@ pub struct Project {
 
 #[derive(Serialize, Deserialize, ToSchema)]
 pub struct Worker {
-    #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        rename = "_id",
+        skip_serializing_if = "Option::is_none",
+        with = "object_id_as_string"
+    )]
     #[schema(value_type = Option<String>)]
     pub id: Option<ObjectId>,
     pub token: String,

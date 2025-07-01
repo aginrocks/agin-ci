@@ -5,7 +5,7 @@ use mongodb::{
     bson::doc,
     options::{FindOneAndUpdateOptions, ReturnDocument},
 };
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
 use crate::{
@@ -16,7 +16,7 @@ use crate::{
 };
 
 /// User ID type for request extensions
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, ToSchema, Deserialize)]
 pub struct UserData(pub User);
 
 /// Middleware that ensures the user is authenticated

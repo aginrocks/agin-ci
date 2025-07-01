@@ -1,6 +1,7 @@
 mod axum_error;
 mod database;
 mod middlewares;
+mod mongo_id;
 mod routes;
 mod settings;
 mod state;
@@ -8,7 +9,7 @@ mod state;
 use std::{net::SocketAddr, ops::Deref, sync::Arc};
 
 use axum::{
-    Router, error_handling::HandleErrorLayer, http::StatusCode, response::IntoResponse,
+    Router, error_handling::HandleErrorLayer, http::StatusCode, middleware, response::IntoResponse,
     routing::any,
 };
 use axum_oidc::{
@@ -34,6 +35,7 @@ use utoipa_scalar::{Scalar, Servable as _};
 
 use crate::{
     database::{init_database, init_session_store},
+    middlewares::require_auth::require_auth,
     routes::RouteProtectionLevel,
     settings::Settings,
     state::{AppState, InnerState},
@@ -154,7 +156,8 @@ async fn init_axum(
 
     // Create separate routers for public and protected routes
     let public_router = OpenApiRouter::with_openapi(ApiDoc::openapi());
-    let protected_router = OpenApiRouter::with_openapi(ApiDoc::openapi());
+    let redirect_router = OpenApiRouter::with_openapi(ApiDoc::openapi());
+    let auth_router = OpenApiRouter::with_openapi(ApiDoc::openapi());
 
     // Add public routes (these don't need authentication)
     let public_router = routes
@@ -164,15 +167,25 @@ async fn init_axum(
         .fold(public_router, |router, (route, _)| router.routes(route));
 
     // Add protected routes with OIDC login layer
-    let protected_router = routes
+    let redirect_router = routes
         .clone()
         .into_iter()
         .filter(|(_, protected)| matches!(*protected, RouteProtectionLevel::Redirect))
-        .fold(protected_router, |router, (route, _)| router.routes(route))
+        .fold(redirect_router, |router, (route, _)| router.routes(route))
         .layer(oidc_login_service.clone());
 
+    // Add protected routes which don't redirect but require authentication
+    let auth_router = routes
+        .clone()
+        .into_iter()
+        .filter(|(_, protected)| matches!(*protected, RouteProtectionLevel::Authenticated))
+        .fold(auth_router, |router, (route, _)| router.routes(route))
+        .layer(middleware::from_fn(require_auth));
+
     // Combine the routers
-    let router = public_router.merge(protected_router);
+    let router = public_router.merge(redirect_router);
+
+    let router = router.merge(auth_router);
 
     let router = router.layer(axum::extract::Extension(state.clone()));
 

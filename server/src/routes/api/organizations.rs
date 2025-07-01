@@ -4,7 +4,7 @@ use utoipa_axum::routes;
 
 use crate::{
     axum_error::AxumResult,
-    database::{Organization, User},
+    database::Organization,
     middlewares::require_auth::{UnauthorizedError, UserData},
     routes::RouteProtectionLevel,
     state::AppState,

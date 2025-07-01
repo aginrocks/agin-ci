@@ -11,7 +11,7 @@ use tower_sessions_redis_store::{
 };
 use utoipa::ToSchema;
 
-use crate::mongo_id::object_id_as_string;
+use crate::mongo_id::{object_id_as_string, object_id_as_string_required};
 use crate::settings::Settings;
 
 pub async fn init_database(settings: &Settings) -> Result<Database> {
@@ -70,6 +70,7 @@ pub enum OrganizationRole {
 #[derive(Serialize, Deserialize, ToSchema)]
 pub struct Membership {
     #[schema(value_type = Option<String>)]
+    #[serde(with = "object_id_as_string_required")]
     pub user_id: ObjectId,
     pub role: OrganizationRole,
 }
@@ -87,6 +88,14 @@ pub struct Organization {
     pub description: String,
     pub slug: String,
     pub members: Vec<Membership>,
+}
+
+// MutableOrganization is used for creating or updating an organization throught the API.
+#[derive(Serialize, Deserialize, ToSchema)]
+pub struct MutableOrganization {
+    pub name: String,
+    pub description: String,
+    pub slug: String,
 }
 
 #[derive(Serialize, Deserialize, ToSchema)]

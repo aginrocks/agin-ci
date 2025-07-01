@@ -55,7 +55,8 @@ async fn get_organizations(
     path = PATH,
     request_body = MutableOrganization,
     responses(
-        (status = OK, description = "Success", body = CreateSuccess)
+        (status = OK, description = "Success", body = CreateSuccess),
+        (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError, content_type = "application/json")
     )
 )]
 async fn create_organization(

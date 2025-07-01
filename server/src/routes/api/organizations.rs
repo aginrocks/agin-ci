@@ -8,7 +8,7 @@ use utoipa_axum::routes;
 use crate::{
     axum_error::{AxumError, AxumResult},
     database::{MutableOrganization, Organization},
-    middlewares::require_auth::{UnauthorizedError, UserData},
+    middlewares::require_auth::{UnauthorizedError, UserData, UserId},
     routes::{RouteProtectionLevel, api::CreateSuccess},
     state::AppState,
 };
@@ -66,7 +66,7 @@ async fn get_organizations(
     )
 )]
 async fn create_organization(
-    Extension(user): Extension<UserData>,
+    Extension(user_id): Extension<UserId>,
     Extension(state): Extension<AppState>,
     body: Json<MutableOrganization>,
 ) -> AxumResult<Json<CreateSuccess>> {
@@ -82,15 +82,13 @@ async fn create_organization(
         )));
     }
 
-    let user_id = user.0.id.wrap_err("Missing user ID")?;
-
     let organization = Organization {
         id: None,
         name: body.name.clone(),
         description: body.description.clone(),
         slug: body.slug.clone(),
         members: vec![crate::database::Membership {
-            user_id,
+            user_id: user_id.0,
             role: crate::database::OrganizationRole::Owner,
         }],
     };

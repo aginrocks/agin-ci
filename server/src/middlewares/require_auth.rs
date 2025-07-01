@@ -1,7 +1,7 @@
 use axum::{Extension, extract::Request, middleware::Next, response::Response};
 use axum_oidc::OidcClaims;
 use color_eyre::eyre::{self, ContextCompat};
-use mongodb::{bson::doc, options::ReturnDocument};
+use mongodb::{bson::{doc, oid::ObjectId}, options::ReturnDocument};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
@@ -15,6 +15,9 @@ use crate::{
 /// User data type for request extensions
 #[derive(Clone, Debug, Serialize, ToSchema, Deserialize)]
 pub struct UserData(pub User);
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct UserId(pub ObjectId);
 
 /// Middleware that ensures the user is authenticated
 pub async fn require_auth(
@@ -52,7 +55,10 @@ pub async fn require_auth(
         .await?
         .wrap_err("User not found (wtf?")?;
 
+    let user_id = user.id.wrap_err("User ID not found (wtf?)")?;
+    
     request.extensions_mut().insert(UserData(user));
+    request.extensions_mut().insert(UserId(user_id));
 
     Ok(next.run(request).await)
 }

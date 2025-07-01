@@ -20,6 +20,9 @@ use crate::{
 #[derive(Clone, Debug, Serialize, ToSchema, Deserialize)]
 pub struct OrgData(pub Organization);
 
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct OrgId(pub ObjectId);
+
 /// Middleware that ensures the user has sufficient permissions for the organization
 pub async fn require_org_permissions(
     Extension(state): Extension<AppState>,
@@ -61,8 +64,10 @@ pub async fn require_org_permissions(
             "You do not have sufficient permissions to perform this action"
         )));
     }
+    let org_id = org.id.wrap_err("Organization ID not found (wtf?)")?;
 
     request.extensions_mut().insert(OrgData(org));
+    request.extensions_mut().insert(OrgId(org_id));
 
     Ok(next.run(request).await)
 }

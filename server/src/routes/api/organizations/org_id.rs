@@ -1,10 +1,11 @@
-use axum::{Extension, Json};
+use axum::{Extension, Json, response::IntoResponse};
+use serde_json::json;
 use utoipa_axum::routes;
 
 use crate::{
     axum_error::AxumResult,
     database::Organization,
-    middlewares::require_auth::UnauthorizedError,
+    middlewares::{require_auth::UnauthorizedError, require_org_permissions::OrgData},
     routes::RouteProtectionLevel,
 };
 
@@ -25,8 +26,6 @@ pub fn routes() -> Vec<Route> {
         (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError, content_type = "application/json")
     )
 )]
-async fn get_organization(
-    Extension(org): Extension<Organization>,
-) -> AxumResult<Json<Organization>> {
-    Ok(Json(org))
+async fn get_organization(Extension(org): Extension<OrgData>) -> AxumResult<Json<Organization>> {
+    Ok(Json(org.0))
 }

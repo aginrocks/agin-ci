@@ -1,6 +1,7 @@
 mod member_id;
 
 use axum::{Extension, Json};
+use color_eyre::eyre;
 use futures::TryStreamExt;
 use mongodb::bson::{doc, oid::ObjectId};
 use serde::{Deserialize, Serialize};
@@ -8,14 +9,17 @@ use utoipa::ToSchema;
 use utoipa_axum::routes;
 
 use crate::{
-    axum_error::AxumResult,
-    database::{Organization, OrganizationRole},
+    axum_error::{AxumError, AxumResult},
+    database::{Membership, Organization, OrganizationRole},
     middlewares::{
-        require_auth::UnauthorizedError,
-        require_org_permissions::{ForbiddenError, OrgId},
+        require_auth::{UnauthorizedError, UserId},
+        require_org_permissions::{ForbiddenError, OrgData, OrgId},
     },
     mongo_id::object_id_as_string_required,
-    routes::RouteProtectionLevel,
+    routes::{
+        RouteProtectionLevel,
+        api::{CreateSuccess, organizations::org_slug::members::member_id::get_membership_details},
+    },
     state::AppState,
 };
 
@@ -25,10 +29,16 @@ const PATH: &str = "/api/organizations/{org_slug}/members";
 
 pub fn routes() -> Vec<Route> {
     [
-        vec![(
-            routes!(get_organization_members),
-            RouteProtectionLevel::OrgViewer,
-        )],
+        vec![
+            (
+                routes!(get_organization_members),
+                RouteProtectionLevel::OrgViewer,
+            ),
+            (
+                routes!(add_organization_member),
+                RouteProtectionLevel::OrgAdmin,
+            ),
+        ],
         member_id::routes(),
     ]
     .concat()
@@ -93,4 +103,66 @@ async fn get_organization_members(
         .collect::<Result<Vec<_>, _>>()?;
 
     Ok(Json(results))
+}
+
+/// Add organization member
+#[utoipa::path(
+    method(put),
+    path = PATH,
+    request_body = Membership,
+    responses(
+        (status = OK, description = "Success", body = CreateSuccess),
+        (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError, content_type = "application/json"),
+        (status = FORBIDDEN, description = "Forbidden", body = ForbiddenError, content_type = "application/json")
+    )
+)]
+async fn add_organization_member(
+    Extension(state): Extension<AppState>,
+    Extension(org_id): Extension<OrgId>,
+    Extension(org): Extension<OrgData>,
+    Extension(user_id): Extension<UserId>,
+    Json(body): Json<Membership>,
+) -> AxumResult<Json<CreateSuccess>> {
+    let membership = get_membership_details(&org.0, body.user_id);
+
+    if membership.is_ok() {
+        return Err(AxumError::bad_request(eyre::eyre!(
+            "User is already a member of the organization."
+        )));
+    }
+
+    let your_membership = get_membership_details(&org.0, user_id.0)?;
+
+    if body.role > your_membership.role {
+        return Err(AxumError::forbidden(eyre::eyre!(
+            "You cannot assign a role higher than your own."
+        )));
+    }
+
+    if body.role == OrganizationRole::Owner {
+        return Err(AxumError::forbidden(eyre::eyre!(
+            "Cannot add an owner to the organization."
+        )));
+    }
+
+    state
+        .database
+        .collection::<Organization>("organizations")
+        .update_one(
+            doc! { "_id": org_id.0 },
+            doc! {
+                "$push": {
+                    "members": {
+                        "user_id": body.user_id,
+                        "role": mongodb::bson::to_bson(&body.role)?,
+                    }
+                }
+            },
+        )
+        .await?;
+
+    Ok(Json(CreateSuccess {
+        success: true,
+        id: org_id.0.to_string(),
+    }))
 }

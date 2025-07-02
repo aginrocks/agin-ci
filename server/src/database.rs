@@ -71,7 +71,7 @@ pub enum OrganizationRole {
 
 #[derive(Serialize, Deserialize, Clone, Debug, ToSchema)]
 pub struct Membership {
-    #[schema(value_type = Option<String>)]
+    #[schema(value_type = String)]
     #[serde(with = "object_id_as_string_required")]
     pub user_id: ObjectId,
     pub role: OrganizationRole,

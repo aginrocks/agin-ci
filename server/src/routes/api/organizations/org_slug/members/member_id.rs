@@ -1,4 +1,4 @@
-use axum::{Extension, Json, body, extract::Path, response::IntoResponse};
+use axum::{Extension, Json, extract::Path, response::IntoResponse};
 use color_eyre::eyre;
 use http::StatusCode;
 use mongodb::bson::{doc, oid::ObjectId};
@@ -28,7 +28,7 @@ pub fn routes() -> Vec<Route> {
     )]
 }
 
-fn get_membership_details(org: &Organization, member_id: ObjectId) -> AxumResult<Membership> {
+pub fn get_membership_details(org: &Organization, member_id: ObjectId) -> AxumResult<Membership> {
     let member = org.members.iter().find(|m| m.user_id == member_id);
     if member.is_none() {
         return Err(AxumError::not_found(eyre::eyre!("Member not found")));

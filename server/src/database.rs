@@ -155,7 +155,7 @@ pub struct Organization {
     pub members: Vec<Membership>,
 }
 
-// MutableOrganization is used for creating or updating an organization throught the API.
+// MutableOrganization is used for creating or updating organization throught the API.
 #[derive(Serialize, Deserialize, ToSchema)]
 pub struct MutableOrganization {
     pub name: String,

@@ -40,7 +40,7 @@ pub fn routes() -> Vec<Route> {
     .concat()
 }
 
-/// Get organization secrets
+/// Get org secrets
 #[utoipa::path(
     method(get),
     path = PATH,
@@ -70,12 +70,12 @@ async fn get_organization_secrets(
 }
 
 #[derive(Serialize, Deserialize, ToSchema)]
-struct CreateOrgSecretBody {
-    name: String,
-    secret: String,
+pub struct CreateOrgSecretBody {
+    pub name: String,
+    pub secret: String,
 }
 
-/// Create an organization secret
+/// Create org secret
 #[utoipa::path(
     method(post),
     path = PATH,

@@ -1,3 +1,4 @@
+use crate::validators::slug_validator;
 use color_eyre::eyre::Result;
 use mongodb::{Client, Database, bson::oid::ObjectId};
 use serde::{Deserialize, Serialize};
@@ -10,6 +11,7 @@ use tower_sessions_redis_store::{
     fred::prelude::{ClientLike, Config, Pool},
 };
 use utoipa::ToSchema;
+use validator::Validate;
 
 use crate::mongo_id::{object_id_as_string, object_id_as_string_required};
 use crate::settings::Settings;
@@ -156,10 +158,11 @@ pub struct Organization {
 }
 
 // MutableOrganization is used for creating or updating organization throught the API.
-#[derive(Serialize, Deserialize, ToSchema)]
+#[derive(Serialize, Deserialize, ToSchema, Validate)]
 pub struct MutableOrganization {
     pub name: String,
     pub description: String,
+    #[validate(custom(function = "slug_validator"))]
     pub slug: String,
 }
 

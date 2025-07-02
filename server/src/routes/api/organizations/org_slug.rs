@@ -2,6 +2,7 @@ mod members;
 mod secrets;
 
 use axum::{Extension, Json};
+use axum_valid::Valid;
 use color_eyre::eyre;
 use mongodb::bson::doc;
 use utoipa_axum::routes;
@@ -64,7 +65,7 @@ async fn edit_organization(
     Extension(org_id): Extension<OrgId>,
     Extension(org): Extension<OrgData>,
     Extension(state): Extension<AppState>,
-    Json(body): Json<MutableOrganization>,
+    Valid(Json(body)): Valid<Json<MutableOrganization>>,
 ) -> AxumResult<Json<CreateSuccess>> {
     if org.0.slug != body.slug {
         let already_exists = state

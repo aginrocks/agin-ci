@@ -7,5 +7,5 @@
 		root * ./files
 		file_server
 	}
-	reverse_proxy /* localhost:3001
+	reverse_proxy /* localhost:3000
 }

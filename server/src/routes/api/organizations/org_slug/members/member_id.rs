@@ -117,7 +117,7 @@ async fn edit_organization_member(
 
     if body.role > your_membership.role {
         return Err(AxumError::forbidden(eyre::eyre!(
-            "You cannot assign a role higher than your own."
+            "You cannot assign a role highier than your own."
         )));
     }
 

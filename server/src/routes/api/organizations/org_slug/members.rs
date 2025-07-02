@@ -82,7 +82,7 @@ async fn get_organization_members(
         doc! { "$unwind": "$user" },
         doc! {
             "$project": {
-                "_id": 1,
+                "_id": "$members.user_id",
                 "role": "$members.role",
                 "email": "$user.email",
                 "name": "$user.name"
@@ -135,7 +135,7 @@ async fn add_organization_member(
 
     if body.role > your_membership.role {
         return Err(AxumError::forbidden(eyre::eyre!(
-            "You cannot assign a role higher than your own."
+            "You cannot assign a role highier than your own."
         )));
     }
 

@@ -34,6 +34,10 @@ pub fn routes() -> Vec<Route> {
 #[utoipa::path(
     method(get),
     path = PATH,
+    params(
+        ("org_slug" = String, Path, description = "Organization slug"),
+        ("project_slug" = String, Path, description = "Project slug"),
+    ),
     responses(
         (status = OK, description = "Success", body = PublicProject, content_type = "application/json"),
         (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError, content_type = "application/json"),
@@ -63,6 +67,10 @@ async fn get_project(
 #[utoipa::path(
     method(patch),
     path = PATH,
+    params(
+        ("org_slug" = String, Path, description = "Organization slug"),
+        ("project_slug" = String, Path, description = "Project slug"),
+    ),
     request_body = CreateProjectBody,
     responses(
         (status = OK, description = "Success", body = CreateSuccess, content_type = "application/json"),
@@ -136,6 +144,10 @@ async fn edit_project(
 #[utoipa::path(
     method(delete),
     path = PATH,
+    params(
+        ("org_slug" = String, Path, description = "Organization slug"),
+        ("project_slug" = String, Path, description = "Project slug"),
+    ),
     responses(
         (status = NO_CONTENT, description = "Success"),
         (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError, content_type = "application/json"),

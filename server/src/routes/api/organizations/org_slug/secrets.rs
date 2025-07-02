@@ -44,6 +44,9 @@ pub fn routes() -> Vec<Route> {
 #[utoipa::path(
     method(get),
     path = PATH,
+    params(
+        ("org_slug" = String, Path, description = "Organization slug")
+    ),
     responses(
         (status = OK, description = "Success", body = Vec<PublicSecret>),
         (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError, content_type = "application/json"),
@@ -79,6 +82,9 @@ pub struct CreateOrgSecretBody {
 #[utoipa::path(
     method(post),
     path = PATH,
+    params(
+        ("org_slug" = String, Path, description = "Organization slug")
+    ),
     request_body = CreateOrgSecretBody,
     responses(
         (status = OK, description = "Success", body = CreateSuccess),

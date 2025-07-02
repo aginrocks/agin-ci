@@ -58,6 +58,9 @@ struct Member {
 #[utoipa::path(
     method(get),
     path = PATH,
+    params(
+        ("org_slug" = String, Path, description = "Organization slug")
+    ),
     responses(
         (status = OK, description = "Success", body = Vec<Member>),
         (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError, content_type = "application/json"),
@@ -110,6 +113,9 @@ async fn get_organization_members(
 #[utoipa::path(
     method(put),
     path = PATH,
+    params(
+        ("org_slug" = String, Path, description = "Organization slug")
+    ),
     request_body = Membership,
     responses(
         (status = OK, description = "Success", body = CreateSuccess),

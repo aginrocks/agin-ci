@@ -406,7 +406,10 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                /** @description Organization slug */
+                org_slug: string;
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -444,7 +447,10 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                /** @description Organization slug */
+                org_slug: string;
+            };
             cookie?: never;
         };
         requestBody: {
@@ -486,7 +492,10 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                /** @description Organization slug */
+                org_slug: string;
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -524,7 +533,10 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                /** @description Organization slug */
+                org_slug: string;
+            };
             cookie?: never;
         };
         requestBody: {
@@ -566,7 +578,12 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                /** @description Organization slug */
+                org_slug: string;
+                /** @description Member ID */
+                member_id: string;
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -602,7 +619,12 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                /** @description Organization slug */
+                org_slug: string;
+                /** @description Member ID */
+                member_id: string;
+            };
             cookie?: never;
         };
         requestBody: {
@@ -642,7 +664,10 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                /** @description Organization slug */
+                org_slug: string;
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -680,7 +705,10 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                /** @description Organization slug */
+                org_slug: string;
+            };
             cookie?: never;
         };
         requestBody: {
@@ -722,7 +750,12 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                /** @description Organization slug */
+                org_slug: string;
+                /** @description Project slug */
+                project_slug: string;
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -760,7 +793,12 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                /** @description Organization slug */
+                org_slug: string;
+                /** @description Project slug */
+                project_slug: string;
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -796,7 +834,12 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                /** @description Organization slug */
+                org_slug: string;
+                /** @description Project slug */
+                project_slug: string;
+            };
             cookie?: never;
         };
         requestBody: {
@@ -838,7 +881,10 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                /** @description Organization slug */
+                org_slug: string;
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -876,7 +922,10 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                /** @description Organization slug */
+                org_slug: string;
+            };
             cookie?: never;
         };
         requestBody: {
@@ -918,7 +967,12 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                /** @description Organization slug */
+                org_slug: string;
+                /** @description Secret ID */
+                secret_id: string;
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -954,7 +1008,12 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                /** @description Organization slug */
+                org_slug: string;
+                /** @description Secret ID */
+                secret_id: string;
+            };
             cookie?: never;
         };
         requestBody: {

@@ -32,6 +32,10 @@ pub fn routes() -> Vec<Route> {
 #[utoipa::path(
     method(delete),
     path = PATH,
+    params(
+        ("org_slug" = String, Path, description = "Organization slug"),
+        ("secret_id" = String, Path, description = "Secret ID"),
+    ),
     responses(
         (status = NO_CONTENT, description = "Success"),
         (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError, content_type = "application/json"),
@@ -73,6 +77,10 @@ pub struct EditOrgSecretBody {
 #[utoipa::path(
     method(patch),
     path = PATH,
+    params(
+        ("org_slug" = String, Path, description = "Organization slug"),
+        ("secret_id" = String, Path, description = "Secret ID"),
+    ),
     request_body = EditOrgSecretBody,
     responses(
         (status = OK, description = "Success", body = CreateSuccess),

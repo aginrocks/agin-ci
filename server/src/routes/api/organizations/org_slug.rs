@@ -40,6 +40,9 @@ pub fn routes() -> Vec<Route> {
 #[utoipa::path(
     method(get),
     path = PATH,
+    params(
+        ("org_slug" = String, Path, description = "Organization slug")
+    ),
     responses(
         (status = OK, description = "Success", body = Organization),
         (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError, content_type = "application/json"),
@@ -55,6 +58,9 @@ async fn get_organization(Extension(org): Extension<OrgData>) -> AxumResult<Json
 #[utoipa::path(
     method(patch),
     path = PATH,
+    params(
+        ("org_slug" = String, Path, description = "Organization slug")
+    ),
     request_body = MutableOrganization,
     responses(
         (status = OK, description = "Success", body = CreateSuccess),

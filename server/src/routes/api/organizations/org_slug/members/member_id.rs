@@ -40,6 +40,10 @@ pub fn get_membership_details(org: &Organization, member_id: ObjectId) -> AxumRe
 #[utoipa::path(
     method(delete),
     path = PATH,
+    params(
+        ("org_slug" = String, Path, description = "Organization slug"),
+        ("member_id" = String, Path, description = "Member ID"),
+    ),
     responses(
         (status = NO_CONTENT, description = "Success"),
         (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError, content_type = "application/json"),
@@ -90,6 +94,10 @@ struct EditRoleBody {
 #[utoipa::path(
     method(patch),
     path = PATH,
+    params(
+        ("org_slug" = String, Path, description = "Organization slug"),
+        ("member_id" = String, Path, description = "Member ID"),
+    ),
     request_body = EditRoleBody,
     responses(
         (status = NO_CONTENT, description = "Success"),

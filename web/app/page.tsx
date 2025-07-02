@@ -1,5 +1,4 @@
 'use client';
-import { Button } from '@components/ui/button';
 import { $api } from '@lib/providers/api';
 import { useQuery } from '@tanstack/react-query';
 

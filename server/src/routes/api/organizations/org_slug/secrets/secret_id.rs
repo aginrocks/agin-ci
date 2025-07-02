@@ -17,7 +17,7 @@ use crate::{
     state::AppState,
 };
 
-use super::{CreateOrgSecretBody, Route};
+use super::Route;
 
 const PATH: &str = "/api/organizations/{org_slug}/secrets/{secret_id}";
 

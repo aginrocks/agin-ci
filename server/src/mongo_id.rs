@@ -1,15 +1,20 @@
 pub mod object_id_as_string {
     use bson::oid::ObjectId;
     use mongodb::bson;
-    use serde::{self, Deserialize, Deserializer, Serializer};
+    use serde::{self, Deserialize, Deserializer, Serialize, Serializer};
 
     pub fn serialize<S>(id: &Option<ObjectId>, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
-        match id {
-            Some(id) => serializer.serialize_some(&id.to_string()),
-            None => serializer.serialize_none(),
+        if serializer.is_human_readable() {
+            match id {
+                Some(id) => serializer.serialize_some(&id.to_string()),
+                None => serializer.serialize_none(),
+            }
+        } else {
+            // Serialize as native ObjectId for BSON and others
+            id.serialize(serializer)
         }
     }
 
@@ -38,13 +43,17 @@ pub mod object_id_as_string {
 pub mod object_id_as_string_required {
     use bson::oid::ObjectId;
     use mongodb::bson;
-    use serde::{self, Deserialize, Deserializer, Serializer};
+    use serde::{self, Deserialize, Deserializer, Serialize, Serializer};
 
     pub fn serialize<S>(id: &ObjectId, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
-        serializer.serialize_str(&id.to_string())
+        if serializer.is_human_readable() {
+            serializer.serialize_str(&id.to_string())
+        } else {
+            id.serialize(serializer)
+        }
     }
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<ObjectId, D::Error>

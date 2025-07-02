@@ -113,6 +113,7 @@ fn init_tracing() -> Result<()> {
     Ok(())
 }
 
+// TODO: Fix routers creation
 #[instrument(skip(state, session_layer))]
 async fn init_axum(
     state: AppState,

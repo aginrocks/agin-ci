@@ -52,11 +52,10 @@ async fn get_organization_secrets(
 
     let mut cursor = collection
         .find(doc! { "organization_id": org_id.0, "scope": mongodb::bson::to_bson(&SecretScope::Organization)? })
-        .await
-        .map_err(AxumError::from)?;
+        .await?;
 
     let mut secrets = Vec::new();
-    while let Some(secret) = cursor.try_next().await.map_err(AxumError::from)? {
+    while let Some(secret) = cursor.try_next().await? {
         secrets.push(secret.to_public());
     }
 

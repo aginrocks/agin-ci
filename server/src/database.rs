@@ -157,11 +157,17 @@ pub struct Organization {
     pub members: Vec<Membership>,
 }
 
+// TODO: Make a custom validation error handler to properly serialize errors to JSON
+
 // MutableOrganization is used for creating or updating organization throught the API.
 #[derive(Serialize, Deserialize, ToSchema, Validate)]
 pub struct MutableOrganization {
+    #[validate(length(max = 32))]
     pub name: String,
+
+    #[validate(length(max = 2048))]
     pub description: String,
+
     #[validate(custom(function = "slug_validator"))]
     pub slug: String,
 }
@@ -190,10 +196,14 @@ pub struct Project {
     )]
     #[schema(value_type = Option<String>)]
     pub id: Option<ObjectId>,
+
     #[schema(value_type = Option<String>)]
     pub organization_id: ObjectId,
+
     pub name: String,
+
     pub slug: String,
+
     pub repository: ProjectRepository,
 }
 

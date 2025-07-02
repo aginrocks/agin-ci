@@ -1,3 +1,5 @@
+mod secret_id;
+
 use axum::{Extension, Json};
 use color_eyre::eyre::{self, ContextCompat};
 use futures::TryStreamExt;
@@ -22,16 +24,20 @@ use super::Route;
 const PATH: &str = "/api/organizations/{org_slug}/secrets";
 
 pub fn routes() -> Vec<Route> {
-    vec![
-        (
-            routes!(get_organization_secrets),
-            RouteProtectionLevel::OrgViewer,
-        ),
-        (
-            routes!(create_organization_secret),
-            RouteProtectionLevel::OrgMember,
-        ),
+    [
+        vec![
+            (
+                routes!(get_organization_secrets),
+                RouteProtectionLevel::OrgViewer,
+            ),
+            (
+                routes!(create_organization_secret),
+                RouteProtectionLevel::OrgMember,
+            ),
+        ],
+        secret_id::routes(),
     ]
+    .concat()
 }
 
 /// Get organization secrets

@@ -1,4 +1,4 @@
-use crate::{database, validators::slug_validator};
+use crate::validators::slug_validator;
 use color_eyre::eyre::Result;
 use mongodb::{
     Client, Database,

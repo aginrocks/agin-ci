@@ -156,7 +156,7 @@ async fn add_organization_member(
                 "$push": {
                     "members": {
                         "user_id": body.user_id,
-                        "role": mongodb::bson::to_bson(&body.role)?,
+                        "role": body.role,
                     }
                 }
             },

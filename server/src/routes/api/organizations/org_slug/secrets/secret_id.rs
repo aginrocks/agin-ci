@@ -51,7 +51,7 @@ async fn delete_organization_secret(
         .collection::<Secret>("secrets")
         .find_one_and_delete(doc! {
             "organization_id": org_id.0,
-            "scope": mongodb::bson::to_bson(&SecretScope::Organization)?,
+            "scope": SecretScope::Organization,
             "_id": secret_id
         })
         .await?;
@@ -95,7 +95,7 @@ async fn edit_organization_secret(
         .find_one_and_update(
             doc! {
                 "organization_id": org_id.0,
-                "scope": mongodb::bson::to_bson(&SecretScope::Organization)?,
+                "scope": SecretScope::Organization,
                 "_id": secret_id
             },
             {

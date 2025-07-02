@@ -58,7 +58,7 @@ async fn get_organization_secrets(
     let collection = state.database.collection::<Secret>("secrets");
 
     let mut cursor = collection
-        .find(doc! { "organization_id": org_id.0, "scope": mongodb::bson::to_bson(&SecretScope::Organization)? })
+        .find(doc! { "organization_id": org_id.0, "scope": SecretScope::Organization })
         .await?;
 
     let mut secrets = Vec::new();
@@ -98,7 +98,7 @@ async fn create_organization_secret(
         .find_one(doc! {
             "organization_id": org_id.0,
             "name": &body.name,
-            "scope": mongodb::bson::to_bson(&SecretScope::Organization)?,
+            "scope": SecretScope::Organization,
         })
         .await?;
 

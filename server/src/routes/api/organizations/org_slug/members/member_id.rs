@@ -147,7 +147,7 @@ async fn edit_organization_member(
             doc! { "_id": org_id.0, "members.user_id": member_id },
             doc! {
                 "$set": {
-                    "members.$.role": mongodb::bson::to_bson(&body.role)?,
+                    "members.$.role": &body.role,
                 }
             },
         )

@@ -66,6 +66,12 @@ pub enum OrganizationRole {
     Owner,
 }
 
+impl From<OrganizationRole> for mongodb::bson::Bson {
+    fn from(scope: OrganizationRole) -> Self {
+        mongodb::bson::to_bson(&scope).expect("Failed to convert to BSON")
+    }
+}
+
 #[derive(Serialize, Deserialize, Clone, Debug, ToSchema)]
 pub struct Membership {
     #[schema(value_type = String)]
@@ -79,6 +85,12 @@ pub struct Membership {
 pub enum SecretScope {
     Organization,
     Project,
+}
+
+impl From<SecretScope> for mongodb::bson::Bson {
+    fn from(scope: SecretScope) -> Self {
+        mongodb::bson::to_bson(&scope).expect("Failed to convert to BSON")
+    }
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, ToSchema)]
@@ -177,6 +189,12 @@ pub struct MutableOrganization {
 pub enum ProjectRepositorySource {
     GitHub,
     Forgejo,
+}
+
+impl From<ProjectRepositorySource> for mongodb::bson::Bson {
+    fn from(scope: ProjectRepositorySource) -> Self {
+        mongodb::bson::to_bson(&scope).expect("Failed to convert to BSON")
+    }
 }
 
 #[derive(Serialize, Deserialize, ToSchema)]

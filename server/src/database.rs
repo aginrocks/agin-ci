@@ -32,15 +32,10 @@ pub async fn init_session_store(
 
     let session_store = RedisStore::<Pool>::new(pool);
 
-    // let client = SessionClient::with_uri_str(&settings.db.connection_string).await?;
-    // let session_store = MongoDBStore::new(client, settings.db.database_name.clone());
-
-    // let session_store = MemoryStore::default();
-
     let session_layer = SessionManagerLayer::new(session_store)
         .with_secure(false)
         .with_same_site(SameSite::Lax)
-        .with_expiry(Expiry::OnInactivity(Duration::seconds(120)));
+        .with_expiry(Expiry::OnInactivity(Duration::days(7)));
 
     Ok(session_layer)
 }
@@ -75,6 +70,38 @@ pub struct Membership {
     #[serde(with = "object_id_as_string_required")]
     pub user_id: ObjectId,
     pub role: OrganizationRole,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, ToSchema)]
+#[serde(rename_all = "lowercase")]
+pub enum SecretScope {
+    Organization,
+    Project,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, ToSchema)]
+pub struct Secret {
+    #[serde(
+        rename = "_id",
+        skip_serializing_if = "Option::is_none",
+        with = "object_id_as_string"
+    )]
+    #[schema(value_type = Option<String>)]
+    pub id: Option<ObjectId>,
+
+    pub name: String,
+
+    pub scope: SecretScope,
+
+    #[serde(with = "object_id_as_string_required")]
+    #[schema(value_type = String)]
+    pub organization_id: ObjectId,
+
+    #[serde(with = "object_id_as_string")]
+    #[schema(value_type = Option<String>)]
+    pub project_id: Option<ObjectId>,
+
+    pub secret: String,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, ToSchema)]

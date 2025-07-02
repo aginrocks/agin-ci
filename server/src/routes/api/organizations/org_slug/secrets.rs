@@ -51,7 +51,7 @@ async fn get_organization_secrets(
     let collection = state.database.collection::<Secret>("secrets");
 
     let mut cursor = collection
-        .find(doc! { "organization_id": org_id.0 })
+        .find(doc! { "organization_id": org_id.0, "scope": mongodb::bson::to_bson(&SecretScope::Organization)? })
         .await
         .map_err(AxumError::from)?;
 

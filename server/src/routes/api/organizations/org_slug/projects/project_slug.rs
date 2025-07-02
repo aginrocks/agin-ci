@@ -1,12 +1,13 @@
-use axum::{Extension, Json, extract::Path};
+use axum::{Extension, Json, extract::Path, response::IntoResponse};
 use axum_valid::Valid;
 use color_eyre::eyre::{self, ContextCompat};
+use http::StatusCode;
 use mongodb::bson::doc;
 use utoipa_axum::routes;
 
 use crate::{
     axum_error::{AxumError, AxumResult},
-    database::{Project, ProjectRepository, PublicProject, fetch_project},
+    database::{Project, ProjectRepository, PublicProject, Secret, fetch_project},
     middlewares::{
         require_auth::UnauthorizedError,
         require_org_permissions::{ForbiddenError, OrgId},
@@ -22,7 +23,10 @@ const PATH: &str = "/api/organizations/{org_slug}/projects/{project_slug}";
 pub fn routes() -> Vec<Route> {
     vec![
         (routes!(get_project), RouteProtectionLevel::OrgViewer),
-        (routes!(edit_project), RouteProtectionLevel::OrgMember),
+        (
+            routes!(edit_project, delete_project),
+            RouteProtectionLevel::OrgMember,
+        ),
     ]
 }
 
@@ -126,4 +130,44 @@ async fn edit_project(
         .to_string();
 
     Ok(Json(CreateSuccess { success: true, id }))
+}
+
+/// Delete project
+#[utoipa::path(
+    method(delete),
+    path = PATH,
+    responses(
+        (status = NO_CONTENT, description = "Success"),
+        (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError, content_type = "application/json"),
+        (status = FORBIDDEN, description = "Forbidden", body = ForbiddenError, content_type = "application/json")
+    ),
+    tag = "Project"
+)]
+async fn delete_project(
+    Extension(org_id): Extension<OrgId>,
+    Extension(state): Extension<AppState>,
+    Path((_org_slug, project_slug)): Path<(String, String)>,
+) -> AxumResult<impl IntoResponse> {
+    let result = state
+        .database
+        .collection::<Project>("projects")
+        .find_one_and_delete(doc! {
+            "organization_id": org_id.0,
+            "slug": project_slug,
+        })
+        .await?;
+
+    if result.is_none() {
+        return Err(AxumError::not_found(eyre::eyre!("Project not found")));
+    }
+
+    let result = result.unwrap();
+
+    state
+        .database
+        .collection::<Secret>("secrets")
+        .delete_many(doc! { "project_id": result.id })
+        .await?;
+
+    Ok((StatusCode::NO_CONTENT, ()))
 }

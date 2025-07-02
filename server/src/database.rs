@@ -201,8 +201,8 @@ impl From<ProjectRepositorySource> for mongodb::bson::Bson {
 pub struct ProjectRepository {
     pub url: String,
     pub source: ProjectRepositorySource,
-    pub webhook_secret: String,
-    pub deploy_key: String,
+    pub webhook_secret: Option<String>,
+    pub deploy_key: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, ToSchema)]
@@ -223,6 +223,36 @@ pub struct Project {
     pub slug: String,
 
     pub repository: ProjectRepository,
+}
+
+/// ProjectRepository object that can be safely sent to the client
+#[derive(Serialize, Deserialize, ToSchema)]
+pub struct PublicProjectRepository {
+    pub url: String,
+    pub source: ProjectRepositorySource,
+    pub webhook_secret_generated: bool,
+    pub deploy_key_generated: bool,
+}
+
+/// Project object that can be safely sent to the client
+#[derive(Serialize, Deserialize, ToSchema)]
+pub struct PublicProject {
+    #[serde(
+        rename = "_id",
+        skip_serializing_if = "Option::is_none",
+        with = "object_id_as_string"
+    )]
+    #[schema(value_type = Option<String>)]
+    pub id: Option<ObjectId>,
+
+    #[schema(value_type = Option<String>)]
+    pub organization_id: ObjectId,
+
+    pub name: String,
+
+    pub slug: String,
+
+    pub repository: PublicProjectRepository,
 }
 
 #[derive(Serialize, Deserialize, ToSchema)]

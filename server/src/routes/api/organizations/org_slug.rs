@@ -1,4 +1,5 @@
 mod members;
+mod projects;
 mod secrets;
 
 use axum::{Extension, Json};
@@ -30,6 +31,7 @@ pub fn routes() -> Vec<Route> {
         ],
         members::routes(),
         secrets::routes(),
+        projects::routes(),
     ]
     .concat()
 }

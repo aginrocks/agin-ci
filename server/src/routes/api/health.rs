@@ -16,7 +16,8 @@ pub fn routes() -> Vec<Route> {
     path = PATH,
     responses(
         (status = OK, description = "Success", body = str)
-    )
+    ),
+    tag = "Other"
 )]
 async fn get_health() -> &'static str {
     "ok"

@@ -22,7 +22,8 @@ pub fn routes() -> Vec<Route> {
     responses(
         (status = OK, description = "Success", body = User),
         (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError, content_type = "application/json")
-    )
+    ),
+    tag = "Auth"
 )]
 async fn get_user(Extension(user): Extension<UserData>) -> Json<User> {
     Json(user.0)

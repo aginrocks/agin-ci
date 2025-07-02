@@ -44,7 +44,8 @@ pub fn get_membership_details(org: &Organization, member_id: ObjectId) -> AxumRe
         (status = NO_CONTENT, description = "Success"),
         (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError, content_type = "application/json"),
         (status = FORBIDDEN, description = "Forbidden", body = ForbiddenError, content_type = "application/json")
-    )
+    ),
+    tag = "Organization"
 )]
 async fn delete_organization_member(
     Extension(state): Extension<AppState>,
@@ -94,7 +95,8 @@ struct EditRoleBody {
         (status = NO_CONTENT, description = "Success"),
         (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError, content_type = "application/json"),
         (status = FORBIDDEN, description = "Forbidden", body = ForbiddenError, content_type = "application/json")
-    )
+    ),
+    tag = "Organization"
 )]
 async fn edit_organization_member(
     Extension(state): Extension<AppState>,

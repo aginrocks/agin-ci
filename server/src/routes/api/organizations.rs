@@ -36,7 +36,8 @@ pub fn routes() -> Vec<Route> {
     responses(
         (status = OK, description = "Success", body = Vec<Organization>),
         (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError, content_type = "application/json")
-    )
+    ),
+    tag = "Organizations"
 )]
 async fn get_organizations(
     Extension(user): Extension<UserData>,
@@ -63,7 +64,8 @@ async fn get_organizations(
     responses(
         (status = OK, description = "Success", body = CreateSuccess),
         (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError, content_type = "application/json")
-    )
+    ),
+    tag = "Organizations"
 )]
 async fn create_organization(
     Extension(user_id): Extension<UserId>,

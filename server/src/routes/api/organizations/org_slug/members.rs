@@ -62,7 +62,8 @@ struct Member {
         (status = OK, description = "Success", body = Vec<Member>),
         (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError, content_type = "application/json"),
         (status = FORBIDDEN, description = "Forbidden", body = ForbiddenError, content_type = "application/json")
-    )
+    ),
+    tag = "Organization"
 )]
 async fn get_organization_members(
     Extension(state): Extension<AppState>,
@@ -114,7 +115,8 @@ async fn get_organization_members(
         (status = OK, description = "Success", body = CreateSuccess),
         (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError, content_type = "application/json"),
         (status = FORBIDDEN, description = "Forbidden", body = ForbiddenError, content_type = "application/json")
-    )
+    ),
+    tag = "Organization"
 )]
 async fn add_organization_member(
     Extension(state): Extension<AppState>,

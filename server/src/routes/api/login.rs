@@ -15,6 +15,7 @@ pub fn routes() -> Vec<Route> {
 #[utoipa::path(
     method(get),
     path = PATH,
+    tag = "Auth"
 )]
 async fn log_in() -> impl IntoResponse {
     axum::response::Redirect::to("/")

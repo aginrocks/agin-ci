@@ -41,7 +41,8 @@ pub fn routes() -> Vec<Route> {
         (status = OK, description = "Success", body = Organization),
         (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError, content_type = "application/json"),
         (status = FORBIDDEN, description = "Forbidden", body = ForbiddenError, content_type = "application/json")
-    )
+    ),
+    tag = "Organization"
 )]
 async fn get_organization(Extension(org): Extension<OrgData>) -> AxumResult<Json<Organization>> {
     Ok(Json(org.0))
@@ -56,7 +57,8 @@ async fn get_organization(Extension(org): Extension<OrgData>) -> AxumResult<Json
         (status = OK, description = "Success", body = CreateSuccess),
         (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError, content_type = "application/json"),
         (status = FORBIDDEN, description = "Forbidden", body = ForbiddenError, content_type = "application/json")
-    )
+    ),
+    tag = "Organization"
 )]
 async fn edit_organization(
     Extension(org_id): Extension<OrgId>,

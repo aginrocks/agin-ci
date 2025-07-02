@@ -48,7 +48,8 @@ pub fn routes() -> Vec<Route> {
         (status = OK, description = "Success", body = Vec<PublicSecret>),
         (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError, content_type = "application/json"),
         (status = FORBIDDEN, description = "Forbidden", body = ForbiddenError, content_type = "application/json")
-    )
+    ),
+    tag = "Secrets"
 )]
 async fn get_organization_secrets(
     Extension(org_id): Extension<OrgId>,
@@ -83,7 +84,8 @@ struct CreateOrgSecretBody {
         (status = OK, description = "Success", body = CreateSuccess),
         (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError, content_type = "application/json"),
         (status = FORBIDDEN, description = "Forbidden", body = ForbiddenError, content_type = "application/json")
-    )
+    ),
+    tag = "Secrets"
 )]
 async fn create_organization_secret(
     Extension(org_id): Extension<OrgId>,

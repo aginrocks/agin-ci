@@ -33,7 +33,7 @@ pub fn routes() -> Vec<Route> {
     .concat()
 }
 
-/// Get organization
+/// Get org
 #[utoipa::path(
     method(get),
     path = PATH,
@@ -48,7 +48,7 @@ async fn get_organization(Extension(org): Extension<OrgData>) -> AxumResult<Json
     Ok(Json(org.0))
 }
 
-/// Edit organization
+/// Edit org
 #[utoipa::path(
     method(patch),
     path = PATH,

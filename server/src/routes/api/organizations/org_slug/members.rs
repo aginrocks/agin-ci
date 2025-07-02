@@ -54,7 +54,7 @@ struct Member {
     name: String,
 }
 
-/// Get organization members
+/// Get org members
 #[utoipa::path(
     method(get),
     path = PATH,
@@ -106,7 +106,7 @@ async fn get_organization_members(
     Ok(Json(results))
 }
 
-/// Add organization member
+/// Add org member
 #[utoipa::path(
     method(put),
     path = PATH,

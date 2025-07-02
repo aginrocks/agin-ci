@@ -36,7 +36,7 @@ pub fn get_membership_details(org: &Organization, member_id: ObjectId) -> AxumRe
     Ok(member.unwrap().clone())
 }
 
-/// Delete organization member
+/// Delete org member
 #[utoipa::path(
     method(delete),
     path = PATH,
@@ -86,7 +86,7 @@ struct EditRoleBody {
     role: OrganizationRole,
 }
 
-/// Edit organization member's role
+/// Edit org member's role
 #[utoipa::path(
     method(patch),
     path = PATH,

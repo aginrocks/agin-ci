@@ -1,0 +1,11 @@
+:3030 {
+	reverse_proxy /api/* localhost:8080
+	reverse_proxy /socket.io/* localhost:8080
+	reverse_proxy /apidoc/* localhost:8080
+	reverse_proxy /auth/* localhost:8080
+	handle_path /files/* {
+		root * ./files
+		file_server
+	}
+	reverse_proxy /* localhost:3001
+}

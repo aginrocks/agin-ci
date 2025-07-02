@@ -1,6 +1,9 @@
-use crate::validators::slug_validator;
+use crate::{database, validators::slug_validator};
 use color_eyre::eyre::Result;
-use mongodb::{Client, Database, bson::oid::ObjectId};
+use mongodb::{
+    Client, Database,
+    bson::{doc, oid::ObjectId},
+};
 use serde::{Deserialize, Serialize};
 use tower_sessions::{
     Expiry, SessionManagerLayer,
@@ -184,7 +187,7 @@ pub struct MutableOrganization {
     pub slug: String,
 }
 
-#[derive(Serialize, Deserialize, ToSchema)]
+#[derive(Serialize, Deserialize, ToSchema, Clone, Debug)]
 #[serde(rename_all = "lowercase")]
 pub enum ProjectRepositorySource {
     GitHub,
@@ -216,6 +219,7 @@ pub struct Project {
     pub id: Option<ObjectId>,
 
     #[schema(value_type = Option<String>)]
+    #[serde(with = "object_id_as_string_required")]
     pub organization_id: ObjectId,
 
     pub name: String,
@@ -223,6 +227,23 @@ pub struct Project {
     pub slug: String,
 
     pub repository: ProjectRepository,
+}
+
+impl Project {
+    pub fn to_public(&self) -> PublicProject {
+        PublicProject {
+            id: self.id,
+            organization_id: self.organization_id,
+            name: self.name.clone(),
+            slug: self.slug.clone(),
+            repository: PublicProjectRepository {
+                url: self.repository.url.clone(),
+                source: self.repository.source.clone(),
+                webhook_secret_generated: self.repository.webhook_secret.is_some(),
+                deploy_key_generated: self.repository.deploy_key.is_some(),
+            },
+        }
+    }
 }
 
 /// ProjectRepository object that can be safely sent to the client
@@ -245,7 +266,8 @@ pub struct PublicProject {
     #[schema(value_type = Option<String>)]
     pub id: Option<ObjectId>,
 
-    #[schema(value_type = Option<String>)]
+    #[serde(with = "object_id_as_string_required")]
+    #[schema(value_type = String)]
     pub organization_id: ObjectId,
 
     pub name: String,
@@ -265,4 +287,20 @@ pub struct Worker {
     #[schema(value_type = Option<String>)]
     pub id: Option<ObjectId>,
     pub token: String,
+}
+
+pub async fn fetch_project(
+    database: &Database,
+    org_id: ObjectId,
+    project_slug: String,
+) -> Result<Option<Project>> {
+    let project = database
+        .collection::<Project>("projects")
+        .find_one(doc! {
+            "organization_id": org_id,
+            "slug": project_slug,
+        })
+        .await?;
+
+    Ok(project)
 }

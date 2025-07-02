@@ -1,3 +1,5 @@
+mod project_slug;
+
 use axum::{Extension, Json};
 use axum_valid::Valid;
 use color_eyre::eyre::{self, ContextCompat};
@@ -10,7 +12,7 @@ use validator::Validate;
 
 use crate::{
     axum_error::{AxumError, AxumResult},
-    database::{Project, ProjectRepository, ProjectRepositorySource},
+    database::{Project, ProjectRepository, ProjectRepositorySource, PublicProject, fetch_project},
     middlewares::{
         require_auth::UnauthorizedError,
         require_org_permissions::{ForbiddenError, OrgId},
@@ -25,10 +27,14 @@ use super::Route;
 const PATH: &str = "/api/organizations/{org_slug}/projects";
 
 pub fn routes() -> Vec<Route> {
-    vec![
-        (routes!(get_projects), RouteProtectionLevel::OrgViewer),
-        (routes!(create_project), RouteProtectionLevel::OrgMember),
+    [
+        vec![
+            (routes!(get_projects), RouteProtectionLevel::OrgViewer),
+            (routes!(create_project), RouteProtectionLevel::OrgMember),
+        ],
+        project_slug::routes(),
     ]
+    .concat()
 }
 
 /// Get projects
@@ -36,7 +42,7 @@ pub fn routes() -> Vec<Route> {
     method(get),
     path = PATH,
     responses(
-        (status = OK, description = "Success", body = Vec<Project>, content_type = "application/json"),
+        (status = OK, description = "Success", body = Vec<PublicProject>, content_type = "application/json"),
         (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError, content_type = "application/json"),
         (status = FORBIDDEN, description = "Forbidden", body = ForbiddenError, content_type = "application/json")
     ),
@@ -45,7 +51,7 @@ pub fn routes() -> Vec<Route> {
 async fn get_projects(
     Extension(org_id): Extension<OrgId>,
     Extension(state): Extension<AppState>,
-) -> AxumResult<Json<Vec<Project>>> {
+) -> AxumResult<Json<Vec<PublicProject>>> {
     let cursor = state
         .database
         .collection::<Project>("projects")
@@ -56,7 +62,9 @@ async fn get_projects(
 
     let projects: Vec<Project> = cursor.try_collect().await?;
 
-    Ok(Json(projects))
+    let safe_projects: Vec<PublicProject> = projects.iter().map(|p| p.to_public()).collect();
+
+    Ok(Json(safe_projects))
 }
 
 #[derive(Serialize, Deserialize, ToSchema)]
@@ -93,11 +101,7 @@ async fn create_project(
     Extension(state): Extension<AppState>,
     Valid(Json(body)): Valid<Json<CreateProjectBody>>,
 ) -> AxumResult<Json<CreateSuccess>> {
-    let already_exists = state
-        .database
-        .collection::<Project>("projects")
-        .find_one(doc! { "slug": &body.slug, "organization_id": org_id.0 })
-        .await?;
+    let already_exists = fetch_project(&state.database, org_id.0, body.slug.clone()).await?;
 
     if already_exists.is_some() {
         return Err(AxumError::forbidden(eyre::eyre!(

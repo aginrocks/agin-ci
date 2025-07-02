@@ -1,4 +1,4 @@
-mod member_id;
+pub mod member_id;
 
 use axum::{Extension, Json};
 use color_eyre::eyre;

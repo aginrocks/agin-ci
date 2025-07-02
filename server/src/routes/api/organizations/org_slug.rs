@@ -1,4 +1,5 @@
 mod members;
+mod secrets;
 
 use axum::{Extension, Json};
 use color_eyre::eyre;
@@ -27,6 +28,7 @@ pub fn routes() -> Vec<Route> {
             (routes!(edit_organization), RouteProtectionLevel::OrgAdmin),
         ],
         members::routes(),
+        secrets::routes(),
     ]
     .concat()
 }

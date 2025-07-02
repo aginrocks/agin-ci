@@ -104,6 +104,42 @@ pub struct Secret {
     pub secret: String,
 }
 
+/// Secret object that can be safely sent to the client
+#[derive(Serialize, Deserialize, Clone, Debug, ToSchema)]
+pub struct PublicSecret {
+    #[serde(
+        rename = "_id",
+        skip_serializing_if = "Option::is_none",
+        with = "object_id_as_string"
+    )]
+    #[schema(value_type = Option<String>)]
+    pub id: Option<ObjectId>,
+
+    pub name: String,
+
+    pub scope: SecretScope,
+
+    #[serde(with = "object_id_as_string_required")]
+    #[schema(value_type = String)]
+    pub organization_id: ObjectId,
+
+    #[serde(with = "object_id_as_string")]
+    #[schema(value_type = Option<String>)]
+    pub project_id: Option<ObjectId>,
+}
+
+impl Secret {
+    pub fn to_public(&self) -> PublicSecret {
+        PublicSecret {
+            id: self.id,
+            name: self.name.clone(),
+            scope: self.scope.clone(),
+            organization_id: self.organization_id,
+            project_id: self.project_id,
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Clone, Debug, ToSchema)]
 pub struct Organization {
     #[serde(

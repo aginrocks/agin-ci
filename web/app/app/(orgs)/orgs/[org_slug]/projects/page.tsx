@@ -1,6 +1,9 @@
 'use client';
 import { PageHeader } from '@components/page-header';
+import { Button } from '@components/ui/button';
 import { useOrg } from '@lib/hooks';
+import { IconPlus } from '@tabler/icons-react';
+import Link from 'next/link';
 
 export default function Page() {
     const { thisOrg } = useOrg();
@@ -20,6 +23,14 @@ export default function Page() {
                         label: 'Projects',
                     },
                 ]}
+                rightSection={
+                    <Button asChild>
+                        <Link href={`/app/orgs/${thisOrg?.slug}/projects/new`}>
+                            <IconPlus />
+                            Create Project
+                        </Link>
+                    </Button>
+                }
             />
             <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
                 <div className="grid auto-rows-min gap-4 md:grid-cols-3">

@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/sidebar';
 import { IconCheck } from '@tabler/icons-react';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 
 export type Org = {
     name: string;
@@ -40,6 +41,8 @@ export function OrgSwitcher({ data, activeOrg, onActiveChange, context }: OrgSwi
     const { isMobile } = useSidebar();
 
     const memberCount = activeOrg?.members?.length;
+
+    const { org_slug } = useParams<{ org_slug: string }>();
 
     return (
         <SidebarMenu>
@@ -90,7 +93,13 @@ export function OrgSwitcher({ data, activeOrg, onActiveChange, context }: OrgSwi
                         ))}
                         <DropdownMenuSeparator />
                         <DropdownMenuItem className="gap-2 p-2" asChild>
-                            <Link href="/app/orgs/new">
+                            <Link
+                                href={
+                                    context === 'org'
+                                        ? '/app/orgs/new'
+                                        : `/app/orgs/${org_slug}/projects/new`
+                                }
+                            >
                                 <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
                                     <Plus className="size-4" />
                                 </div>

@@ -10,6 +10,8 @@ export type WizardPageProps = React.ComponentProps<'div'> & {
     title?: string;
     description?: string;
     children?: React.ReactNode;
+    swapNextButton?: React.ReactNode;
+    beforeNext?: () => boolean | void | Promise<boolean | void>;
 };
 
 export function WizardPage({
@@ -19,12 +21,14 @@ export function WizardPage({
     icon: Icon,
     title,
     description,
+    swapNextButton,
+    beforeNext,
     ...props
 }: WizardPageProps) {
     const wizard = useWizard();
 
     return (
-        <div className={cn('w-lg', className)} {...props}>
+        <div className={cn('w-lg mx-4', className)} {...props}>
             <div className="flex flex-col gap-3 mb-4">
                 {Icon && <Icon className="text-muted-foreground size-12" />}
                 <div>
@@ -37,14 +41,31 @@ export function WizardPage({
             {children}
             <div className="flex justify-end mt-4 gap-2">
                 {pageNumber !== 0 && (
-                    <Button onClick={wizard.prev} variant="ghost">
+                    <Button
+                        onClick={(e) => {
+                            e.preventDefault();
+                            wizard.prev();
+                        }}
+                        variant="ghost"
+                    >
                         Back
                     </Button>
                 )}
-                <Button onClick={wizard.next}>
-                    Next
-                    <IconArrowRight />
-                </Button>
+                {swapNextButton || (
+                    <Button
+                        onClick={async (e) => {
+                            e.preventDefault();
+                            if (beforeNext) {
+                                const canContinue = await beforeNext();
+                                if (canContinue === false) return;
+                            }
+                            wizard.next();
+                        }}
+                    >
+                        Next
+                        <IconArrowRight />
+                    </Button>
+                )}
             </div>
         </div>
     );

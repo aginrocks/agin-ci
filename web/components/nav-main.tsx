@@ -15,6 +15,7 @@ import {
     SidebarMenuSubItem,
 } from '@/components/ui/sidebar';
 import { Icon } from '@tabler/icons-react';
+import Link from 'next/link';
 
 export type NavMainSubItem = {
     title: string;
@@ -52,10 +53,10 @@ export function NavMain({ items, title }: NavMainProps) {
                                 tooltip={item.title}
                                 isActive={item.isActive}
                             >
-                                <a href={item.url}>
+                                <Link href={item.url}>
                                     <item.icon />
                                     <span>{item.title}</span>
-                                </a>
+                                </Link>
                             </SidebarMenuButton>
                             {item.items?.length ? (
                                 <>
@@ -70,9 +71,9 @@ export function NavMain({ items, title }: NavMainProps) {
                                             {item.items?.map((subItem) => (
                                                 <SidebarMenuSubItem key={subItem.title}>
                                                     <SidebarMenuSubButton asChild>
-                                                        <a href={subItem.url}>
+                                                        <Link href={subItem.url}>
                                                             <span>{subItem.title}</span>
-                                                        </a>
+                                                        </Link>
                                                     </SidebarMenuSubButton>
                                                 </SidebarMenuSubItem>
                                             ))}

@@ -1,6 +1,7 @@
 mod org_slug;
 
 use axum::{Extension, Json};
+use axum_valid::Valid;
 use color_eyre::eyre::{self, Context, ContextCompat};
 use mongodb::bson::doc;
 use utoipa_axum::routes;
@@ -70,7 +71,7 @@ async fn get_organizations(
 async fn create_organization(
     Extension(user_id): Extension<UserId>,
     Extension(state): Extension<AppState>,
-    body: Json<MutableOrganization>,
+    Valid(body): Valid<Json<MutableOrganization>>,
 ) -> AxumResult<Json<CreateSuccess>> {
     let already_exists = state
         .database

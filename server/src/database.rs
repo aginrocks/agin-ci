@@ -192,6 +192,7 @@ pub struct MutableOrganization {
 pub enum ProjectRepositorySource {
     GitHub,
     Forgejo,
+    GenericGit,
 }
 
 impl From<ProjectRepositorySource> for mongodb::bson::Bson {

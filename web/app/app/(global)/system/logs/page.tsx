@@ -1,13 +1,3 @@
-import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    BreadcrumbList,
-    BreadcrumbPage,
-    BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb';
-import { Separator } from '@/components/ui/separator';
-import { SidebarTrigger } from '@/components/ui/sidebar';
 import { PageHeader } from '@components/page-header';
 
 export default function Page() {
@@ -16,7 +6,11 @@ export default function Page() {
             <PageHeader
                 path={[
                     {
-                        label: 'Home',
+                        label: 'System',
+                        href: '/app',
+                    },
+                    {
+                        label: 'Logs',
                     },
                 ]}
             />

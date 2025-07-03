@@ -17,7 +17,7 @@ export function useProject() {
 
     const thisProject = useMemo(
         () => projects.data?.find((p) => p.slug === project_slug),
-        [org_slug, projects.data]
+        [project_slug, projects.data]
     );
 
     return { thisProject, projects: projects.data };

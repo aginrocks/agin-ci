@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 
+let cache: Record<string, string> = {};
+
 export function useAvatar(email: string | undefined, defaultAvatar?: string): string | undefined {
     const [avatarUrl, setAvatarUrl] = useState<string | undefined>(defaultAvatar);
 
@@ -13,9 +15,15 @@ export function useAvatar(email: string | undefined, defaultAvatar?: string): st
             const hashArray = Array.from(new Uint8Array(hashBuffer));
             const gravatarHash = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
 
-            setAvatarUrl(`https://www.gravatar.com/avatar/${gravatarHash}?d=identicon`);
+            const url = `https://www.gravatar.com/avatar/${gravatarHash}?d=identicon`;
+            cache[email] = url;
+
+            setAvatarUrl(url);
         })();
     }, [email, defaultAvatar]);
+
+    const cached = email && cache[email];
+    if (cached) return cached;
 
     return defaultAvatar || avatarUrl;
 }

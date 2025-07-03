@@ -26,6 +26,7 @@ export type NavMainItem = {
     url: string;
     icon: LucideIcon | Icon;
     isActive?: boolean;
+    defaultOpen?: boolean;
     items?: NavMainSubItem[];
 };
 
@@ -40,9 +41,17 @@ export function NavMain({ items, title }: NavMainProps) {
             <SidebarGroupLabel>{title}</SidebarGroupLabel>
             <SidebarMenu>
                 {items.map((item) => (
-                    <Collapsible key={item.title} asChild defaultOpen={item.isActive}>
+                    <Collapsible
+                        key={item.title}
+                        asChild
+                        defaultOpen={item.isActive || item.defaultOpen}
+                    >
                         <SidebarMenuItem>
-                            <SidebarMenuButton asChild tooltip={item.title}>
+                            <SidebarMenuButton
+                                asChild
+                                tooltip={item.title}
+                                isActive={item.isActive}
+                            >
                                 <a href={item.url}>
                                     <item.icon />
                                     <span>{item.title}</span>

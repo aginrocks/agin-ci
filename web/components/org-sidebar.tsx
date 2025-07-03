@@ -28,6 +28,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { REPO_URL } from '@lib/constants';
+import { navSecondary } from './sidebar-common';
 
 const data = {
     navMain: [
@@ -117,18 +118,6 @@ const data = {
             ],
         },
     ],
-    navSecondary: [
-        {
-            title: 'Source Code',
-            url: REPO_URL,
-            icon: IconBrandGithub,
-        },
-        {
-            title: 'Documentation',
-            url: '#',
-            icon: IconBook,
-        },
-    ],
     projects: [
         {
             name: 'Design Engineering',
@@ -171,7 +160,7 @@ export function OrgSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarContent>
                 <NavMain items={data.navMain} title="Platform" />
                 <NavProjects projects={data.projects} />
-                <NavSecondary items={data.navSecondary} className="mt-auto" />
+                <NavSecondary items={navSecondary} className="mt-auto" />
             </SidebarContent>
             <SidebarFooter>
                 <NavUser />

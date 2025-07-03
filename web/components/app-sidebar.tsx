@@ -19,7 +19,9 @@ import {
     IconBrandGithub,
     IconBuildings,
     IconHistory,
+    IconHome,
     IconServer,
+    IconSettings,
 } from '@tabler/icons-react';
 import { NavMain, NavMainSubItem } from '@/components/nav-main';
 import { NavProjects } from '@/components/nav-projects';
@@ -39,6 +41,7 @@ import { REPO_URL } from '@lib/constants';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import { $api } from '@lib/providers/api';
+import { navSecondary } from './sidebar-common';
 
 const data = {
     navMain: [
@@ -128,18 +131,6 @@ const data = {
             ],
         },
     ],
-    navSecondary: [
-        {
-            title: 'Source Code',
-            url: REPO_URL,
-            icon: IconBrandGithub,
-        },
-        {
-            title: 'Documentation',
-            url: '#',
-            icon: IconBook,
-        },
-    ],
     projects: [
         {
             name: 'Design Engineering',
@@ -203,15 +194,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <NavMain
                     items={[
                         {
-                            icon: IconBuildings,
-                            title: 'Organizations',
-                            url: '/app/orgs',
-                            items: sidebarOrgs,
+                            icon: IconHome,
+                            title: 'Home',
+                            url: '/app',
                         },
                         {
                             icon: IconBell,
                             title: 'Notifications',
                             url: '/app/notifications',
+                        },
+                        {
+                            icon: IconBuildings,
+                            title: 'Organizations',
+                            url: '/app/orgs',
+                            items: sidebarOrgs,
+                            defaultOpen: true,
                         },
                     ]}
                     title="General"
@@ -228,10 +225,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                             title: 'Logs',
                             url: '/app/system/logs',
                         },
+                        {
+                            icon: IconSettings,
+                            title: 'Settings',
+                            url: '/app/system/settings',
+                        },
                     ]}
                     title="System"
                 />
-                <NavSecondary items={data.navSecondary} className="mt-auto" />
+                <NavSecondary items={navSecondary} className="mt-auto" />
             </SidebarContent>
             <SidebarFooter>
                 <NavUser />

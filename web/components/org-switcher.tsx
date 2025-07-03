@@ -23,7 +23,7 @@ import Link from 'next/link';
 
 export type Org = {
     name: string;
-    members: any[];
+    members?: any[];
     slug: string;
 
     [key: string]: any;
@@ -33,12 +33,13 @@ export type OrgSwitcherProps = {
     data: Org[] | undefined;
     activeOrg?: Org;
     onActiveChange: (org: Org) => void;
+    context: 'org' | 'project';
 };
 
-export function OrgSwitcher({ data, activeOrg, onActiveChange }: OrgSwitcherProps) {
+export function OrgSwitcher({ data, activeOrg, onActiveChange, context }: OrgSwitcherProps) {
     const { isMobile } = useSidebar();
 
-    const memberCount = activeOrg?.members?.length || 0;
+    const memberCount = activeOrg?.members?.length;
 
     return (
         <SidebarMenu>
@@ -54,9 +55,11 @@ export function OrgSwitcher({ data, activeOrg, onActiveChange }: OrgSwitcherProp
                             </div>
                             <div className="grid flex-1 text-left text-sm leading-tight">
                                 <span className="truncate font-medium">{activeOrg?.name}</span>
-                                <span className="truncate text-xs text-muted-foreground">
-                                    {memberCount} member{memberCount === 1 ? '' : 's'}
-                                </span>
+                                {memberCount !== undefined && (
+                                    <span className="truncate text-xs text-muted-foreground">
+                                        {memberCount} member{memberCount === 1 ? '' : 's'}
+                                    </span>
+                                )}
                             </div>
                             <ChevronsUpDown className="ml-auto" />
                         </SidebarMenuButton>
@@ -68,7 +71,7 @@ export function OrgSwitcher({ data, activeOrg, onActiveChange }: OrgSwitcherProp
                         sideOffset={4}
                     >
                         <DropdownMenuLabel className="text-muted-foreground text-xs">
-                            Organizations
+                            {context === 'org' ? 'Organizations' : 'Projects'}
                         </DropdownMenuLabel>
                         {data?.map((org, index) => (
                             <DropdownMenuItem
@@ -92,7 +95,7 @@ export function OrgSwitcher({ data, activeOrg, onActiveChange }: OrgSwitcherProp
                                     <Plus className="size-4" />
                                 </div>
                                 <div className="text-muted-foreground font-medium">
-                                    Create Organization
+                                    Create {context === 'org' ? 'Organization' : 'Project'}
                                 </div>
                             </Link>
                         </DropdownMenuItem>

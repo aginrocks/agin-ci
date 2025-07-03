@@ -9,9 +9,10 @@ import {
 } from './ui/breadcrumb';
 import Link from 'next/link';
 import { Separator } from './ui/separator';
+import React from 'react';
 
 export type PathSegment = {
-    label: string;
+    label: string | undefined;
     href?: string;
 };
 
@@ -21,7 +22,7 @@ export type PageHeaderProps = {
 
 export function PageHeader({ path }: PageHeaderProps) {
     const lastSegment = path[path.length - 1];
-    path.pop();
+    const otherSegments = path.slice(0, -1);
 
     return (
         <header className="flex h-16 shrink-0 items-center gap-2">
@@ -33,18 +34,15 @@ export function PageHeader({ path }: PageHeaderProps) {
                 />
                 <Breadcrumb>
                     <BreadcrumbList>
-                        {path.map((segment, i) => (
-                            <div
-                                className="flex flex-wrap items-center gap-1.5 text-sm break-words sm:gap-2.5"
-                                key={i}
-                            >
+                        {otherSegments.map((segment, i) => (
+                            <React.Fragment key={i}>
                                 <BreadcrumbItem className="hidden md:block">
                                     <BreadcrumbLink asChild>
                                         <Link href={segment.href ?? '#'}>{segment.label}</Link>
                                     </BreadcrumbLink>
                                 </BreadcrumbItem>
                                 <BreadcrumbSeparator className="hidden md:block" />
-                            </div>
+                            </React.Fragment>
                         ))}
                         <BreadcrumbItem>
                             <BreadcrumbPage>{lastSegment?.label}</BreadcrumbPage>

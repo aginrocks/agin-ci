@@ -208,7 +208,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                             title: 'Organizations',
                             url: '/app/orgs',
                             items: sidebarOrgs,
-                            defaultOpen: true,
+                            // defaultOpen: true,
                         },
                     ]}
                     title="General"

@@ -17,7 +17,7 @@ export default function Page() {
                         href: `/app/orgs/${thisOrg?.slug}`,
                     },
                     {
-                        label: 'Overview',
+                        label: 'Secrets',
                     },
                 ]}
             />

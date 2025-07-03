@@ -44,7 +44,7 @@ import { useQuery } from '@tanstack/react-query';
 import { $api } from '@lib/providers/api';
 import { OrgSwitcher } from './org-switcher';
 import { useMemo } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, usePathname, useRouter } from 'next/navigation';
 import { useOrg } from '@lib/hooks';
 import { Button } from './ui/button';
 
@@ -159,6 +159,7 @@ export function OrgSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const router = useRouter();
     const { thisOrg, orgs } = useOrg();
     const { org_slug } = useParams<{ org_slug: string }>();
+    const pathname = usePathname();
 
     const projects = useQuery(
         $api.queryOptions('get', '/api/organizations/{org_slug}/projects', {
@@ -195,7 +196,17 @@ export function OrgSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <OrgSwitcher
                     data={orgs}
                     activeOrg={thisOrg}
-                    onActiveChange={(org) => router.push(`/app/orgs/${org.slug}`)}
+                    onActiveChange={(org) => {
+                        const path = pathname.split('/');
+                        path[3] = org.slug;
+
+                        // If a project is selected, go back to the project list when switching organizations
+                        if (path[4] === 'projects') {
+                            path.splice(5);
+                        }
+
+                        router.push(path.join('/'));
+                    }}
                 />
             </SidebarHeader>
             <SidebarContent>

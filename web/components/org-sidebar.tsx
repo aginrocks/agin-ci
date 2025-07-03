@@ -13,7 +13,7 @@ import {
     Settings2,
     SquareTerminal,
 } from 'lucide-react';
-import { IconBook, IconBrandGithub } from '@tabler/icons-react';
+import { IconArrowLeft, IconBook, IconBrandGithub } from '@tabler/icons-react';
 import { NavMain } from '@/components/nav-main';
 import { NavProjects } from '@/components/nav-projects';
 import { NavSecondary } from '@/components/nav-secondary';
@@ -36,6 +36,7 @@ import { OrgSwitcher } from './org-switcher';
 import { useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useOrg } from '@lib/hooks';
+import { Button } from './ui/button';
 
 const data = {
     navMain: [
@@ -150,7 +151,15 @@ export function OrgSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
     return (
         <Sidebar variant="inset" {...props}>
-            <SidebarHeader>
+            <SidebarHeader className="gap-1">
+                <div className="max-w-max">
+                    <Button size="xs" variant="link" asChild>
+                        <Link href="/app/orgs">
+                            <IconArrowLeft />
+                            Back
+                        </Link>
+                    </Button>
+                </div>
                 <OrgSwitcher
                     data={orgs}
                     activeOrg={thisOrg}

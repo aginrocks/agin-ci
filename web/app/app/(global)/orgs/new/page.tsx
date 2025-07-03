@@ -62,14 +62,7 @@ export default function Page() {
     });
 
     return (
-        <form
-            onSubmit={form.handleSubmit(() =>
-                create.mutate({
-                    body: form.getValues(),
-                })
-            )}
-            className="flex flex-col flex-1"
-        >
+        <>
             <PageHeader
                 path={[
                     {
@@ -97,7 +90,7 @@ export default function Page() {
                                 <FormItem>
                                     <FormLabel>Name</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Acme Inc." {...field} />
+                                        <Input placeholder="Acme Inc." autoFocus {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -118,7 +111,7 @@ export default function Page() {
                                 <FormItem>
                                     <FormLabel>Slug</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="acme-inc" {...field} />
+                                        <Input placeholder="acme-inc" autoFocus {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -131,7 +124,16 @@ export default function Page() {
                         title="Write a Description"
                         description="The description will be shown in the organization details view."
                         swapNextButton={
-                            <Button type="submit" disabled={create.isPending}>
+                            <Button
+                                disabled={create.isPending}
+                                onClick={() =>
+                                    form.handleSubmit(() =>
+                                        create.mutate({
+                                            body: form.getValues(),
+                                        })
+                                    )()
+                                }
+                            >
                                 <IconCheck />
                                 Done
                             </Button>
@@ -147,6 +149,7 @@ export default function Page() {
                                         <Textarea
                                             placeholder="Description..."
                                             rows={4}
+                                            autoFocus
                                             {...field}
                                         />
                                     </FormControl>
@@ -157,6 +160,6 @@ export default function Page() {
                     </WizardPage>
                 </Wizard>
             </Form>
-        </form>
+        </>
     );
 }

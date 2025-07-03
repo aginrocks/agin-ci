@@ -3,6 +3,8 @@ import { Button } from '@components/ui/button';
 import { cn } from '@lib/utils';
 import { Icon, IconArrowRight } from '@tabler/icons-react';
 import { useWizard } from './wizard';
+import { ReactElement, useCallback } from 'react';
+import { useHotkeys } from '@mantine/hooks';
 
 export type WizardPageProps = React.ComponentProps<'div'> & {
     pageNumber: number;
@@ -10,7 +12,7 @@ export type WizardPageProps = React.ComponentProps<'div'> & {
     title?: string;
     description?: string;
     children?: React.ReactNode;
-    swapNextButton?: React.ReactNode;
+    swapNextButton?: ReactElement<any, any>;
     beforeNext?: () => boolean | void | Promise<boolean | void>;
 };
 
@@ -26,6 +28,20 @@ export function WizardPage({
     ...props
 }: WizardPageProps) {
     const wizard = useWizard();
+
+    const onNext = useCallback(
+        async (e: React.MouseEvent<HTMLButtonElement> | KeyboardEvent) => {
+            e.preventDefault();
+            if (beforeNext) {
+                const canContinue = await beforeNext();
+                if (canContinue === false) return;
+            }
+            wizard.next();
+        },
+        [beforeNext, wizard]
+    );
+
+    useHotkeys([['Enter', swapNextButton ? swapNextButton.props.onClick : onNext]], ['TEXTAREA']);
 
     return (
         <div className={cn('w-lg mx-4', className)} {...props}>
@@ -52,16 +68,7 @@ export function WizardPage({
                     </Button>
                 )}
                 {swapNextButton || (
-                    <Button
-                        onClick={async (e) => {
-                            e.preventDefault();
-                            if (beforeNext) {
-                                const canContinue = await beforeNext();
-                                if (canContinue === false) return;
-                            }
-                            wizard.next();
-                        }}
-                    >
+                    <Button onClick={onNext}>
                         Next
                         <IconArrowRight />
                     </Button>

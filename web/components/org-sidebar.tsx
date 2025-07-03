@@ -13,8 +13,18 @@ import {
     Settings2,
     SquareTerminal,
 } from 'lucide-react';
-import { IconArrowLeft, IconBook, IconBrandGithub } from '@tabler/icons-react';
-import { NavMain } from '@/components/nav-main';
+import {
+    IconArrowLeft,
+    IconBook,
+    IconBox,
+    IconBrandGithub,
+    IconHistory,
+    IconKey,
+    IconLayoutDashboard,
+    IconSettings,
+    IconUsers,
+} from '@tabler/icons-react';
+import { NavMain, NavMainSubItem } from '@/components/nav-main';
 import { NavProjects } from '@/components/nav-projects';
 import { NavSecondary } from '@/components/nav-secondary';
 import { NavUser } from '@/components/nav-user';
@@ -148,6 +158,28 @@ const data = {
 export function OrgSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const router = useRouter();
     const { thisOrg, orgs } = useOrg();
+    const { org_slug } = useParams<{ org_slug: string }>();
+
+    const projects = useQuery(
+        $api.queryOptions('get', '/api/organizations/{org_slug}/projects', {
+            params: {
+                path: {
+                    org_slug,
+                },
+            },
+        })
+    );
+
+    const sidebarProjects = React.useMemo(
+        () =>
+            projects.data?.map(
+                (p): NavMainSubItem => ({
+                    title: p.name,
+                    url: `/app/orgs/${org_slug}/projects/${p.slug}`,
+                })
+            ),
+        [projects.data]
+    );
 
     return (
         <Sidebar variant="inset" {...props}>
@@ -167,8 +199,42 @@ export function OrgSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 />
             </SidebarHeader>
             <SidebarContent>
-                <NavMain items={data.navMain} title="Platform" />
-                <NavProjects projects={data.projects} />
+                <NavMain
+                    items={[
+                        {
+                            title: 'Overview',
+                            url: `/app/orgs/${org_slug}`,
+                            icon: IconLayoutDashboard,
+                        },
+                        {
+                            title: 'Members & Permissions',
+                            url: `/app/orgs/${org_slug}/members`,
+                            icon: IconUsers,
+                        },
+                        {
+                            title: 'Secrets',
+                            url: `/app/orgs/${org_slug}/secrets`,
+                            icon: IconKey,
+                        },
+                        {
+                            title: 'Logs',
+                            url: `/app/orgs/${org_slug}/logs`,
+                            icon: IconHistory,
+                        },
+                        {
+                            title: 'Projects',
+                            url: `/app/orgs/${org_slug}/projects`,
+                            icon: IconBox,
+                            items: sidebarProjects,
+                        },
+                        {
+                            title: 'Settings',
+                            url: `/app/orgs/${org_slug}/settings`,
+                            icon: IconSettings,
+                        },
+                    ]}
+                    title="Organization"
+                />
                 <NavSecondary items={navSecondary} className="mt-auto" />
             </SidebarContent>
             <SidebarFooter>

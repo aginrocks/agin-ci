@@ -67,7 +67,11 @@ export interface paths {
         get: operations["get_organization"];
         put?: never;
         post?: never;
-        delete?: never;
+        /**
+         * Delete org
+         * @description Dangerous!
+         */
+        delete: operations["delete_organization"];
         options?: never;
         head?: never;
         /** Edit org */
@@ -263,7 +267,7 @@ export interface components {
         /** @enum {string} */
         OrganizationRole: "viewer" | "member" | "admin" | "owner";
         /** @enum {string} */
-        ProjectRepositorySource: "github" | "forgejo";
+        ProjectRepositorySource: "github" | "forgejo" | "genericgit";
         /** @description Project object that can be safely sent to the client */
         PublicProject: {
             _id?: string | null;
@@ -422,6 +426,45 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["Organization"];
                 };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedError"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForbiddenError"];
+                };
+            };
+        };
+    };
+    delete_organization: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Organization slug */
+                org_slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Unauthorized */
             401: {

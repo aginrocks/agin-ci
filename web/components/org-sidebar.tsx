@@ -30,6 +30,12 @@ import {
 import { REPO_URL } from '@lib/constants';
 import { navSecondary } from './sidebar-common';
 import Link from 'next/link';
+import { useQuery } from '@tanstack/react-query';
+import { $api } from '@lib/providers/api';
+import { OrgSwitcher } from './org-switcher';
+import { useMemo } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { useOrg } from '@lib/hooks';
 
 const data = {
     navMain: [
@@ -139,24 +145,17 @@ const data = {
 };
 
 export function OrgSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+    const router = useRouter();
+    const { thisOrg, orgs } = useOrg();
+
     return (
         <Sidebar variant="inset" {...props}>
             <SidebarHeader>
-                <SidebarMenu>
-                    <SidebarMenuItem>
-                        <SidebarMenuButton size="lg" asChild>
-                            <Link href="#">
-                                <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                                    <Command className="size-4" />
-                                </div>
-                                <div className="grid flex-1 text-left text-sm leading-tight">
-                                    <span className="truncate font-medium">Acme Inc</span>
-                                    <span className="truncate text-xs">Enterprise</span>
-                                </div>
-                            </Link>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                </SidebarMenu>
+                <OrgSwitcher
+                    data={orgs}
+                    activeOrg={thisOrg}
+                    onActiveChange={(org) => router.push(`/app/orgs/${org.slug}`)}
+                />
             </SidebarHeader>
             <SidebarContent>
                 <NavMain items={data.navMain} title="Platform" />

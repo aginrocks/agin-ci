@@ -24,12 +24,27 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { slugify } from '@lib/utils';
 import { toast } from 'sonner';
-import { ErrorIcon } from '@components/error-icon';
+
+const RESERVED_SLUGS = ['new', 'edit', 'delete', 'create'];
+
+const isValidSlug = (s: string): boolean => {
+    return s
+        .split('')
+        .every((c) => (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c === '-' || c === '_');
+};
 
 const formSchema = z.object({
     name: z.string().min(1, 'Name is required').max(32, 'Name must be at most 32 characters long'),
     description: z.string().max(2048, 'Description must be at most 2048 characters long'),
-    slug: z.string().min(1, 'Slug is required').max(32, 'Slug must be at most 32 characters long'),
+    slug: z
+        .string()
+        .min(1, 'Slug is required')
+        .max(32, 'Slug must be at most 32 characters long')
+        .refine(
+            isValidSlug,
+            'Slug can only contain lowercase letters, numbers, hyphens, and underscores'
+        )
+        .refine((s) => !RESERVED_SLUGS.includes(s), 'This slug is reserved and cannot be used'),
 }) satisfies z.ZodType<
     paths['/api/organizations']['post']['requestBody']['content']['application/json']
 >;

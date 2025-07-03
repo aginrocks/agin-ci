@@ -18,9 +18,11 @@ import {
     SidebarMenuItem,
     useSidebar,
 } from '@/components/ui/sidebar';
+import { IconCheck } from '@tabler/icons-react';
 
 export type Org = {
     name: string;
+    members: any[];
     slug: string;
 
     [key: string]: any;
@@ -34,6 +36,8 @@ export type OrgSwitcherProps = {
 
 export function OrgSwitcher({ data, activeOrg, onActiveChange }: OrgSwitcherProps) {
     const { isMobile } = useSidebar();
+
+    const memberCount = activeOrg?.members?.length || 0;
 
     return (
         <SidebarMenu>
@@ -49,7 +53,9 @@ export function OrgSwitcher({ data, activeOrg, onActiveChange }: OrgSwitcherProp
                             </div>
                             <div className="grid flex-1 text-left text-sm leading-tight">
                                 <span className="truncate font-medium">{activeOrg?.name}</span>
-                                <span className="truncate text-xs">{activeOrg?.slug}</span>
+                                <span className="truncate text-xs text-muted-foreground">
+                                    {memberCount} member{memberCount === 1 ? '' : 's'}
+                                </span>
                             </div>
                             <ChevronsUpDown className="ml-auto" />
                         </SidebarMenuButton>
@@ -75,6 +81,7 @@ export function OrgSwitcher({ data, activeOrg, onActiveChange }: OrgSwitcherProp
                                     </div>
                                 </div>
                                 {org.name}
+                                {org.slug === activeOrg?.slug && <IconCheck className="ml-auto" />}
                             </DropdownMenuItem>
                         ))}
                         <DropdownMenuSeparator />

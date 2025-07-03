@@ -169,7 +169,7 @@ export function OrgSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 </SidebarMenu>
             </SidebarHeader>
             <SidebarContent>
-                <NavMain items={data.navMain} />
+                <NavMain items={data.navMain} title="Platform" />
                 <NavProjects projects={data.projects} />
                 <NavSecondary items={data.navSecondary} className="mt-auto" />
             </SidebarContent>

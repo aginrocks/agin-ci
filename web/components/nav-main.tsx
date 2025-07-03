@@ -14,24 +14,30 @@ import {
     SidebarMenuSubButton,
     SidebarMenuSubItem,
 } from '@/components/ui/sidebar';
+import { Icon } from '@tabler/icons-react';
 
-export function NavMain({
-    items,
-}: {
-    items: {
-        title: string;
-        url: string;
-        icon: LucideIcon;
-        isActive?: boolean;
-        items?: {
-            title: string;
-            url: string;
-        }[];
-    }[];
-}) {
+export type NavMainSubItem = {
+    title: string;
+    url: string;
+};
+
+export type NavMainItem = {
+    title: string;
+    url: string;
+    icon: LucideIcon | Icon;
+    isActive?: boolean;
+    items?: NavMainSubItem[];
+};
+
+export type NavMainProps = {
+    title: string;
+    items: NavMainItem[];
+};
+
+export function NavMain({ items, title }: NavMainProps) {
     return (
         <SidebarGroup>
-            <SidebarGroupLabel>Platform</SidebarGroupLabel>
+            <SidebarGroupLabel>{title}</SidebarGroupLabel>
             <SidebarMenu>
                 {items.map((item) => (
                     <Collapsible key={item.title} asChild defaultOpen={item.isActive}>

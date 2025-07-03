@@ -13,8 +13,15 @@ import {
     Settings2,
     SquareTerminal,
 } from 'lucide-react';
-import { IconBook, IconBrandGithub } from '@tabler/icons-react';
-import { NavMain } from '@/components/nav-main';
+import {
+    IconBell,
+    IconBook,
+    IconBrandGithub,
+    IconBuildings,
+    IconHistory,
+    IconServer,
+} from '@tabler/icons-react';
+import { NavMain, NavMainSubItem } from '@/components/nav-main';
 import { NavProjects } from '@/components/nav-projects';
 import { NavSecondary } from '@/components/nav-secondary';
 import { NavUser } from '@/components/nav-user';
@@ -29,6 +36,9 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { REPO_URL } from '@lib/constants';
+import Link from 'next/link';
+import { useQuery } from '@tanstack/react-query';
+import { $api } from '@lib/providers/api';
 
 const data = {
     navMain: [
@@ -150,33 +160,77 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+    const organizations = useQuery($api.queryOptions('get', '/api/organizations'));
+
+    const sidebarOrgs = React.useMemo(
+        () =>
+            organizations.data?.map(
+                (org): NavMainSubItem => ({
+                    title: org.name,
+                    url: `/app/orgs/${org.slug}`,
+                })
+            ),
+        [organizations.data]
+    );
+
     return (
         <Sidebar variant="inset" {...props}>
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <div className="px-2 pt-2">
-                            <Image
-                                src="/logo.svg"
-                                alt="Logo"
-                                width={100}
-                                height={60}
-                                className="hidden dark:block"
-                            />
-                            <Image
-                                src="/logo-light.svg"
-                                alt="Logo"
-                                width={100}
-                                height={60}
-                                className="dark:hidden"
-                            />
-                        </div>
+                        <Link href="/app">
+                            <div className="px-2 pt-2">
+                                <Image
+                                    src="/logo.svg"
+                                    alt="Logo"
+                                    width={100}
+                                    height={60}
+                                    className="hidden dark:block"
+                                />
+                                <Image
+                                    src="/logo-light.svg"
+                                    alt="Logo"
+                                    width={100}
+                                    height={60}
+                                    className="dark:hidden"
+                                />
+                            </div>
+                        </Link>
                     </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarHeader>
             <SidebarContent>
-                <NavMain items={data.navMain} />
-                <NavProjects projects={data.projects} />
+                <NavMain
+                    items={[
+                        {
+                            icon: IconBuildings,
+                            title: 'Organizations',
+                            url: '/app/orgs',
+                            items: sidebarOrgs,
+                        },
+                        {
+                            icon: IconBell,
+                            title: 'Notifications',
+                            url: '/app/notifications',
+                        },
+                    ]}
+                    title="General"
+                />
+                <NavMain
+                    items={[
+                        {
+                            icon: IconServer,
+                            title: 'Runners',
+                            url: '/app/system/runners',
+                        },
+                        {
+                            icon: IconHistory,
+                            title: 'Logs',
+                            url: '/app/system/logs',
+                        },
+                    ]}
+                    title="System"
+                />
                 <NavSecondary items={data.navSecondary} className="mt-auto" />
             </SidebarContent>
             <SidebarFooter>

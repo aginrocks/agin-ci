@@ -175,14 +175,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                     src="/logo.svg"
                                     alt="Logo"
                                     width={100}
-                                    height={60}
+                                    height={30.6167}
                                     className="hidden dark:block"
                                 />
                                 <Image
                                     src="/logo-light.svg"
                                     alt="Logo"
                                     width={100}
-                                    height={60}
+                                    height={30.6167}
                                     className="dark:hidden"
                                 />
                             </div>

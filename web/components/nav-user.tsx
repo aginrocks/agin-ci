@@ -1,6 +1,6 @@
 'use client';
 
-import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut, Sparkles } from 'lucide-react';
+import { ChevronsUpDown, LogOut } from 'lucide-react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -21,6 +21,7 @@ import {
 import { useAvatar } from '@lib/hooks';
 import { useQuery } from '@tanstack/react-query';
 import { $api } from '@lib/providers/api';
+import { IconKey, IconSettings } from '@tabler/icons-react';
 
 export function NavUser() {
     const { isMobile } = useSidebar();
@@ -76,23 +77,12 @@ export function NavUser() {
                         <DropdownMenuSeparator />
                         <DropdownMenuGroup>
                             <DropdownMenuItem>
-                                <Sparkles />
-                                Upgrade to Pro
-                            </DropdownMenuItem>
-                        </DropdownMenuGroup>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuGroup>
-                            <DropdownMenuItem>
-                                <BadgeCheck />
-                                Account
+                                <IconSettings />
+                                Account Settings
                             </DropdownMenuItem>
                             <DropdownMenuItem>
-                                <CreditCard />
-                                Billing
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                                <Bell />
-                                Notifications
+                                <IconKey />
+                                API Keys
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />

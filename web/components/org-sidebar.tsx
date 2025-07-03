@@ -18,7 +18,6 @@ import { NavMain } from '@/components/nav-main';
 import { NavProjects } from '@/components/nav-projects';
 import { NavSecondary } from '@/components/nav-secondary';
 import { NavUser } from '@/components/nav-user';
-import Image from 'next/image';
 import {
     Sidebar,
     SidebarContent,
@@ -149,28 +148,23 @@ const data = {
     ],
 };
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function OrgSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     return (
         <Sidebar variant="inset" {...props}>
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <div className="px-2 pt-2">
-                            <Image
-                                src="/logo.svg"
-                                alt="Logo"
-                                width={100}
-                                height={60}
-                                className="hidden dark:block"
-                            />
-                            <Image
-                                src="/logo-light.svg"
-                                alt="Logo"
-                                width={100}
-                                height={60}
-                                className="dark:hidden"
-                            />
-                        </div>
+                        <SidebarMenuButton size="lg" asChild>
+                            <a href="#">
+                                <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+                                    <Command className="size-4" />
+                                </div>
+                                <div className="grid flex-1 text-left text-sm leading-tight">
+                                    <span className="truncate font-medium">Acme Inc</span>
+                                    <span className="truncate text-xs">Enterprise</span>
+                                </div>
+                            </a>
+                        </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarHeader>

@@ -13,7 +13,7 @@ import {
     Settings2,
     SquareTerminal,
 } from 'lucide-react';
-
+import { IconBook, IconBrandGithub } from '@tabler/icons-react';
 import { NavMain } from '@/components/nav-main';
 import { NavProjects } from '@/components/nav-projects';
 import { NavSecondary } from '@/components/nav-secondary';
@@ -27,13 +27,9 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import { REPO_URL } from '@lib/constants';
 
 const data = {
-    user: {
-        name: 'shadcn',
-        email: 'm@example.com',
-        avatar: '/avatars/shadcn.jpg',
-    },
     navMain: [
         {
             title: 'Playground',
@@ -123,14 +119,14 @@ const data = {
     ],
     navSecondary: [
         {
-            title: 'Support',
-            url: '#',
-            icon: LifeBuoy,
+            title: 'Source Code',
+            url: REPO_URL,
+            icon: IconBrandGithub,
         },
         {
-            title: 'Feedback',
+            title: 'Documentation',
             url: '#',
-            icon: Send,
+            icon: IconBook,
         },
     ],
     projects: [
@@ -178,7 +174,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <NavSecondary items={data.navSecondary} className="mt-auto" />
             </SidebarContent>
             <SidebarFooter>
-                <NavUser user={data.user} />
+                <NavUser />
             </SidebarFooter>
         </Sidebar>
     );

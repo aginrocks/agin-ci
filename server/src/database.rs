@@ -177,13 +177,13 @@ pub struct Organization {
 // MutableOrganization is used for creating or updating organization throught the API.
 #[derive(Serialize, Deserialize, ToSchema, Validate)]
 pub struct MutableOrganization {
-    #[validate(length(max = 32))]
+    #[validate(length(min = 1, max = 32))]
     pub name: String,
 
     #[validate(length(max = 2048))]
     pub description: String,
 
-    #[validate(custom(function = "slug_validator"))]
+    #[validate(custom(function = "slug_validator"), length(min = 1, max = 32))]
     pub slug: String,
 }
 

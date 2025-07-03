@@ -78,10 +78,10 @@ pub struct CreateProjectBodyRepository {
 
 #[derive(Serialize, Deserialize, ToSchema, Validate)]
 pub struct CreateProjectBody {
-    #[validate(length(max = 32))]
+    #[validate(length(min = 1, max = 32))]
     pub name: String,
 
-    #[validate(custom(function = "slug_validator"))]
+    #[validate(custom(function = "slug_validator"), length(min = 1, max = 32))]
     pub slug: String,
 
     pub repository: CreateProjectBodyRepository,

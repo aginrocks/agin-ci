@@ -19,6 +19,7 @@ import {
     useSidebar,
 } from '@/components/ui/sidebar';
 import { IconCheck } from '@tabler/icons-react';
+import Link from 'next/link';
 
 export type Org = {
     name: string;
@@ -85,13 +86,15 @@ export function OrgSwitcher({ data, activeOrg, onActiveChange }: OrgSwitcherProp
                             </DropdownMenuItem>
                         ))}
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="gap-2 p-2">
-                            <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
-                                <Plus className="size-4" />
-                            </div>
-                            <div className="text-muted-foreground font-medium">
-                                Create an Organization
-                            </div>
+                        <DropdownMenuItem className="gap-2 p-2" asChild>
+                            <Link href="/app/orgs/new">
+                                <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
+                                    <Plus className="size-4" />
+                                </div>
+                                <div className="text-muted-foreground font-medium">
+                                    Create Organization
+                                </div>
+                            </Link>
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>

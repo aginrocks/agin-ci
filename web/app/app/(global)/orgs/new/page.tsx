@@ -27,7 +27,7 @@ import { slugify } from '@lib/utils';
 const formSchema = z.object({
     name: z.string().min(1, 'Name is required').max(32, 'Name must be at most 32 characters long'),
     description: z.string().max(2048, 'Description must be at most 2048 characters long'),
-    slug: z.string(),
+    slug: z.string().min(1, 'Slug is required').max(32, 'Slug must be at most 32 characters long'),
 }) satisfies z.ZodType<
     paths['/api/organizations']['post']['requestBody']['content']['application/json']
 >;
@@ -109,6 +109,7 @@ export default function Page() {
                         icon={IconLink}
                         title="Choose a Slug"
                         description="The slug will be visible in the URL and can be used in the API."
+                        beforeNext={async () => await form.trigger('slug')}
                     >
                         <FormField
                             control={form.control}

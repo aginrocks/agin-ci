@@ -18,15 +18,16 @@ export type PathSegment = {
 
 export type PageHeaderProps = {
     path: PathSegment[];
+    rightSection?: React.ReactNode;
 };
 
-export function PageHeader({ path }: PageHeaderProps) {
+export function PageHeader({ path, rightSection }: PageHeaderProps) {
     const lastSegment = path[path.length - 1];
     const otherSegments = path.slice(0, -1);
 
     return (
-        <header className="flex h-16 shrink-0 items-center gap-2">
-            <div className="flex items-center gap-2 px-4">
+        <header className="flex h-16 shrink-0 items-center gap-2 justify-between px-4">
+            <div className="flex items-center gap-2">
                 <SidebarTrigger className="-ml-1" />
                 <Separator
                     orientation="vertical"
@@ -50,6 +51,7 @@ export function PageHeader({ path }: PageHeaderProps) {
                     </BreadcrumbList>
                 </Breadcrumb>
             </div>
+            {rightSection}
         </header>
     );
 }

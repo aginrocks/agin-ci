@@ -18,6 +18,7 @@ import {
     IconBook,
     IconBox,
     IconBrandGithub,
+    IconCircleCaretRight,
     IconHistory,
     IconKey,
     IconLayoutDashboard,
@@ -58,7 +59,7 @@ export function ProjectSidebar({ ...props }: React.ComponentProps<typeof Sidebar
     return (
         <Sidebar variant="inset" {...props}>
             <SidebarHeader className="gap-1">
-                <div className="max-w-max">
+                <div className="max-w-max mt-1">
                     <Button size="xs" variant="link" asChild>
                         <Link href={`/app/orgs/${org_slug}/projects`}>
                             <IconArrowLeft />
@@ -86,13 +87,18 @@ export function ProjectSidebar({ ...props }: React.ComponentProps<typeof Sidebar
                             icon: IconLayoutDashboard,
                         },
                         {
+                            title: 'Workflows',
+                            url: `/app/orgs/${org_slug}/projects/${project_slug}/workflows`,
+                            icon: IconCircleCaretRight,
+                        },
+                        {
                             title: 'Secrets',
-                            url: `/app/orgs/${org_slug}/secrets/${project_slug}`,
+                            url: `/app/orgs/${org_slug}/projects/${project_slug}/secrets`,
                             icon: IconKey,
                         },
                         {
                             title: 'Settings',
-                            url: `/app/orgs/${org_slug}/settings/${project_slug}`,
+                            url: `/app/orgs/${org_slug}/projects/${project_slug}/settings`,
                             icon: IconSettings,
                         },
                     ]}

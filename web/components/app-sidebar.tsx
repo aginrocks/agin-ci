@@ -25,6 +25,7 @@ import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import { $api } from '@lib/providers/api';
 import { navSecondary } from './sidebar-common';
+import { Logo } from './logo';
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const organizations = useQuery($api.queryOptions('get', '/api/organizations'));
@@ -45,24 +46,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <Link href="/app">
-                            <div className="px-2 pt-2">
-                                <Image
-                                    src="/logo.svg"
-                                    alt="Logo"
-                                    width={100}
-                                    height={30.6167}
-                                    className="hidden dark:block"
-                                />
-                                <Image
-                                    src="/logo-light.svg"
-                                    alt="Logo"
-                                    width={100}
-                                    height={30.6167}
-                                    className="dark:hidden"
-                                />
-                            </div>
-                        </Link>
+                        <Logo />
                     </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarHeader>

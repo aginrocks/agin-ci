@@ -53,7 +53,7 @@ export function OrgSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     return (
         <Sidebar variant="inset" {...props}>
             <SidebarHeader className="gap-1">
-                <div className="max-w-max">
+                <div className="max-w-max mt-1">
                     <Button size="xs" variant="link" asChild>
                         <Link href="/app/orgs">
                             <IconArrowLeft />

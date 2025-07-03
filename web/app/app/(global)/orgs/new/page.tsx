@@ -3,7 +3,7 @@ import { paths } from '@/types/api';
 import { PageHeader } from '@components/page-header';
 import { Wizard } from '@components/wizards/wizard';
 import { WizardPage } from '@components/wizards/wizard-page';
-import { IconBuildings, IconCheck, IconLink, IconPencil } from '@tabler/icons-react';
+import { IconBuildings, IconCheck, IconLink, IconPencil, IconX } from '@tabler/icons-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -23,6 +23,8 @@ import { $api } from '@lib/providers/api';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { slugify } from '@lib/utils';
+import { toast } from 'sonner';
+import { ErrorIcon } from '@components/error-icon';
 
 const formSchema = z.object({
     name: z.string().min(1, 'Name is required').max(32, 'Name must be at most 32 characters long'),
@@ -58,6 +60,11 @@ export default function Page() {
     const create = $api.useMutation('post', '/api/organizations', {
         onSuccess: () => {
             router.replace(`/app/orgs/${form.getValues('slug')}`);
+        },
+        onError: (error) => {
+            toast.error('Failed to create organization', {
+                description: error.error,
+            });
         },
     });
 

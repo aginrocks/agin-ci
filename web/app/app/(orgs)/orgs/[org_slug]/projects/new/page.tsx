@@ -137,7 +137,7 @@ export default function Page() {
                                 <FormItem>
                                     <FormLabel>Name</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Example Project" autoFocus {...field} />
+                                        <Input placeholder="Example Project" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -158,7 +158,7 @@ export default function Page() {
                                 <FormItem>
                                     <FormLabel>Slug</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="example-project" autoFocus {...field} />
+                                        <Input placeholder="example-project" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -198,11 +198,7 @@ export default function Page() {
                                 <FormItem>
                                     <FormLabel>Repository URL</FormLabel>
                                     <FormControl>
-                                        <Input
-                                            placeholder={`${REPO_URL}.git`}
-                                            autoFocus
-                                            {...field}
-                                        />
+                                        <Input placeholder={`${REPO_URL}.git`} {...field} />
                                     </FormControl>
                                     <FormDescription>
                                         You can provide any valid Git clone URL.

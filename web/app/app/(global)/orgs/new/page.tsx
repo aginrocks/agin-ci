@@ -112,7 +112,7 @@ export default function Page() {
                                 <FormItem>
                                     <FormLabel>Name</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Acme Inc." autoFocus {...field} />
+                                        <Input placeholder="Acme Inc." {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -133,7 +133,7 @@ export default function Page() {
                                 <FormItem>
                                     <FormLabel>Slug</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="acme-inc" autoFocus {...field} />
+                                        <Input placeholder="acme-inc" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -171,7 +171,6 @@ export default function Page() {
                                         <Textarea
                                             placeholder="Description..."
                                             rows={4}
-                                            autoFocus
                                             {...field}
                                         />
                                     </FormControl>

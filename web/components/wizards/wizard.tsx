@@ -47,24 +47,31 @@ export function Wizard({ children, className, ...props }: WizardProps) {
     return (
         <WizardContext.Provider value={{ currentPage, setCurrentPage, direction, setDirection }}>
             <div
-                className={cn('flex flex-1 flex-col relative overflow-hidden', className)}
+                className={cn(
+                    'grid place-items-center flex-1 relative overflow-hidden max-h-full',
+                    className
+                )}
                 {...props}
             >
-                <AnimatePresence>
+                <AnimatePresence initial={false}>
                     {currentPageComponent && (
                         <motion.div
-                            initial={{ opacity: 0, transform: `translateX(${10 * direction}px)` }}
+                            initial={{
+                                opacity: 0,
+                                transform: `translateY(${300 * direction}px)`,
+                                transition: { duration: 0.3 },
+                            }}
                             animate={{
                                 opacity: 1,
-                                transform: 'translateX(0px)',
+                                transform: 'translateY(0px)',
                                 transition: { duration: 0.3 },
                             }}
                             exit={{
                                 opacity: 0,
-                                transform: `translateX(${-10 * direction}px)`,
+                                transform: `translateY(${-300 * direction}px)`,
                                 transition: { duration: 0.3 },
                             }}
-                            className="absolute inset-0 flex items-center justify-center"
+                            className="col-start-1 row-start-1 max-h-full"
                             key={currentPage}
                         >
                             {currentPageComponent}

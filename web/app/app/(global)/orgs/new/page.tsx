@@ -33,7 +33,7 @@ const isValidSlug = (s: string): boolean => {
         .every((c) => (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c === '-' || c === '_');
 };
 
-const formSchema = z.object({
+export const formSchema = z.object({
     name: z.string().min(1, 'Name is required').max(32, 'Name must be at most 32 characters long'),
     description: z.string().max(2048, 'Description must be at most 2048 characters long'),
     slug: z
@@ -47,9 +47,11 @@ const formSchema = z.object({
         .refine((s) => !RESERVED_SLUGS.includes(s), 'This slug is reserved and cannot be used'),
 }) satisfies z.ZodType<
     paths['/api/organizations']['post']['requestBody']['content']['application/json']
+> satisfies z.ZodType<
+    paths['/api/organizations/{org_slug}']['patch']['requestBody']['content']['application/json']
 >;
 
-type FormSchema = z.infer<typeof formSchema>;
+export type FormSchema = z.infer<typeof formSchema>;
 
 export default function Page() {
     const router = useRouter();

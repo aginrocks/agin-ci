@@ -1,16 +1,20 @@
-use axum::{Extension, Json, extract::Path, response::IntoResponse};
+use axum::{
+    Json,
+    extract::{Path, State},
+    response::IntoResponse,
+};
 use axum_valid::Valid;
-use color_eyre::eyre::{self, ContextCompat};
+use color_eyre::eyre;
 use http::StatusCode;
 use mongodb::bson::doc;
 use utoipa_axum::routes;
 
 use crate::{
     axum_error::{AxumError, AxumResult},
-    database::{Project, ProjectRepository, PublicProject, Secret, fetch_project},
+    database::{PartialProject, Project, ProjectRepository, PublicProject, Secret, fetch_project},
     middlewares::{
         require_auth::UnauthorizedError,
-        require_org_permissions::{ForbiddenError, OrgId},
+        require_org_permissions::{ForbiddenError, OrgDataMember, OrgDataViewer},
     },
     routes::{RouteProtectionLevel, api::CreateSuccess},
     state::AppState,
@@ -21,13 +25,10 @@ use super::{CreateProjectBody, Route};
 const PATH: &str = "/api/organizations/{org_slug}/projects/{project_slug}";
 
 pub fn routes() -> Vec<Route> {
-    vec![
-        (routes!(get_project), RouteProtectionLevel::OrgViewer),
-        (
-            routes!(edit_project, delete_project),
-            RouteProtectionLevel::OrgMember,
-        ),
-    ]
+    vec![(
+        routes!(get_project, edit_project, delete_project),
+        RouteProtectionLevel::Authenticated,
+    )]
 }
 
 /// Get project
@@ -46,11 +47,11 @@ pub fn routes() -> Vec<Route> {
     tag = "Project"
 )]
 async fn get_project(
-    Extension(org_id): Extension<OrgId>,
-    Extension(state): Extension<AppState>,
+    org: OrgDataViewer,
+    State(state): State<AppState>,
     Path((_org_slug, project_slug)): Path<(String, String)>,
 ) -> AxumResult<Json<PublicProject>> {
-    let project = fetch_project(&state.database, org_id.0, project_slug).await?;
+    let project = fetch_project(&state.database, org.id, project_slug).await?;
 
     if project.is_none() {
         return Err(AxumError::not_found(eyre::eyre!("Project not found")));
@@ -80,13 +81,13 @@ async fn get_project(
     tag = "Project"
 )]
 async fn edit_project(
-    Extension(org_id): Extension<OrgId>,
-    Extension(state): Extension<AppState>,
+    org: OrgDataMember,
+    State(state): State<AppState>,
     Path((_org_slug, project_slug)): Path<(String, String)>,
     Valid(Json(body)): Valid<Json<CreateProjectBody>>,
 ) -> AxumResult<Json<CreateSuccess>> {
     if body.slug != project_slug {
-        let already_exists = fetch_project(&state.database, org_id.0, body.slug.clone()).await?;
+        let already_exists = fetch_project(&state.database, org.id, body.slug.clone()).await?;
 
         if already_exists.is_some() {
             return Err(AxumError::forbidden(eyre::eyre!(
@@ -95,9 +96,8 @@ async fn edit_project(
         }
     }
 
-    let project = Project {
-        id: None,
-        organization_id: org_id.0,
+    let project = PartialProject {
+        organization_id: org.id,
         name: body.name,
         slug: body.slug,
         repository: ProjectRepository {
@@ -113,7 +113,7 @@ async fn edit_project(
         .collection::<Project>("projects")
         .find_one_and_update(
             doc! {
-                "organization_id": org_id.0,
+                "organization_id": org.id,
                 "slug": project_slug,
             },
             doc! {
@@ -131,11 +131,7 @@ async fn edit_project(
         return Err(AxumError::not_found(eyre::eyre!("Project not found")));
     }
 
-    let id = updated
-        .unwrap()
-        .id
-        .wrap_err("Failed to fetch project ID")?
-        .to_string();
+    let id = updated.unwrap().id.to_string();
 
     Ok(Json(CreateSuccess { success: true, id }))
 }
@@ -156,15 +152,15 @@ async fn edit_project(
     tag = "Project"
 )]
 async fn delete_project(
-    Extension(org_id): Extension<OrgId>,
-    Extension(state): Extension<AppState>,
+    org: OrgDataMember,
+    State(state): State<AppState>,
     Path((_org_slug, project_slug)): Path<(String, String)>,
 ) -> AxumResult<impl IntoResponse> {
     let result = state
         .database
         .collection::<Project>("projects")
         .find_one_and_delete(doc! {
-            "organization_id": org_id.0,
+            "organization_id": org.id,
             "slug": project_slug,
         })
         .await?;

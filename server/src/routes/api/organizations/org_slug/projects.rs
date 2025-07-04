@@ -1,6 +1,6 @@
 mod project_slug;
 
-use axum::{Extension, Json};
+use axum::{Json, extract::State};
 use axum_valid::Valid;
 use color_eyre::eyre::{self, ContextCompat};
 use futures::TryStreamExt;
@@ -12,10 +12,13 @@ use validator::Validate;
 
 use crate::{
     axum_error::{AxumError, AxumResult},
-    database::{Project, ProjectRepository, ProjectRepositorySource, PublicProject, fetch_project},
+    database::{
+        PartialProject, Project, ProjectRepository, ProjectRepositorySource, PublicProject,
+        fetch_project,
+    },
     middlewares::{
         require_auth::UnauthorizedError,
-        require_org_permissions::{ForbiddenError, OrgId},
+        require_org_permissions::{ForbiddenError, OrgDataMember, OrgDataViewer},
     },
     routes::{RouteProtectionLevel, api::CreateSuccess},
     state::AppState,
@@ -28,10 +31,10 @@ const PATH: &str = "/api/organizations/{org_slug}/projects";
 
 pub fn routes() -> Vec<Route> {
     [
-        vec![
-            (routes!(get_projects), RouteProtectionLevel::OrgViewer),
-            (routes!(create_project), RouteProtectionLevel::OrgMember),
-        ],
+        vec![(
+            routes!(get_projects, create_project),
+            RouteProtectionLevel::Authenticated,
+        )],
         project_slug::routes(),
     ]
     .concat()
@@ -52,14 +55,14 @@ pub fn routes() -> Vec<Route> {
     tag = "Projects"
 )]
 async fn get_projects(
-    Extension(org_id): Extension<OrgId>,
-    Extension(state): Extension<AppState>,
+    org: OrgDataViewer,
+    State(state): State<AppState>,
 ) -> AxumResult<Json<Vec<PublicProject>>> {
     let cursor = state
         .database
         .collection::<Project>("projects")
         .find(doc! {
-            "organization_id": org_id.0,
+            "organization_id": org.id,
         })
         .await?;
 
@@ -103,11 +106,11 @@ pub struct CreateProjectBody {
     tag = "Projects"
 )]
 async fn create_project(
-    Extension(org_id): Extension<OrgId>,
-    Extension(state): Extension<AppState>,
+    org: OrgDataMember,
+    State(state): State<AppState>,
     Valid(Json(body)): Valid<Json<CreateProjectBody>>,
 ) -> AxumResult<Json<CreateSuccess>> {
-    let already_exists = fetch_project(&state.database, org_id.0, body.slug.clone()).await?;
+    let already_exists = fetch_project(&state.database, org.id, body.slug.clone()).await?;
 
     if already_exists.is_some() {
         return Err(AxumError::forbidden(eyre::eyre!(
@@ -115,9 +118,8 @@ async fn create_project(
         )));
     }
 
-    let project = Project {
-        id: None,
-        organization_id: org_id.0,
+    let project = PartialProject {
+        organization_id: org.id,
         name: body.name,
         slug: body.slug,
         repository: ProjectRepository {
@@ -130,7 +132,7 @@ async fn create_project(
 
     let inserted = state
         .database
-        .collection::<Project>("projects")
+        .collection("projects")
         .insert_one(project)
         .await?;
 

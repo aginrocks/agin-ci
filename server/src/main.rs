@@ -36,13 +36,7 @@ use utoipa_scalar::{Scalar, Servable as _};
 
 use crate::{
     database::{init_database, init_session_store},
-    middlewares::{
-        require_auth::require_auth,
-        require_org_permissions::{
-            require_org_permissions_admin, require_org_permissions_member,
-            require_org_permissions_owner, require_org_permissions_viewer,
-        },
-    },
+    middlewares::require_auth::require_auth,
     routes::RouteProtectionLevel,
     settings::Settings,
     state::{AppState, InnerState},
@@ -113,7 +107,6 @@ fn init_tracing() -> Result<()> {
     Ok(())
 }
 
-// TODO: Fix routers creation
 #[instrument(skip(state, session_layer))]
 async fn init_axum(
     state: AppState,
@@ -189,54 +182,10 @@ async fn init_axum(
         .into_iter()
         .filter(|(_, protected)| matches!(*protected, RouteProtectionLevel::Authenticated))
         .fold(auth_router, |router, (route, _)| router.routes(route))
-        .layer(middleware::from_fn(require_auth));
-
-    // Add routers for enforcing organization permissions
-    let org_viewer_router = OpenApiRouter::with_openapi(ApiDoc::openapi());
-    let org_member_router = OpenApiRouter::with_openapi(ApiDoc::openapi());
-    let org_admin_router = OpenApiRouter::with_openapi(ApiDoc::openapi());
-    let org_owner_router = OpenApiRouter::with_openapi(ApiDoc::openapi());
-
-    let org_viewer_router = routes
-        .clone()
-        .into_iter()
-        .filter(|(_, protected)| matches!(*protected, RouteProtectionLevel::OrgViewer))
-        .fold(org_viewer_router, |router, (route, _)| router.routes(route))
-        .layer(middleware::from_fn(require_org_permissions_viewer))
-        .layer(middleware::from_fn(require_auth));
-
-    let org_member_router = routes
-        .clone()
-        .into_iter()
-        .filter(|(_, protected)| matches!(*protected, RouteProtectionLevel::OrgMember))
-        .fold(org_member_router, |router, (route, _)| router.routes(route))
-        .layer(middleware::from_fn(require_org_permissions_member))
-        .layer(middleware::from_fn(require_auth));
-
-    let org_admin_router = routes
-        .clone()
-        .into_iter()
-        .filter(|(_, protected)| matches!(*protected, RouteProtectionLevel::OrgAdmin))
-        .fold(org_admin_router, |router, (route, _)| router.routes(route))
-        .layer(middleware::from_fn(require_org_permissions_admin))
-        .layer(middleware::from_fn(require_auth));
-
-    let org_owner_router = routes
-        .clone()
-        .into_iter()
-        .filter(|(_, protected)| matches!(*protected, RouteProtectionLevel::OrgOwner))
-        .fold(org_owner_router, |router, (route, _)| router.routes(route))
-        .layer(middleware::from_fn(require_org_permissions_owner))
-        .layer(middleware::from_fn(require_auth));
+        .layer(middleware::from_fn_with_state(state.clone(), require_auth));
 
     // Combine the routers
     let router = public_router.merge(redirect_router);
-
-    let router = router
-        .merge(org_viewer_router)
-        .merge(org_member_router)
-        .merge(org_admin_router)
-        .merge(org_owner_router);
 
     let router = router.merge(auth_router);
 

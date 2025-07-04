@@ -1,7 +1,16 @@
-use axum::{Extension, extract::Request, middleware::Next, response::Response};
+use std::ops::Deref;
+
+use axum::{
+    extract::{Request, State},
+    middleware::Next,
+    response::Response,
+};
 use axum_oidc::OidcClaims;
 use color_eyre::eyre::{self, ContextCompat};
-use mongodb::{bson::{doc, oid::ObjectId}, options::ReturnDocument};
+use mongodb::{
+    bson::{doc, oid::ObjectId},
+    options::ReturnDocument,
+};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
@@ -19,10 +28,18 @@ pub struct UserData(pub User);
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct UserId(pub ObjectId);
 
+impl Deref for UserId {
+    type Target = ObjectId;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
 /// Middleware that ensures the user is authenticated
 pub async fn require_auth(
     claims: Option<OidcClaims<GroupClaims>>,
-    Extension(state): Extension<AppState>,
+    State(state): State<AppState>,
     mut request: Request,
     next: Next,
 ) -> AxumResult<Response> {
@@ -55,10 +72,8 @@ pub async fn require_auth(
         .await?
         .wrap_err("User not found (wtf?")?;
 
-    let user_id = user.id.wrap_err("User ID not found (wtf?)")?;
-    
-    request.extensions_mut().insert(UserData(user));
-    request.extensions_mut().insert(UserId(user_id));
+    request.extensions_mut().insert(UserData(user.clone()));
+    request.extensions_mut().insert(UserId(user.id));
 
     Ok(next.run(request).await)
 }

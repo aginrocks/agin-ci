@@ -1,6 +1,6 @@
 pub mod member_id;
 
-use axum::{Extension, Json};
+use axum::{Extension, Json, extract::State};
 use color_eyre::eyre;
 use futures::TryStreamExt;
 use mongodb::bson::{doc, oid::ObjectId};
@@ -13,7 +13,7 @@ use crate::{
     database::{Membership, Organization, OrganizationRole},
     middlewares::{
         require_auth::{UnauthorizedError, UserId},
-        require_org_permissions::{ForbiddenError, OrgData, OrgId},
+        require_org_permissions::{ForbiddenError, OrgDataAdmin, OrgDataViewer},
     },
     mongo_id::object_id_as_string_required,
     routes::{
@@ -29,16 +29,10 @@ const PATH: &str = "/api/organizations/{org_slug}/members";
 
 pub fn routes() -> Vec<Route> {
     [
-        vec![
-            (
-                routes!(get_organization_members),
-                RouteProtectionLevel::OrgViewer,
-            ),
-            (
-                routes!(add_organization_member),
-                RouteProtectionLevel::OrgAdmin,
-            ),
-        ],
+        vec![(
+            routes!(get_organization_members, add_organization_member),
+            RouteProtectionLevel::Authenticated,
+        )],
         member_id::routes(),
     ]
     .concat()
@@ -69,11 +63,11 @@ struct Member {
     tag = "Organization"
 )]
 async fn get_organization_members(
-    Extension(state): Extension<AppState>,
-    Extension(org_id): Extension<OrgId>,
+    State(state): State<AppState>,
+    org: OrgDataViewer,
 ) -> AxumResult<Json<Vec<Member>>> {
     let pipeline = vec![
-        doc! { "$match": { "_id": org_id.0 } },
+        doc! { "$match": { "_id": org.id } },
         doc! { "$unwind": "$members" },
         doc! {
             "$lookup": {
@@ -125,9 +119,8 @@ async fn get_organization_members(
     tag = "Organization"
 )]
 async fn add_organization_member(
-    Extension(state): Extension<AppState>,
-    Extension(org_id): Extension<OrgId>,
-    Extension(org): Extension<OrgData>,
+    State(state): State<AppState>,
+    org: OrgDataAdmin,
     Extension(user_id): Extension<UserId>,
     Json(body): Json<Membership>,
 ) -> AxumResult<Json<CreateSuccess>> {
@@ -157,7 +150,7 @@ async fn add_organization_member(
         .database
         .collection::<Organization>("organizations")
         .update_one(
-            doc! { "_id": org_id.0 },
+            doc! { "_id": org.id },
             doc! {
                 "$push": {
                     "members": {
@@ -171,6 +164,6 @@ async fn add_organization_member(
 
     Ok(Json(CreateSuccess {
         success: true,
-        id: org_id.0.to_string(),
+        id: org.id.to_string(),
     }))
 }

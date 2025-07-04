@@ -2,7 +2,7 @@ mod members;
 mod projects;
 mod secrets;
 
-use axum::{Extension, Json, response::IntoResponse};
+use axum::{Json, extract::State, response::IntoResponse};
 use axum_valid::Valid;
 use color_eyre::eyre;
 use futures::TryStreamExt;
@@ -15,7 +15,7 @@ use crate::{
     database::{MutableOrganization, Organization, Project, Secret},
     middlewares::{
         require_auth::UnauthorizedError,
-        require_org_permissions::{ForbiddenError, OrgData, OrgId},
+        require_org_permissions::{ForbiddenError, OrgDataAdmin, OrgDataOwner, OrgDataViewer},
     },
     routes::{RouteProtectionLevel, api::CreateSuccess},
     state::AppState,
@@ -27,11 +27,10 @@ const PATH: &str = "/api/organizations/{org_slug}";
 
 pub fn routes() -> Vec<Route> {
     [
-        vec![
-            (routes!(get_organization), RouteProtectionLevel::OrgViewer),
-            (routes!(edit_organization), RouteProtectionLevel::OrgAdmin),
-            (routes!(delete_organization), RouteProtectionLevel::OrgOwner),
-        ],
+        vec![(
+            routes!(get_organization, edit_organization, delete_organization),
+            RouteProtectionLevel::Authenticated,
+        )],
         members::routes(),
         secrets::routes(),
         projects::routes(),
@@ -53,8 +52,8 @@ pub fn routes() -> Vec<Route> {
     ),
     tag = "Organization"
 )]
-async fn get_organization(Extension(org): Extension<OrgData>) -> AxumResult<Json<Organization>> {
-    Ok(Json(org.0))
+async fn get_organization(OrgDataViewer(org): OrgDataViewer) -> AxumResult<Json<Organization>> {
+    Ok(Json(org))
 }
 
 /// Edit org
@@ -73,12 +72,11 @@ async fn get_organization(Extension(org): Extension<OrgData>) -> AxumResult<Json
     tag = "Organization"
 )]
 async fn edit_organization(
-    Extension(org_id): Extension<OrgId>,
-    Extension(org): Extension<OrgData>,
-    Extension(state): Extension<AppState>,
+    org: OrgDataAdmin,
+    State(state): State<AppState>,
     Valid(Json(body)): Valid<Json<MutableOrganization>>,
 ) -> AxumResult<Json<CreateSuccess>> {
-    if org.0.slug != body.slug {
+    if org.slug != body.slug {
         let already_exists = state
             .database
             .collection::<Organization>("organizations")
@@ -96,7 +94,7 @@ async fn edit_organization(
         .database
         .collection::<Organization>("organizations")
         .update_one(
-            doc! { "_id": org_id.0 },
+            doc! { "_id": org.id },
             doc! {
                 "$set": {
                     "name": body.name,
@@ -109,7 +107,7 @@ async fn edit_organization(
 
     Ok(Json(CreateSuccess {
         success: true,
-        id: org_id.0.to_string(),
+        id: org.id.to_string(),
     }))
 }
 
@@ -130,40 +128,40 @@ async fn edit_organization(
     tag = "Organization"
 )]
 async fn delete_organization(
-    Extension(org_id): Extension<OrgId>,
-    Extension(state): Extension<AppState>,
+    org: OrgDataOwner,
+    State(state): State<AppState>,
 ) -> AxumResult<impl IntoResponse> {
     let projects = state.database.collection::<Project>("projects");
     let secrets = state.database.collection::<Secret>("secrets");
     let organizations = state.database.collection::<Organization>("organizations");
 
     // Step 1: Find all project IDs belonging to the organization
-    let projects_cursor = projects.find(doc! { "organization_id": org_id.0 }).await?;
+    let projects_cursor = projects.find(doc! { "organization_id": org.id }).await?;
 
     let project_ids: Vec<ObjectId> = projects_cursor
         .try_collect::<Vec<Project>>()
         .await?
         .into_iter()
-        .filter_map(|p| p.id)
+        .filter_map(|p| Some(p.id))
         .collect();
 
     // Step 2: Delete the projects
     projects
-        .delete_many(doc! { "organization_id": org_id.0 })
+        .delete_many(doc! { "organization_id": org.id })
         .await?;
 
     // Step 3: Delete associated secrets (by organization_id or project_id in project_ids)
     secrets
         .delete_many(doc! {
             "$or": [
-                { "organization_id": org_id.0 },
+                { "organization_id": org.id },
                 { "project_id": { "$in": project_ids } }
             ]
         })
         .await?;
 
     // Step 4: Delete the organization itself
-    organizations.delete_one(doc! { "_id": org_id.0 }).await?;
+    organizations.delete_one(doc! { "_id": org.id }).await?;
 
     Ok((StatusCode::NO_CONTENT, ()))
 }

@@ -12,10 +12,6 @@ pub enum RouteProtectionLevel {
     Public,
     Redirect,
     Authenticated,
-    OrgViewer,
-    OrgMember,
-    OrgAdmin,
-    OrgOwner,
 }
 
 type Route = (UtoipaMethodRouter<AppState>, RouteProtectionLevel);

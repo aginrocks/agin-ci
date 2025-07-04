@@ -1,6 +1,6 @@
 mod org_slug;
 
-use axum::{Extension, Json};
+use axum::{Extension, Json, extract::State};
 use axum_valid::Valid;
 use color_eyre::eyre::{self, Context, ContextCompat};
 use mongodb::bson::doc;
@@ -8,7 +8,7 @@ use utoipa_axum::routes;
 
 use crate::{
     axum_error::{AxumError, AxumResult},
-    database::{MutableOrganization, Organization},
+    database::{MutableOrganization, Organization, PartialOrganization},
     middlewares::require_auth::{UnauthorizedError, UserData, UserId},
     routes::{RouteProtectionLevel, api::CreateSuccess},
     state::AppState,
@@ -42,7 +42,7 @@ pub fn routes() -> Vec<Route> {
 )]
 async fn get_organizations(
     Extension(user): Extension<UserData>,
-    Extension(state): Extension<AppState>,
+    State(state): State<AppState>,
 ) -> AxumResult<Json<Vec<Organization>>> {
     let cursor = state
         .database
@@ -70,7 +70,7 @@ async fn get_organizations(
 )]
 async fn create_organization(
     Extension(user_id): Extension<UserId>,
-    Extension(state): Extension<AppState>,
+    State(state): State<AppState>,
     Valid(body): Valid<Json<MutableOrganization>>,
 ) -> AxumResult<Json<CreateSuccess>> {
     let already_exists = state
@@ -85,8 +85,7 @@ async fn create_organization(
         )));
     }
 
-    let organization = Organization {
-        id: None,
+    let organization = PartialOrganization {
         name: body.name.clone(),
         description: body.description.clone(),
         slug: body.slug.clone(),
@@ -98,7 +97,7 @@ async fn create_organization(
 
     let inserted_org = state
         .database
-        .collection::<Organization>("organizations")
+        .collection::<PartialOrganization>("organizations")
         .insert_one(organization)
         .await
         .wrap_err("Failed to create organization")?;

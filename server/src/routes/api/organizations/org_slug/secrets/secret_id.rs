@@ -1,4 +1,8 @@
-use axum::{Extension, Json, extract::Path, response::IntoResponse};
+use axum::{
+    Json,
+    extract::{Path, State},
+    response::IntoResponse,
+};
 use color_eyre::eyre;
 use http::StatusCode;
 use mongodb::bson::{doc, oid::ObjectId};
@@ -11,7 +15,7 @@ use crate::{
     database::{Secret, SecretScope},
     middlewares::{
         require_auth::UnauthorizedError,
-        require_org_permissions::{ForbiddenError, OrgId},
+        require_org_permissions::{ForbiddenError, OrgDataMember},
     },
     routes::{RouteProtectionLevel, api::CreateSuccess},
     state::AppState,
@@ -24,7 +28,7 @@ const PATH: &str = "/api/organizations/{org_slug}/secrets/{secret_id}";
 pub fn routes() -> Vec<Route> {
     vec![(
         routes!(delete_organization_secret, edit_organization_secret),
-        RouteProtectionLevel::OrgMember,
+        RouteProtectionLevel::Authenticated,
     )]
 }
 
@@ -44,8 +48,8 @@ pub fn routes() -> Vec<Route> {
     tag = "Secrets"
 )]
 async fn delete_organization_secret(
-    Extension(org_id): Extension<OrgId>,
-    Extension(state): Extension<AppState>,
+    org: OrgDataMember,
+    State(state): State<AppState>,
     Path((_org_slug, secret_id)): Path<(String, String)>,
 ) -> AxumResult<impl IntoResponse> {
     let secret_id = ObjectId::parse_str(&secret_id)?;
@@ -54,7 +58,7 @@ async fn delete_organization_secret(
         .database
         .collection::<Secret>("secrets")
         .find_one_and_delete(doc! {
-            "organization_id": org_id.0,
+            "organization_id": org.id,
             "scope": SecretScope::Organization,
             "_id": secret_id
         })
@@ -90,8 +94,8 @@ pub struct EditOrgSecretBody {
     tag = "Secrets"
 )]
 async fn edit_organization_secret(
-    Extension(org_id): Extension<OrgId>,
-    Extension(state): Extension<AppState>,
+    org: OrgDataMember,
+    State(state): State<AppState>,
     Path((_org_slug, secret_id)): Path<(String, String)>,
     Json(body): Json<EditOrgSecretBody>,
 ) -> AxumResult<Json<CreateSuccess>> {
@@ -102,7 +106,7 @@ async fn edit_organization_secret(
         .collection::<Secret>("secrets")
         .find_one_and_update(
             doc! {
-                "organization_id": org_id.0,
+                "organization_id": org.id,
                 "scope": SecretScope::Organization,
                 "_id": secret_id
             },

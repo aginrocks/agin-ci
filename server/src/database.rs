@@ -4,6 +4,7 @@ use mongodb::{
     Client, Database,
     bson::{doc, oid::ObjectId},
 };
+use partial_struct::Partial;
 use serde::{Deserialize, Serialize};
 use tower_sessions::{
     Expiry, SessionManagerLayer,
@@ -15,9 +16,21 @@ use tower_sessions_redis_store::{
 };
 use utoipa::ToSchema;
 use validator::Validate;
+use visible::StructFields;
 
 use crate::mongo_id::{object_id_as_string, object_id_as_string_required};
 use crate::settings::Settings;
+
+macro_rules! database_object {
+    ($name:ident { $($field:tt)* }$(, $($omitfield:ident),*)?) => {
+        #[derive(Partial, Debug, Serialize, Deserialize, ToSchema, Clone)]
+        #[partial(omit(id $(, $($omitfield),* )?), derive(Debug, Serialize, Deserialize, ToSchema, Clone))]
+        #[StructFields(pub)]
+        pub struct $name {
+            $($field)*
+        }
+    };
+}
 
 pub async fn init_database(settings: &Settings) -> Result<Database> {
     let client = Client::with_uri_str(&settings.db.connection_string).await?;
@@ -45,28 +58,22 @@ pub async fn init_session_store(
     Ok(session_layer)
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug, ToSchema)]
-pub struct User {
-    #[serde(
-        rename = "_id",
-        skip_serializing_if = "Option::is_none",
-        with = "object_id_as_string"
-    )]
-    #[schema(value_type = Option<String>)]
-    pub id: Option<ObjectId>,
-    pub subject: String,
-    pub name: String,
-    pub email: String,
-}
+database_object!(User {
+    #[serde(rename = "_id", with = "object_id_as_string_required")]
+    #[schema(value_type = String)]
+    id: ObjectId,
+    subject: String,
+    name: String,
+    email: String,
+});
 
-// NOTE: The order is VERY IMPORTANT, from least to most privileged.
 #[derive(Serialize, Deserialize, ToSchema, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 #[serde(rename_all = "lowercase")]
 pub enum OrganizationRole {
-    Viewer,
-    Member,
-    Admin,
-    Owner,
+    Viewer = 0,
+    Member = 1,
+    Admin = 2,
+    Owner = 3,
 }
 
 impl From<OrganizationRole> for mongodb::bson::Bson {
@@ -75,13 +82,12 @@ impl From<OrganizationRole> for mongodb::bson::Bson {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug, ToSchema)]
-pub struct Membership {
+database_object!(Membership {
     #[schema(value_type = String)]
     #[serde(with = "object_id_as_string_required")]
-    pub user_id: ObjectId,
-    pub role: OrganizationRole,
-}
+    user_id: ObjectId,
+    role: OrganizationRole,
+});
 
 #[derive(Serialize, Deserialize, Clone, Debug, ToSchema)]
 #[serde(rename_all = "lowercase")]
@@ -96,54 +102,50 @@ impl From<SecretScope> for mongodb::bson::Bson {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug, ToSchema)]
-pub struct Secret {
+database_object!(Secret {
     #[serde(
         rename = "_id",
-        skip_serializing_if = "Option::is_none",
-        with = "object_id_as_string"
+        with = "object_id_as_string_required"
     )]
-    #[schema(value_type = Option<String>)]
-    pub id: Option<ObjectId>,
+    #[schema(value_type = String)]
+    id: ObjectId,
 
-    pub name: String,
+    name: String,
 
-    pub scope: SecretScope,
+    scope: SecretScope,
 
     #[serde(with = "object_id_as_string_required")]
     #[schema(value_type = String)]
-    pub organization_id: ObjectId,
+    organization_id: ObjectId,
 
     #[serde(with = "object_id_as_string")]
     #[schema(value_type = Option<String>)]
-    pub project_id: Option<ObjectId>,
+    project_id: Option<ObjectId>,
 
-    pub secret: String,
-}
+    secret: String,
+});
 
-/// Secret object that can be safely sent to the client
-#[derive(Serialize, Deserialize, Clone, Debug, ToSchema)]
-pub struct PublicSecret {
+// Secret object that can be safely sent to the client
+database_object!(PublicSecret {
     #[serde(
         rename = "_id",
-        skip_serializing_if = "Option::is_none",
-        with = "object_id_as_string"
+        with = "object_id_as_string_required"
     )]
-    #[schema(value_type = Option<String>)]
-    pub id: Option<ObjectId>,
+    #[schema(value_type = String)]
+    id: ObjectId,
 
-    pub name: String,
+    name: String,
 
-    pub scope: SecretScope,
+    scope: SecretScope,
 
     #[serde(with = "object_id_as_string_required")]
     #[schema(value_type = String)]
-    pub organization_id: ObjectId,
+    organization_id: ObjectId,
 
     #[serde(with = "object_id_as_string")]
     #[schema(value_type = Option<String>)]
-    pub project_id: Option<ObjectId>,
-}
+    project_id: Option<ObjectId>,
+});
 
 impl Secret {
     pub fn to_public(&self) -> PublicSecret {
@@ -157,24 +159,22 @@ impl Secret {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug, ToSchema)]
-pub struct Organization {
+database_object!(Organization {
     #[serde(
         rename = "_id",
-        skip_serializing_if = "Option::is_none",
-        with = "object_id_as_string"
+        with = "object_id_as_string_required"
     )]
     #[schema(value_type = Option<String>)]
-    pub id: Option<ObjectId>,
-    pub name: String,
-    pub description: String,
-    pub slug: String,
-    pub members: Vec<Membership>,
-}
+    id: ObjectId,
+    name: String,
+    description: String,
+    slug: String,
+    members: Vec<Membership>,
+});
 
 // TODO: Make a custom validation error handler to properly serialize errors to JSON
 
-// MutableOrganization is used for creating or updating organization throught the API.
+/// MutableOrganization is used for creating or updating organization throught the API.
 #[derive(Serialize, Deserialize, ToSchema, Validate)]
 pub struct MutableOrganization {
     #[validate(length(min = 1, max = 32))]
@@ -201,7 +201,7 @@ impl From<ProjectRepositorySource> for mongodb::bson::Bson {
     }
 }
 
-#[derive(Serialize, Deserialize, ToSchema)]
+#[derive(Serialize, Deserialize, ToSchema, Clone, Debug)]
 pub struct ProjectRepository {
     pub url: String,
     pub source: ProjectRepositorySource,
@@ -209,26 +209,21 @@ pub struct ProjectRepository {
     pub deploy_key: Option<String>,
 }
 
-#[derive(Serialize, Deserialize, ToSchema)]
-pub struct Project {
-    #[serde(
-        rename = "_id",
-        skip_serializing_if = "Option::is_none",
-        with = "object_id_as_string"
-    )]
-    #[schema(value_type = Option<String>)]
-    pub id: Option<ObjectId>,
+database_object!(Project {
+    #[serde(rename = "_id", with = "object_id_as_string_required")]
+    #[schema(value_type = String)]
+    id: ObjectId,
 
     #[schema(value_type = Option<String>)]
     #[serde(with = "object_id_as_string_required")]
-    pub organization_id: ObjectId,
+    organization_id: ObjectId,
 
-    pub name: String,
+    name: String,
 
-    pub slug: String,
+    slug: String,
 
-    pub repository: ProjectRepository,
-}
+    repository: ProjectRepository,
+});
 
 impl Project {
     pub fn to_public(&self) -> PublicProject {
@@ -259,13 +254,9 @@ pub struct PublicProjectRepository {
 /// Project object that can be safely sent to the client
 #[derive(Serialize, Deserialize, ToSchema)]
 pub struct PublicProject {
-    #[serde(
-        rename = "_id",
-        skip_serializing_if = "Option::is_none",
-        with = "object_id_as_string"
-    )]
-    #[schema(value_type = Option<String>)]
-    pub id: Option<ObjectId>,
+    #[serde(rename = "_id", with = "object_id_as_string_required")]
+    #[schema(value_type = String)]
+    pub id: ObjectId,
 
     #[serde(with = "object_id_as_string_required")]
     #[schema(value_type = String)]
@@ -278,17 +269,12 @@ pub struct PublicProject {
     pub repository: PublicProjectRepository,
 }
 
-#[derive(Serialize, Deserialize, ToSchema)]
-pub struct Worker {
-    #[serde(
-        rename = "_id",
-        skip_serializing_if = "Option::is_none",
-        with = "object_id_as_string"
-    )]
-    #[schema(value_type = Option<String>)]
-    pub id: Option<ObjectId>,
-    pub token: String,
-}
+database_object!(Worker {
+    #[serde(rename = "_id", with = "object_id_as_string_required")]
+    #[schema(value_type = String)]
+    id: ObjectId,
+    token: String,
+});
 
 pub async fn fetch_project(
     database: &Database,

@@ -1,4 +1,8 @@
-use axum::{Extension, Json, extract::Path, response::IntoResponse};
+use axum::{
+    Extension, Json,
+    extract::{Path, State},
+    response::IntoResponse,
+};
 use color_eyre::eyre;
 use http::StatusCode;
 use mongodb::bson::{doc, oid::ObjectId};
@@ -11,7 +15,7 @@ use crate::{
     database::{Membership, Organization, OrganizationRole},
     middlewares::{
         require_auth::{UnauthorizedError, UserId},
-        require_org_permissions::{ForbiddenError, OrgData, OrgId},
+        require_org_permissions::{ForbiddenError, OrgDataAdmin},
     },
     routes::{RouteProtectionLevel, api::CreateSuccess},
     state::AppState,
@@ -24,7 +28,7 @@ const PATH: &str = "/api/organizations/{org_slug}/members/{member_id}";
 pub fn routes() -> Vec<Route> {
     vec![(
         routes!(edit_organization_member, delete_organization_member),
-        RouteProtectionLevel::OrgAdmin,
+        RouteProtectionLevel::Authenticated,
     )]
 }
 
@@ -52,9 +56,8 @@ pub fn get_membership_details(org: &Organization, member_id: ObjectId) -> AxumRe
     tag = "Organization"
 )]
 async fn delete_organization_member(
-    Extension(state): Extension<AppState>,
-    Extension(org): Extension<OrgData>,
-    Extension(org_id): Extension<OrgId>,
+    State(state): State<AppState>,
+    org: OrgDataAdmin,
     Extension(user_id): Extension<UserId>,
     Path((_org_slug, member_id)): Path<(String, String)>,
 ) -> AxumResult<impl IntoResponse> {
@@ -77,7 +80,7 @@ async fn delete_organization_member(
         .database
         .collection::<Organization>("organizations")
         .update_one(
-            doc! { "_id": org_id.0, "members.user_id": member_id },
+            doc! { "_id": org.id, "members.user_id": member_id },
             doc! { "$pull": { "members": { "user_id": member_id } } },
         )
         .await?;
@@ -107,9 +110,8 @@ struct EditRoleBody {
     tag = "Organization"
 )]
 async fn edit_organization_member(
-    Extension(state): Extension<AppState>,
-    Extension(org): Extension<OrgData>,
-    Extension(org_id): Extension<OrgId>,
+    State(state): State<AppState>,
+    org: OrgDataAdmin,
     Extension(user_id): Extension<UserId>,
     Path((_org_slug, member_id)): Path<(String, String)>,
     body: Json<EditRoleBody>,
@@ -138,7 +140,7 @@ async fn edit_organization_member(
             .database
             .collection::<Organization>("organizations")
             .update_one(
-                doc! { "_id": org_id.0, "members.user_id": user_id.0 },
+                doc! { "_id": org.id, "members.user_id": user_id.0 },
                 doc! {
                     "$set": {
                         "members.$.role": "admin",
@@ -152,7 +154,7 @@ async fn edit_organization_member(
         .database
         .collection::<Organization>("organizations")
         .update_one(
-            doc! { "_id": org_id.0, "members.user_id": member_id },
+            doc! { "_id": org.id, "members.user_id": member_id },
             doc! {
                 "$set": {
                     "members.$.role": &body.role,

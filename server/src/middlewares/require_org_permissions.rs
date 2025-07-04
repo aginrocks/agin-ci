@@ -1,13 +1,15 @@
-use axum::{Extension, extract::Request, middleware::Next, response::Response};
-use color_eyre::eyre::{self, ContextCompat};
-use mongodb::bson::{doc, oid::ObjectId};
+use std::ops::Deref;
+
+use axum::extract::{FromRequestParts, RawPathParams};
+use color_eyre::eyre::{self};
+use mongodb::bson::doc;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
 use crate::{
-    axum_error::{AxumError, AxumResult},
+    axum_error::AxumError,
     database::{Organization, OrganizationRole},
-    middlewares::require_auth::UserData,
+    middlewares::require_auth::UserId,
     state::AppState,
 };
 
@@ -15,139 +17,106 @@ use crate::{
 #[derive(Clone, Debug, Serialize, ToSchema, Deserialize)]
 pub struct OrgData(pub Organization);
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct OrgId(pub ObjectId);
+/// Organization data with viewer role requirement
+#[derive(Clone, Debug, Serialize, ToSchema, Deserialize)]
+pub struct OrgDataViewer(pub Organization);
 
-// TODO: Find a better way to handle this
+/// Organization data with member role requirement
+#[derive(Clone, Debug, Serialize, ToSchema, Deserialize)]
+pub struct OrgDataMember(pub Organization);
 
-/// Extract org_slug from any path that follows /api/organizations/{org_slug}/*
-fn extract_org_slug_from_path(path: &str) -> Option<String> {
-    // Expected pattern: /api/organizations/{org_slug} or /api/organizations/{org_slug}/...
-    let parts: Vec<&str> = path.split('/').collect();
+/// Organization data with admin role requirement
+#[derive(Clone, Debug, Serialize, ToSchema, Deserialize)]
+pub struct OrgDataAdmin(pub Organization);
 
-    // We need at least: ["", "api", "organizations", "{org_slug}"]
-    if parts.len() >= 4 && parts[1] == "api" && parts[2] == "organizations" {
-        Some(parts[3].to_string())
-    } else {
-        None
-    }
+/// Organization data with owner role requirement
+#[derive(Clone, Debug, Serialize, ToSchema, Deserialize)]
+pub struct OrgDataOwner(pub Organization);
+
+// Macro to implement role-specific extractors
+macro_rules! impl_org_data_extractor {
+    ($struct_name:ident, $required_role:expr) => {
+        impl FromRequestParts<AppState> for $struct_name {
+            type Rejection = AxumError;
+
+            async fn from_request_parts(
+                parts: &mut http::request::Parts,
+                state: &AppState,
+            ) -> Result<Self, Self::Rejection> {
+                let params = RawPathParams::from_request_parts(parts, state)
+                    .await
+                    .map_err(|_| {
+                        AxumError::bad_request(eyre::eyre!("Invalid organization path"))
+                    })?;
+
+                let user_id = parts
+                    .extensions
+                    .get::<UserId>()
+                    .ok_or(AxumError::unauthorized(eyre::eyre!("Unauthorized")))?;
+
+                // Extract org_slug from the request path
+                let org_slug = params
+                    .iter()
+                    .find_map(|(param, value)| {
+                        if param == "org_slug" {
+                            Some(value)
+                        } else {
+                            None
+                        }
+                    })
+                    .ok_or_else(|| {
+                        AxumError::bad_request(eyre::eyre!("Invalid organization path"))
+                    })?;
+
+                let org = state
+                    .database
+                    .collection::<Organization>("organizations")
+                    .find_one(doc! {
+                        "slug": org_slug,
+                    })
+                    .await?;
+
+                if org.is_none() {
+                    return Err(AxumError::not_found(eyre::eyre!("Organization not found")));
+                }
+
+                let org = org.unwrap();
+
+                let membership = org.members.iter().find(|m| &m.user_id == user_id.deref());
+
+                if membership.is_none() {
+                    return Err(AxumError::forbidden(eyre::eyre!(
+                        "You do not have sufficient permissions to perform this action"
+                    )));
+                }
+
+                let membership = membership.unwrap();
+                let has_access = membership.role >= $required_role;
+
+                if !has_access {
+                    return Err(AxumError::forbidden(eyre::eyre!(
+                        "You do not have sufficient permissions to perform this action"
+                    )));
+                }
+
+                Ok(Self(org))
+            }
+        }
+        impl Deref for $struct_name {
+            type Target = Organization;
+
+            fn deref(&self) -> &Self::Target {
+                &self.0
+            }
+        }
+    };
 }
 
-/// Middleware that ensures the user has sufficient permissions for the organization
-pub async fn require_org_permissions(
-    Extension(state): Extension<AppState>,
-    Extension(user): Extension<UserData>,
-    mut request: Request,
-    next: Next,
-    required_role: OrganizationRole,
-) -> AxumResult<Response> {
-    let user_id = user.0.id.wrap_err("User not found")?;
-
-    // Extract org_slug from the request path
-    let org_slug = extract_org_slug_from_path(request.uri().path())
-        .ok_or_else(|| AxumError::bad_request(eyre::eyre!("Invalid organization path")))?;
-
-    let org = state
-        .database
-        .collection::<Organization>("organizations")
-        .find_one(doc! {
-            "slug": org_slug,
-        })
-        .await?;
-
-    if org.is_none() {
-        return Err(AxumError::not_found(eyre::eyre!("Organization not found")));
-    }
-
-    let org = org.unwrap();
-
-    let membership = org.members.iter().find(|m| m.user_id == user_id);
-
-    if membership.is_none() {
-        return Err(AxumError::forbidden(eyre::eyre!(
-            "You do not have sufficient permissions to perform this action"
-        )));
-    }
-
-    let membership = membership.unwrap();
-    let has_access = membership.role >= required_role;
-
-    if !has_access {
-        return Err(AxumError::forbidden(eyre::eyre!(
-            "You do not have sufficient permissions to perform this action"
-        )));
-    }
-    let org_id = org.id.wrap_err("Organization ID not found (wtf?)")?;
-
-    request.extensions_mut().insert(OrgData(org));
-    request.extensions_mut().insert(OrgId(org_id));
-
-    Ok(next.run(request).await)
-}
-
-pub async fn require_org_permissions_viewer(
-    Extension(state): Extension<AppState>,
-    Extension(user): Extension<UserData>,
-    request: Request,
-    next: Next,
-) -> AxumResult<Response> {
-    require_org_permissions(
-        Extension(state),
-        Extension(user),
-        request,
-        next,
-        OrganizationRole::Viewer,
-    )
-    .await
-}
-
-pub async fn require_org_permissions_member(
-    Extension(state): Extension<AppState>,
-    Extension(user): Extension<UserData>,
-    request: Request,
-    next: Next,
-) -> AxumResult<Response> {
-    require_org_permissions(
-        Extension(state),
-        Extension(user),
-        request,
-        next,
-        OrganizationRole::Member,
-    )
-    .await
-}
-
-pub async fn require_org_permissions_admin(
-    Extension(state): Extension<AppState>,
-    Extension(user): Extension<UserData>,
-    request: Request,
-    next: Next,
-) -> AxumResult<Response> {
-    require_org_permissions(
-        Extension(state),
-        Extension(user),
-        request,
-        next,
-        OrganizationRole::Admin,
-    )
-    .await
-}
-
-pub async fn require_org_permissions_owner(
-    Extension(state): Extension<AppState>,
-    Extension(user): Extension<UserData>,
-    request: Request,
-    next: Next,
-) -> AxumResult<Response> {
-    require_org_permissions(
-        Extension(state),
-        Extension(user),
-        request,
-        next,
-        OrganizationRole::Owner,
-    )
-    .await
-}
+// Implement extractors for each role
+impl_org_data_extractor!(OrgDataViewer, OrganizationRole::Viewer);
+impl_org_data_extractor!(OrgDataMember, OrganizationRole::Member);
+impl_org_data_extractor!(OrgDataAdmin, OrganizationRole::Admin);
+impl_org_data_extractor!(OrgDataOwner, OrganizationRole::Owner);
 
 #[derive(Serialize, ToSchema)]
 #[schema(example = json!({"error": "You do not have sufficient permissions to perform this action"}))]

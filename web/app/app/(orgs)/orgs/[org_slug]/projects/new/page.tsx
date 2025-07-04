@@ -33,7 +33,7 @@ import { useEffect } from 'react';
 import { slugify } from '@lib/utils';
 import { toast } from 'sonner';
 import { useOrg } from '@lib/hooks';
-import { REPO_URL } from '@lib/constants';
+import { REPO_URL, WEBHOOKS_SUPPORTED } from '@lib/constants';
 
 const RESERVED_SLUGS = ['new', 'edit', 'delete', 'create'];
 
@@ -201,7 +201,26 @@ export default function Page() {
                                         <Input placeholder={`${REPO_URL}.git`} {...field} />
                                     </FormControl>
                                     <FormDescription>
-                                        You can provide any valid Git clone URL.
+                                        You can provide any valid Git clone URL, however we
+                                        recommend using {WEBHOOKS_SUPPORTED.slice(0, -1).join(', ')}{' '}
+                                        or {WEBHOOKS_SUPPORTED.slice(-1)} for automated workflow
+                                        runs. If your provider is not supported, feel free to{' '}
+                                        <a
+                                            href={`${REPO_URL}/issues/new`}
+                                            target="_blank"
+                                            className="underline hover:text-foreground transition-all"
+                                        >
+                                            open an issue
+                                        </a>{' '}
+                                        or a{' '}
+                                        <a
+                                            href={`${REPO_URL}/pulls`}
+                                            target="_blank"
+                                            className="underline hover:text-foreground transition-all"
+                                        >
+                                            pull request
+                                        </a>
+                                        .
                                     </FormDescription>
                                     <FormMessage />
                                 </FormItem>

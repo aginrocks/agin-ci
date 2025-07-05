@@ -48,6 +48,7 @@ impl AxumError {
         Self::with_status(report, StatusCode::CONFLICT)
     }
 
+    #[allow(dead_code)]
     pub fn unprocessable_entity(report: Report) -> Self {
         Self::with_status(report, StatusCode::UNPROCESSABLE_ENTITY)
     }

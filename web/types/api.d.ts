@@ -252,6 +252,7 @@ export interface components {
             role: components["schemas"]["OrganizationRole"];
             user_id: string;
         };
+        /** @description MutableOrganization is used for creating or updating organization throught the API. */
         MutableOrganization: {
             description: string;
             name: string;
@@ -270,7 +271,7 @@ export interface components {
         ProjectRepositorySource: "github" | "forgejo" | "genericgit";
         /** @description Project object that can be safely sent to the client */
         PublicProject: {
-            _id?: string | null;
+            _id: string;
             name: string;
             organization_id: string;
             repository: components["schemas"]["PublicProjectRepository"];
@@ -283,9 +284,8 @@ export interface components {
             url: string;
             webhook_secret_generated: boolean;
         };
-        /** @description Secret object that can be safely sent to the client */
         PublicSecret: {
-            _id?: string | null;
+            _id: string;
             name: string;
             organization_id: string;
             project_id?: string | null;
@@ -300,7 +300,7 @@ export interface components {
             error: string;
         };
         User: {
-            _id?: string | null;
+            _id: string;
             email: string;
             name: string;
             subject: string;

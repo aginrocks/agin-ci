@@ -1,9 +1,17 @@
 'use client';
-import { $api } from '@lib/providers/api';
-import { useQuery } from '@tanstack/react-query';
+
+import { Header } from '@components/landing-page/header';
+import { Hero } from '@components/landing-page/hero';
 
 export default function Home() {
-    const { data } = useQuery($api.queryOptions('get', '/api/user'));
-
-    return <div>{data?.email}</div>;
+    return (
+        <div
+            style={{
+                fontFamily: 'var(--font-inter), sans-serif',
+            }}
+        >
+            <Header />
+            <Hero />
+        </div>
+    );
 }

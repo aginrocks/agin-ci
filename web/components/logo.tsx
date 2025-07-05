@@ -2,9 +2,13 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { cn } from '@lib/utils';
 
-export function Logo({ className, ...props }: React.ComponentProps<'div'>) {
+export type LogoProps = React.ComponentProps<'div'> & {
+    href?: string;
+};
+
+export function Logo({ className, href = '/app', ...props }: LogoProps) {
     return (
-        <Link href="/app">
+        <Link href={href}>
             <div className={cn('px-2 pt-2', className)} {...props}>
                 <Image
                     src="/logo.svg"

@@ -89,6 +89,7 @@ async fn create_organization(
         name: body.name.clone(),
         description: body.description.clone(),
         slug: body.slug.clone(),
+        avatar_email: body.avatar_email.clone(),
         members: vec![crate::database::Membership {
             user_id: user_id.0,
             role: crate::database::OrganizationRole::Owner,

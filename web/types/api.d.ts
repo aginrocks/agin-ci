@@ -254,12 +254,14 @@ export interface components {
         };
         /** @description MutableOrganization is used for creating or updating organization throught the API. */
         MutableOrganization: {
+            avatar_email?: string | null;
             description: string;
             name: string;
             slug: string;
         };
         Organization: {
             _id?: string | null;
+            avatar_email?: string | null;
             description: string;
             members: components["schemas"]["Membership"][];
             name: string;

@@ -99,7 +99,8 @@ async fn edit_organization(
                 "$set": {
                     "name": body.name,
                     "slug": body.slug,
-                    "description": body.description
+                    "description": body.description,
+                    "avatar_email": body.avatar_email,
                 }
             },
         )

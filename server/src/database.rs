@@ -170,6 +170,7 @@ database_object!(Organization {
     description: String,
     slug: String,
     members: Vec<Membership>,
+    avatar_email: Option<String>,
 });
 
 // TODO: Make a custom validation error handler to properly serialize errors to JSON
@@ -185,6 +186,9 @@ pub struct MutableOrganization {
 
     #[validate(custom(function = "slug_validator"), length(min = 1, max = 32))]
     pub slug: String,
+
+    #[validate(email)]
+    pub avatar_email: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, ToSchema, Clone, Debug)]

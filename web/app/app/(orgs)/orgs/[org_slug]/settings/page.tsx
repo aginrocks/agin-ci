@@ -19,6 +19,11 @@ export default function Page() {
             description: '',
             slug: '',
         },
+        values: thisOrg && {
+            name: thisOrg.name,
+            description: thisOrg.description,
+            slug: thisOrg.slug,
+        },
     });
 
     return (
@@ -55,7 +60,7 @@ export default function Page() {
                             <Setting
                                 title="Description"
                                 formControl={generalForm.control}
-                                name="name"
+                                name="description"
                                 icon={IconPencil}
                                 placeholder="Description..."
                                 type="textarea"

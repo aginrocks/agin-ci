@@ -26,10 +26,6 @@ export default function Page() {
             <PageHeader
                 path={[
                     {
-                        label: 'Organizations',
-                        href: '/app/orgs',
-                    },
-                    {
                         label: thisOrg?.name,
                         href: `/app/orgs/${thisOrg?.slug}`,
                     },

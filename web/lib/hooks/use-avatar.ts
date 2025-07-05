@@ -15,7 +15,7 @@ export function useAvatar(email: string | undefined, defaultAvatar?: string): st
             const hashArray = Array.from(new Uint8Array(hashBuffer));
             const gravatarHash = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
 
-            const url = `https://www.gravatar.com/avatar/${gravatarHash}?d=identicon`;
+            const url = `https://www.gravatar.com/avatar/${gravatarHash}?d=404`;
             cache[email] = url;
 
             setAvatarUrl(url);

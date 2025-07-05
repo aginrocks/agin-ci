@@ -38,33 +38,35 @@ export default function Page() {
                     },
                 ]}
             />
-            <div className="flex-1 p-4 pt-0">
-                <Form {...generalForm}>
-                    <SettingsSection title="General" description="Name, description, etc.">
-                        <Setting
-                            title="Name"
-                            formControl={generalForm.control}
-                            name="name"
-                            placeholder="Acme Inc."
-                            icon={IconPencil}
-                        />
-                        <Setting
-                            title="Slug"
-                            formControl={generalForm.control}
-                            name="slug"
-                            placeholder="acme-inc"
-                            icon={IconLink}
-                        />
-                        <Setting
-                            title="Description"
-                            formControl={generalForm.control}
-                            name="name"
-                            icon={IconPencil}
-                            placeholder="Description..."
-                            type="textarea"
-                        />
-                    </SettingsSection>
-                </Form>
+            <div className="flex-1 p-4 pt-0 flex justify-center max-w-full">
+                <div className="w-full max-w-xl lg:pt-4">
+                    <Form {...generalForm}>
+                        <SettingsSection title="General" description="Name, description, etc.">
+                            <Setting
+                                title="Name"
+                                formControl={generalForm.control}
+                                name="name"
+                                placeholder="Acme Inc."
+                                icon={IconPencil}
+                            />
+                            <Setting
+                                title="Slug"
+                                formControl={generalForm.control}
+                                name="slug"
+                                placeholder="acme-inc"
+                                icon={IconLink}
+                            />
+                            <Setting
+                                title="Description"
+                                formControl={generalForm.control}
+                                name="name"
+                                icon={IconPencil}
+                                placeholder="Description..."
+                                type="textarea"
+                            />
+                        </SettingsSection>
+                    </Form>
+                </div>
             </div>
         </>
     );

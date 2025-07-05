@@ -47,7 +47,7 @@ export function Setting<
                             <FormLabel>{title}</FormLabel>
                         </div>
                         <FormControl>
-                            <div className="max-w-lg">
+                            <div className="max-w-xl">
                                 {type === 'textarea' ? (
                                     <Textarea placeholder={placeholder} {...field} />
                                 ) : (

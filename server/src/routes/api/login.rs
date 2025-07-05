@@ -18,5 +18,5 @@ pub fn routes() -> Vec<Route> {
     tag = "Auth"
 )]
 async fn log_in() -> impl IntoResponse {
-    axum::response::Redirect::to("/")
+    axum::response::Redirect::to("/app")
 }

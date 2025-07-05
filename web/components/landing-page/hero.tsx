@@ -1,3 +1,4 @@
+import { Cover } from '@components/ui/cover';
 import { HeroBackground } from './hero-background';
 
 export function Hero() {
@@ -8,7 +9,7 @@ export function Hero() {
                 RUST-POWERED CI/CD
             </div>
             <div className="text-5xl font-medium text-center mb-6 mt-5">
-                Ship Code at Lightning Speed
+                Ship Code at <Cover>Lightning Speed</Cover>
             </div>
             <div className="text-center text-muted-foreground w-3xl">
                 A next-generation CI/CD platform built in Rust, designed for developers who demand

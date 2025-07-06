@@ -15,25 +15,37 @@ export function HeroGraphics() {
                                 targetId: 'android',
                                 targetAnchor: 'left',
                                 sourceAnchor: 'right',
-                                style: { endMarker: false },
+                                style: {
+                                    endMarker: false,
+                                    strokeColor: 'var(--color-neutral-800)',
+                                },
                             },
                             {
                                 targetId: 'ios',
                                 targetAnchor: 'left',
                                 sourceAnchor: 'right',
-                                style: { endMarker: false },
+                                style: {
+                                    endMarker: false,
+                                    strokeColor: 'var(--color-neutral-800)',
+                                },
                             },
                             {
                                 targetId: 'web',
                                 targetAnchor: 'left',
                                 sourceAnchor: 'right',
-                                style: { endMarker: false },
+                                style: {
+                                    endMarker: false,
+                                    strokeColor: 'var(--color-neutral-800)',
+                                },
                             },
                             {
                                 targetId: 'server',
                                 targetAnchor: 'left',
                                 sourceAnchor: 'right',
-                                style: { endMarker: false },
+                                style: {
+                                    endMarker: false,
+                                    strokeColor: 'var(--color-neutral-800)',
+                                },
                             },
                         ]}
                     >
@@ -50,7 +62,20 @@ export function HeroGraphics() {
                     </ArcherElement>
 
                     <div className="flex flex-col gap-4">
-                        <ArcherElement id="android">
+                        <ArcherElement
+                            id="android"
+                            relations={[
+                                {
+                                    targetId: 'playstore',
+                                    targetAnchor: 'left',
+                                    sourceAnchor: 'right',
+                                    style: {
+                                        endMarker: false,
+                                        strokeColor: 'var(--color-neutral-800)',
+                                    },
+                                },
+                            ]}
+                        >
                             <div>
                                 <HeroCard className="w-xs">
                                     <CardAction
@@ -62,7 +87,20 @@ export function HeroGraphics() {
                             </div>
                         </ArcherElement>
 
-                        <ArcherElement id="ios">
+                        <ArcherElement
+                            id="ios"
+                            relations={[
+                                {
+                                    targetId: 'appstore',
+                                    targetAnchor: 'left',
+                                    sourceAnchor: 'right',
+                                    style: {
+                                        endMarker: false,
+                                        strokeColor: 'var(--color-neutral-800)',
+                                    },
+                                },
+                            ]}
+                        >
                             <div>
                                 <HeroCard className="w-xs">
                                     <CardAction
@@ -74,7 +112,20 @@ export function HeroGraphics() {
                             </div>
                         </ArcherElement>
 
-                        <ArcherElement id="web">
+                        <ArcherElement
+                            id="web"
+                            relations={[
+                                {
+                                    targetId: 'deploy',
+                                    targetAnchor: 'left',
+                                    sourceAnchor: 'right',
+                                    style: {
+                                        endMarker: false,
+                                        strokeColor: 'var(--color-neutral-800)',
+                                    },
+                                },
+                            ]}
+                        >
                             <div>
                                 <HeroCard className="w-xs">
                                     <CardAction
@@ -86,13 +137,63 @@ export function HeroGraphics() {
                             </div>
                         </ArcherElement>
 
-                        <ArcherElement id="server">
+                        <ArcherElement
+                            id="server"
+                            relations={[
+                                {
+                                    targetId: 'deploy',
+                                    targetAnchor: 'left',
+                                    sourceAnchor: 'right',
+                                    style: {
+                                        endMarker: false,
+                                        strokeColor: 'var(--color-neutral-800)',
+                                    },
+                                },
+                            ]}
+                        >
                             <div>
                                 <HeroCard className="w-xs">
                                     <CardAction
                                         title="Build Server"
                                         icon={<IconCircleCheckFilled className="text-green-600" />}
                                         timing="34s"
+                                    />
+                                </HeroCard>
+                            </div>
+                        </ArcherElement>
+                    </div>
+                    <div className="flex flex-col gap-4">
+                        <ArcherElement id="playstore">
+                            <div>
+                                <HeroCard className="w-xs">
+                                    <CardAction
+                                        title="Submit to Play Store"
+                                        icon={<IconCircleCheckFilled className="text-green-600" />}
+                                        timing="49s"
+                                    />
+                                </HeroCard>
+                            </div>
+                        </ArcherElement>
+
+                        <ArcherElement id="appstore">
+                            <div>
+                                <HeroCard className="w-xs">
+                                    <CardAction
+                                        title="Submit to App Store"
+                                        icon={<IconCircleCheckFilled className="text-green-600" />}
+                                        timing="49s"
+                                    />
+                                </HeroCard>
+                            </div>
+                        </ArcherElement>
+
+                        <ArcherElement id="deploy">
+                            <div>
+                                <HeroCard className="w-xs">
+                                    <CardAction
+                                        title="Deploy Code"
+                                        icon={<IconCircleCheckFilled className="text-green-600" />}
+                                        timing="49s"
                                     />
                                 </HeroCard>
                             </div>

@@ -169,7 +169,7 @@ export function HeroGraphics() {
                                     <CardAction
                                         title="Submit to Play Store"
                                         icon={<IconCircleCheckFilled className="text-green-600" />}
-                                        timing="49s"
+                                        timing="17s"
                                     />
                                 </HeroCard>
                             </div>
@@ -181,7 +181,7 @@ export function HeroGraphics() {
                                     <CardAction
                                         title="Submit to App Store"
                                         icon={<IconCircleCheckFilled className="text-green-600" />}
-                                        timing="49s"
+                                        timing="35s"
                                     />
                                 </HeroCard>
                             </div>
@@ -193,7 +193,7 @@ export function HeroGraphics() {
                                     <CardAction
                                         title="Deploy Code"
                                         icon={<IconCircleCheckFilled className="text-green-600" />}
-                                        timing="49s"
+                                        timing="12s"
                                     />
                                 </HeroCard>
                             </div>

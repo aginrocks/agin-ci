@@ -187,7 +187,7 @@ pub struct MutableOrganization {
     #[validate(custom(function = "slug_validator"), length(min = 1, max = 32))]
     pub slug: String,
 
-    #[validate(email)]
+    #[validate(email, length(max = 64))]
     pub avatar_email: Option<String>,
 }
 

@@ -3,14 +3,22 @@ import { formSchema, FormSchema } from '@/app/app/(global)/orgs/new/page';
 import { PageHeader } from '@components/page-header';
 import { SettingsSection } from '@components/settings/section';
 import { Setting } from '@components/settings/setting';
+import { Button } from '@components/ui/button';
 import { Form } from '@components/ui/form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useOrg } from '@lib/hooks';
-import { IconLink, IconPencil } from '@tabler/icons-react';
+import { $api } from '@lib/providers/api';
+import { IconLink, IconMail, IconPencil } from '@tabler/icons-react';
+import { useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
+import { useRef } from 'react';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 
 export default function Page() {
     const { thisOrg } = useOrg();
+    const router = useRouter();
+    const queryClient = useQueryClient();
 
     const generalForm = useForm<FormSchema>({
         resolver: zodResolver(formSchema),
@@ -18,11 +26,46 @@ export default function Page() {
             name: '',
             description: '',
             slug: '',
+            avatar_email: '',
         },
         values: thisOrg && {
             name: thisOrg.name,
             description: thisOrg.description,
             slug: thisOrg.slug,
+            avatar_email: thisOrg.avatar_email || '',
+        },
+    });
+
+    const modifyingSlug = useRef<boolean>(false);
+    const newSlug = useRef<string | null>(null);
+
+    const { mutate } = $api.useMutation('patch', '/api/organizations/{org_slug}', {
+        onSuccess: () => {
+            toast.success('Organization settings updated successfully');
+            queryClient.invalidateQueries({
+                queryKey: ['get', '/api/organizations'],
+            });
+            queryClient.invalidateQueries({
+                queryKey: [
+                    'get',
+                    '/api/organizations/{org_slug}',
+                    {
+                        params: {
+                            path: {
+                                org_slug: thisOrg?.slug || '',
+                            },
+                        },
+                    },
+                ],
+            });
+            if (modifyingSlug.current && newSlug.current) {
+                router.push(`/app/orgs/${newSlug.current}/settings`);
+            }
+        },
+        onError: (error) => {
+            toast.error('Failed to update organization settings', {
+                description: error.error,
+            });
         },
     });
 
@@ -42,30 +85,55 @@ export default function Page() {
             <div className="flex-1 p-4 pt-0 flex justify-center max-w-full">
                 <div className="w-full max-w-xl lg:pt-4">
                     <Form {...generalForm}>
-                        <SettingsSection title="General" description="Name, description, etc.">
-                            <Setting
-                                title="Name"
-                                formControl={generalForm.control}
-                                name="name"
-                                placeholder="Acme Inc."
-                                icon={IconPencil}
-                            />
-                            <Setting
-                                title="Slug"
-                                formControl={generalForm.control}
-                                name="slug"
-                                placeholder="acme-inc"
-                                icon={IconLink}
-                            />
-                            <Setting
-                                title="Description"
-                                formControl={generalForm.control}
-                                name="description"
-                                icon={IconPencil}
-                                placeholder="Description..."
-                                type="textarea"
-                            />
-                        </SettingsSection>
+                        <form
+                            onSubmit={generalForm.handleSubmit((v) => {
+                                modifyingSlug.current = v.slug !== thisOrg?.slug;
+                                newSlug.current = v.slug;
+
+                                mutate({
+                                    params: { path: { org_slug: thisOrg?.slug || '' } },
+                                    body: {
+                                        ...v,
+                                        avatar_email: v.avatar_email || undefined, // Ensure empty string is not sent
+                                    },
+                                });
+                            })}
+                        >
+                            <SettingsSection title="General" description="Name, description, etc.">
+                                <Setting
+                                    title="Name"
+                                    formControl={generalForm.control}
+                                    name="name"
+                                    placeholder="Acme Inc."
+                                    icon={IconPencil}
+                                />
+                                <Setting
+                                    title="Slug"
+                                    formControl={generalForm.control}
+                                    name="slug"
+                                    placeholder="acme-inc"
+                                    icon={IconLink}
+                                />
+                                <Setting
+                                    title="Description"
+                                    formControl={generalForm.control}
+                                    name="description"
+                                    icon={IconPencil}
+                                    placeholder="Description..."
+                                    type="textarea"
+                                />
+                                <Setting
+                                    title="Gravatar email"
+                                    formControl={generalForm.control}
+                                    name="avatar_email"
+                                    icon={IconMail}
+                                    placeholder="gravatar@example.com"
+                                />
+                            </SettingsSection>
+                            <Button className="mt-1" type="submit">
+                                Save settings
+                            </Button>
+                        </form>
                     </Form>
                 </div>
             </div>

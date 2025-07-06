@@ -45,6 +45,12 @@ export const formSchema = z.object({
             'Slug can only contain lowercase letters, numbers, hyphens, and underscores'
         )
         .refine((s) => !RESERVED_SLUGS.includes(s), 'This slug is reserved and cannot be used'),
+    avatar_email: z
+        .string()
+        .email('Invalid email address')
+        .max(64, 'Email must be at most 64 characters long')
+        .or(z.literal(''))
+        .optional(),
 }) satisfies z.ZodType<
     paths['/api/organizations']['post']['requestBody']['content']['application/json']
 > satisfies z.ZodType<

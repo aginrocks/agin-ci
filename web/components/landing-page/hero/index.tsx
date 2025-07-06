@@ -1,5 +1,6 @@
 import { Cover } from '@components/ui/cover';
 import { HeroBackground } from './hero-background';
+import { HeroGraphics } from './hero-graphics';
 
 export function Hero() {
     return (
@@ -17,6 +18,7 @@ export function Hero() {
                 iOS, React Native, Expo), our platform excels at building any application - from web
                 services to desktop apps.
             </div>
+            <HeroGraphics />
         </div>
     );
 }

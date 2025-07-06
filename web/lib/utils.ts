@@ -12,3 +12,20 @@ export function slugify(input: string): string {
         .replace(/\s+/g, '-') // Replace spaces with -
         .toLowerCase(); // Convert to lowercase
 }
+
+export function formatDuration(seconds: number): string {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+
+    let result = '';
+    if (hours > 0) {
+        result += `${hours}h `;
+    }
+    if (minutes > 0 || hours > 0) {
+        result += `${minutes}m `;
+    }
+    result += `${secs}s`;
+
+    return result.trim();
+}

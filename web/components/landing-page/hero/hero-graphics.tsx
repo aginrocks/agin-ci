@@ -1,10 +1,18 @@
 'use client';
-import { IconCircleCheckFilled } from '@tabler/icons-react';
 import { ArcherContainer, ArcherElement } from 'react-archer';
 import { CardAction } from './card-action';
 import { HeroCard } from './hero-card';
+import { useSimulatedLoading } from './use-simulated-loading';
 
 export function HeroGraphics() {
+    const androidTiming = useSimulatedLoading({ delay: 0.8, startSeconds: 49 });
+    const iosTiming = useSimulatedLoading({ delay: 1.5, startSeconds: 80 });
+    const webTiming = useSimulatedLoading({ delay: 0.6, startSeconds: 26 });
+    const serverTiming = useSimulatedLoading({ delay: 1.7, startSeconds: 34 });
+    const playStoreTiming = useSimulatedLoading({ delay: 2, startSeconds: 17 });
+    const appStoreTiming = useSimulatedLoading({ delay: 2.3, startSeconds: 35 });
+    const deployTiming = useSimulatedLoading({ delay: 2.2, startSeconds: 12 });
+
     return (
         <div className="w-full">
             <ArcherContainer strokeColor="gray">
@@ -81,8 +89,8 @@ export function HeroGraphics() {
                                 <HeroCard className="w-xs">
                                     <CardAction
                                         title="Build Android"
-                                        icon={<IconCircleCheckFilled className="text-green-600" />}
-                                        timing="49s"
+                                        status={androidTiming.status}
+                                        timing={androidTiming.formattedSeconds}
                                     />
                                 </HeroCard>
                             </div>
@@ -106,8 +114,8 @@ export function HeroGraphics() {
                                 <HeroCard className="w-xs">
                                     <CardAction
                                         title="Build iOS"
-                                        icon={<IconCircleCheckFilled className="text-green-600" />}
-                                        timing="1m 20s"
+                                        status={iosTiming.status}
+                                        timing={iosTiming.formattedSeconds}
                                     />
                                 </HeroCard>
                             </div>
@@ -131,8 +139,8 @@ export function HeroGraphics() {
                                 <HeroCard className="w-xs">
                                     <CardAction
                                         title="Build Web"
-                                        icon={<IconCircleCheckFilled className="text-green-600" />}
-                                        timing="26s"
+                                        status={webTiming.status}
+                                        timing={webTiming.formattedSeconds}
                                     />
                                 </HeroCard>
                             </div>
@@ -156,8 +164,8 @@ export function HeroGraphics() {
                                 <HeroCard className="w-xs">
                                     <CardAction
                                         title="Build Server"
-                                        icon={<IconCircleCheckFilled className="text-green-600" />}
-                                        timing="34s"
+                                        status={serverTiming.status}
+                                        timing={serverTiming.formattedSeconds}
                                     />
                                 </HeroCard>
                             </div>
@@ -169,8 +177,8 @@ export function HeroGraphics() {
                                 <HeroCard className="w-xs">
                                     <CardAction
                                         title="Submit to Play Store"
-                                        icon={<IconCircleCheckFilled className="text-green-600" />}
-                                        timing="17s"
+                                        status={playStoreTiming.status}
+                                        timing={playStoreTiming.formattedSeconds}
                                     />
                                 </HeroCard>
                             </div>
@@ -181,8 +189,8 @@ export function HeroGraphics() {
                                 <HeroCard className="w-xs">
                                     <CardAction
                                         title="Submit to App Store"
-                                        icon={<IconCircleCheckFilled className="text-green-600" />}
-                                        timing="35s"
+                                        status={appStoreTiming.status}
+                                        timing={appStoreTiming.formattedSeconds}
                                     />
                                 </HeroCard>
                             </div>
@@ -193,8 +201,8 @@ export function HeroGraphics() {
                                 <HeroCard className="w-xs">
                                     <CardAction
                                         title="Deploy Code"
-                                        icon={<IconCircleCheckFilled className="text-green-600" />}
-                                        timing="12s"
+                                        status={deployTiming.status}
+                                        timing={deployTiming.formattedSeconds}
                                     />
                                 </HeroCard>
                             </div>

@@ -28,7 +28,7 @@ export function Workflows({ codeBlocks }: WorkflowsProps) {
                 We don't slow you down. Instant feedback loops and fast builds let you stay in flow
                 and ship confidently — every time.
             </div> */}
-            <div className="w-full max-w-6xl flex jsutify-between items-center gap-6">
+            <div className="w-full max-w-6xl flex justify-between items-center gap-6">
                 <div className="flex-1">
                     <div className="text-4xl font-medium mb-5">CI That Adapts to Your Stack</div>
                     <div className="text-muted-foreground w-3xl leading-relaxed">

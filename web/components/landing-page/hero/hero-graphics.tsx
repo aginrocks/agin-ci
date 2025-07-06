@@ -1,3 +1,4 @@
+'use client';
 import { IconCircleCheckFilled } from '@tabler/icons-react';
 import { ArcherContainer, ArcherElement } from 'react-archer';
 import { CardAction } from './card-action';

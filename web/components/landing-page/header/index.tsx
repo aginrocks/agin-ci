@@ -1,3 +1,4 @@
+'use client';
 import { Logo } from '@components/logo';
 import { HeaderLink } from './link';
 import { Button } from '@components/ui/button';

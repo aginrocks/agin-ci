@@ -80,6 +80,9 @@ importers:
       react:
         specifier: ^19.0.0
         version: 19.1.0
+      react-archer:
+        specifier: ^4.4.0
+        version: 4.4.0(@types/react@19.1.8)(prop-types@15.8.1)(react@19.1.0)
       react-dom:
         specifier: ^19.0.0
         version: 19.1.0(react@19.1.0)
@@ -2276,10 +2279,20 @@ packages:
   queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
 
+  react-archer@4.4.0:
+    resolution: {integrity: sha512-m9mEpGHphwWZW7mzk7UVGJVwom353lAbDQ/DJIYH59LnEpEVyaE3KxZKBChB5WYipyOl3HhRlVQk+TknJbGfSQ==}
+    peerDependencies:
+      '@types/react': ^16.8.8 || ^17 || ^18
+      prop-types: ^15.6.2
+      react: ^16.9.0 || ^17 || ^18
+
   react-dom@19.1.0:
     resolution: {integrity: sha512-Xs1hdnE+DyKgeHJeJznQmYMIBG3TKIHJJT95Q58nHLSrElKlGQqDTR2HQ9fx5CN/Gk6Vh/kupBTDLU11/nDk/g==}
     peerDependencies:
       react: ^19.1.0
+
+  react-fast-compare@2.0.4:
+    resolution: {integrity: sha512-suNP+J1VU1MWFKcyt7RtjiSWUjvidmQSlqu+eHslq+342xCbGTYmC0mEhPCOHxlW0CywylOC1u2DFAT+bv4dBw==}
 
   react-hook-form@7.59.0:
     resolution: {integrity: sha512-kmkek2/8grqarTJExFNjy+RXDIP8yM+QTl3QL6m6Q8b2bih4ltmiXxH7T9n+yXNK477xPh5yZT/6vD8sYGzJTA==}
@@ -2335,6 +2348,9 @@ packages:
   require-from-string@2.0.2:
     resolution: {integrity: sha512-Xf0nWe6RseziFMu+Ap9biiUbmplq6S9/p+7w7YXP/JBHhrUDDUhwa+vANyubuqfZWTveU//DYVGsDG7RKL/vEw==}
     engines: {node: '>=0.10.0'}
+
+  resize-observer-polyfill@1.5.0:
+    resolution: {integrity: sha512-M2AelyJDVR/oLnToJLtuDJRBBWUGUvvGigj1411hXhAdyFWqMaqHp7TixW3FpiLuVaikIcR1QL+zqoJoZlOgpg==}
 
   resolve-from@4.0.0:
     resolution: {integrity: sha512-pb/MYmXstAkysRFx8piNI1tGFNQIFA3vkE3Gq4EuA1dF6gHp/+vgZqsCGJapvy8N3Q+4o7FwvquPJcnZ7RYy4g==}
@@ -4934,10 +4950,20 @@ snapshots:
 
   queue-microtask@1.2.3: {}
 
+  react-archer@4.4.0(@types/react@19.1.8)(prop-types@15.8.1)(react@19.1.0):
+    dependencies:
+      '@types/react': 19.1.8
+      prop-types: 15.8.1
+      react: 19.1.0
+      react-fast-compare: 2.0.4
+      resize-observer-polyfill: 1.5.0
+
   react-dom@19.1.0(react@19.1.0):
     dependencies:
       react: 19.1.0
       scheduler: 0.26.0
+
+  react-fast-compare@2.0.4: {}
 
   react-hook-form@7.59.0(react@19.1.0):
     dependencies:
@@ -4995,6 +5021,8 @@ snapshots:
       set-function-name: 2.0.2
 
   require-from-string@2.0.2: {}
+
+  resize-observer-polyfill@1.5.0: {}
 
   resolve-from@4.0.0: {}
 

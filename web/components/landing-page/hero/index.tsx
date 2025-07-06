@@ -4,7 +4,7 @@ import { HeroGraphics } from './hero-graphics';
 
 export function Hero() {
     return (
-        <div className="w-full h-screen flex flex-col items-center pt-40 relative">
+        <div className="w-full h-screen flex flex-col items-center py-40 relative">
             <HeroBackground />
             <div className="dark:bg-neutral-900 bg-neutral-100 text-muted-foreground font-semibold px-3 py-1.5 rounded-full text-xs">
                 RUST-POWERED CI/CD
@@ -18,7 +18,9 @@ export function Hero() {
                 iOS, React Native, Expo), our platform excels at building any application - from web
                 services to desktop apps.
             </div>
-            <HeroGraphics />
+            <div className="flex-1 flex items-center">
+                <HeroGraphics />
+            </div>
         </div>
     );
 }

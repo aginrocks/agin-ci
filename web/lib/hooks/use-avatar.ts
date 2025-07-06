@@ -7,7 +7,7 @@ export function useAvatar(email: string | undefined, defaultAvatar?: string): st
 
     useEffect(() => {
         (async () => {
-            if (!email || defaultAvatar) return;
+            if (!email || defaultAvatar) return setAvatarUrl(defaultAvatar);
 
             const encoder = new TextEncoder();
             const data = encoder.encode(email.toLowerCase().trim() || '');

@@ -2,49 +2,19 @@
 
 import * as React from 'react';
 import {
-    BookOpen,
-    Bot,
-    Command,
-    Frame,
-    LifeBuoy,
-    Map,
-    PieChart,
-    Send,
-    Settings2,
-    SquareTerminal,
-} from 'lucide-react';
-import {
     IconArrowLeft,
-    IconBook,
-    IconBox,
-    IconBrandGithub,
     IconCircleCaretRight,
-    IconHistory,
     IconKey,
     IconLayoutDashboard,
     IconSettings,
-    IconUsers,
 } from '@tabler/icons-react';
-import { NavMain, NavMainSubItem } from '@/components/nav-main';
-import { NavProjects } from '@/components/nav-projects';
+import { NavMain } from '@/components/nav-main';
 import { NavSecondary } from '@/components/nav-secondary';
 import { NavUser } from '@/components/nav-user';
-import {
-    Sidebar,
-    SidebarContent,
-    SidebarFooter,
-    SidebarHeader,
-    SidebarMenu,
-    SidebarMenuButton,
-    SidebarMenuItem,
-} from '@/components/ui/sidebar';
-import { REPO_URL } from '@lib/constants';
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader } from '@/components/ui/sidebar';
 import { navSecondary } from './sidebar-common';
 import Link from 'next/link';
-import { useQuery } from '@tanstack/react-query';
-import { $api } from '@lib/providers/api';
 import { OrgSwitcher } from './org-switcher';
-import { useMemo } from 'react';
 import { useParams, usePathname, useRouter } from 'next/navigation';
 import { useOrg, useProject } from '@lib/hooks';
 import { Button } from './ui/button';

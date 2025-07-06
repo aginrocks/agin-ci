@@ -21,11 +21,14 @@ import {
 import { IconCheck } from '@tabler/icons-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { useAvatar } from '@lib/hooks';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 
 export type Org = {
     name: string;
     members?: any[];
     slug: string;
+    gravatar_email?: string;
 
     [key: string]: any;
 };
@@ -44,6 +47,8 @@ export function OrgSwitcher({ data, activeOrg, onActiveChange, context }: OrgSwi
 
     const { org_slug } = useParams<{ org_slug: string }>();
 
+    const avatar = useAvatar(activeOrg?.avatar_email);
+
     return (
         <SidebarMenu>
             <SidebarMenuItem>
@@ -53,9 +58,12 @@ export function OrgSwitcher({ data, activeOrg, onActiveChange, context }: OrgSwi
                             size="lg"
                             className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                         >
-                            <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                                <div>{activeOrg?.name.charAt(0).toUpperCase()}</div>
-                            </div>
+                            <Avatar className="rounded-lg">
+                                <AvatarImage src={avatar} />
+                                <AvatarFallback className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+                                    {activeOrg?.name.charAt(0).toUpperCase()}
+                                </AvatarFallback>
+                            </Avatar>
                             <div className="grid flex-1 text-left text-sm leading-tight">
                                 <span className="truncate font-medium">{activeOrg?.name}</span>
                                 {memberCount !== undefined && (

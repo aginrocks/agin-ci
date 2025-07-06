@@ -20,7 +20,7 @@ export type WorkflowsProps = {
 export function Workflows({ codeBlocks }: WorkflowsProps) {
     const [workflow, setWorkflow] = useState('mobile');
     return (
-        <div className="w-full flex flex-col items-center pt-4 relative">
+        <div className="w-full flex flex-col items-center pt-4 relative px-6">
             {/* <div className="text-4xl font-medium text-center mb-5">
                 The Speed Your Workflow Deserves
             </div>

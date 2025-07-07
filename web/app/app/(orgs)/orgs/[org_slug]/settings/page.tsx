@@ -8,11 +8,12 @@ import { Button } from '@components/ui/button';
 import { Form } from '@components/ui/form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useOrg } from '@lib/hooks';
+import { useModals } from '@lib/modals/ModalsManager';
 import { $api } from '@lib/providers/api';
 import { IconLink, IconMail, IconPencil } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { useRef } from 'react';
+import { useCallback, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
@@ -20,6 +21,7 @@ export default function Page() {
     const { thisOrg, thisOrgSlug } = useOrg();
     const router = useRouter();
     const queryClient = useQueryClient();
+    const modals = useModals();
 
     const generalForm = useForm<FormSchema>({
         resolver: zodResolver(formSchema),
@@ -69,6 +71,39 @@ export default function Page() {
             });
         },
     });
+
+    const deleteOrg = $api.useMutation('delete', '/api/organizations/{org_slug}', {
+        onSuccess: () => {
+            toast.success('Organization deleted successfully');
+            queryClient.invalidateQueries({
+                queryKey: ['get', '/api/organizations'],
+            });
+            router.push('/app/orgs');
+        },
+        onError: (error) => {
+            toast.error('Failed to delete organization', {
+                description: error.error,
+            });
+        },
+    });
+
+    const onDelete = useCallback(async () => {
+        const confirmed = await modals.show('ConfirmDeletion', {
+            title: 'Delete Organization',
+            description: `Are you sure you want to delete the organization "${thisOrg?.name}"? This action cannot be undone.`,
+            objectName: thisOrg?.name || '',
+        });
+
+        if (!confirmed) return;
+
+        deleteOrg.mutate({
+            params: {
+                path: {
+                    org_slug: thisOrgSlug,
+                },
+            },
+        });
+    }, [thisOrg?.name]);
 
     return (
         <>
@@ -141,7 +176,9 @@ export default function Page() {
                             title="Delete Organization"
                             description="This action cannot be undone."
                             rightSection={
-                                <Button variant="destructive">Delete Organization</Button>
+                                <Button variant="destructive" onClick={onDelete}>
+                                    Delete Organization
+                                </Button>
                             }
                         />
                     </SettingsSection>

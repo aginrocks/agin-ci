@@ -22,6 +22,7 @@ use crate::{
     },
     routes::{RouteProtectionLevel, api::CreateSuccess},
     state::AppState,
+    utils::normalize_git_url,
     validators::slug_validator,
 };
 
@@ -123,7 +124,7 @@ async fn create_project(
         name: body.name,
         slug: body.slug,
         repository: ProjectRepository {
-            url: body.repository.url,
+            url: normalize_git_url(&body.repository.url)?,
             source: body.repository.source,
             webhook_secret: None,
             deploy_key: None,

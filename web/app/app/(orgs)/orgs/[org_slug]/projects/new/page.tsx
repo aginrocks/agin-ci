@@ -159,16 +159,34 @@ export default function Page() {
                             <Button
                                 disabled={create.isPending}
                                 onClick={() =>
-                                    form.handleSubmit(() =>
+                                    form.handleSubmit(() => {
+                                        const values = form.getValues();
+                                        let sourceHostname = '';
+                                        try {
+                                            sourceHostname = new URL(values.repository.source)
+                                                ?.hostname;
+                                        } catch {}
+
                                         create.mutate({
-                                            body: form.getValues(),
+                                            body: {
+                                                ...values,
+                                                repository: {
+                                                    ...values.repository,
+                                                    source:
+                                                        sourceHostname === 'github.com'
+                                                            ? 'github'
+                                                            : sourceHostname === 'codeberg.org'
+                                                              ? 'forgejo'
+                                                              : 'genericgit',
+                                                },
+                                            },
                                             params: {
                                                 path: {
                                                     org_slug: thisOrg?.slug!,
                                                 },
                                             },
-                                        })
-                                    )()
+                                        });
+                                    })()
                                 }
                             >
                                 <IconCheck />

@@ -80,7 +80,7 @@ export default function Page() {
 
     const onDelete = useCallback(async () => {
         const confirmed = await modals.show('ConfirmDeletion', {
-            title: 'Delete Organization',
+            title: 'Delete Project',
             description: `Are you sure you want to delete the project "${thisProject?.name}"? This action cannot be undone.`,
             objectName: `${thisOrgSlug}/${thisProjectSlug}`,
         });

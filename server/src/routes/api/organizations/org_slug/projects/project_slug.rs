@@ -18,6 +18,7 @@ use crate::{
     },
     routes::{RouteProtectionLevel, api::CreateSuccess},
     state::AppState,
+    utils::normalize_git_url,
 };
 
 use super::{CreateProjectBody, Route};
@@ -101,7 +102,7 @@ async fn edit_project(
         name: body.name,
         slug: body.slug,
         repository: ProjectRepository {
-            url: body.repository.url,
+            url: normalize_git_url(&body.repository.url)?,
             source: body.repository.source,
             webhook_secret: None,
             deploy_key: None,

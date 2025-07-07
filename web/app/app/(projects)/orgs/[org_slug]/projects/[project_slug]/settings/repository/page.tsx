@@ -1,25 +1,31 @@
 'use client';
 import { formSchema, FormSchema } from '@/app/app/(orgs)/orgs/[org_slug]/projects/new/page';
 import { SettingsSection } from '@components/settings/section';
-import { Setting } from '@components/settings/setting';
+import { Setting, SettingLikeHeader } from '@components/settings/setting';
 import { Button } from '@components/ui/button';
 import { Form } from '@components/ui/form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { REPO_URL, WEBHOOKS_SUPPORTED } from '@lib/constants';
 import { useOrg, useProject } from '@lib/hooks';
-import { useProjectMutation } from '@lib/mutations';
+import { useModals } from '@lib/modals/ModalsManager';
+import { useProjectKeysMutation, useProjectMutation } from '@lib/mutations';
 import {
     IconBrandGit,
     IconBrandGithub,
+    IconCopy,
     IconGitBranch,
+    IconKey,
     IconLink,
+    IconRefresh,
     IconServer,
 } from '@tabler/icons-react';
+import { useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 
 export default function Page() {
     const { thisOrgSlug } = useOrg();
     const { thisProject, thisProjectSlug } = useProject();
+    const modals = useModals();
 
     const repositoryForm = useForm<FormSchema>({
         resolver: zodResolver(formSchema),
@@ -38,6 +44,29 @@ export default function Page() {
     });
 
     const { mutate } = useProjectMutation({});
+    const keys = useProjectKeysMutation({});
+
+    const generateDeployKey = useCallback(async () => {
+        const regenerating = thisProject?.repository.deploy_key_generated;
+
+        const confirmed = await modals.show('Confirm', {
+            title: `${regenerating ? 'Reg' : 'G'}enerate Deploy Key`,
+            description: regenerating
+                ? "Are you sure you want to generate a new deploy key? This will replace the existing one. You can't undo this action."
+                : "Deploy Keys allow you to grant Agin CI read access to your repository. You don't need to generate a deploy key if your repository is public.",
+            confirmText: regenerating ? 'Regenerate' : 'Generate',
+        });
+        if (!confirmed) return;
+
+        keys.mutate({
+            params: {
+                path: {
+                    org_slug: thisOrgSlug,
+                    project_slug: thisProjectSlug,
+                },
+            },
+        });
+    }, [thisProject?.repository.deploy_key_generated, thisOrgSlug, thisProjectSlug]);
 
     return (
         <Form {...repositoryForm}>
@@ -116,6 +145,23 @@ export default function Page() {
                         }
                         icon={IconLink}
                     />
+                    <div>
+                        <SettingLikeHeader title="Deploy Key" className="mt-4" icon={IconKey} />
+                        <div className="flex gap-2 mt-1">
+                            {thisProject?.repository.deploy_key_generated && (
+                                <Button variant="outline" type="button">
+                                    <IconCopy />
+                                    Copy
+                                </Button>
+                            )}
+                            <Button variant="outline" type="button" onClick={generateDeployKey}>
+                                <IconRefresh />
+                                {thisProject?.repository.deploy_key_generated
+                                    ? 'Regenerate'
+                                    : 'Generate'}
+                            </Button>
+                        </div>
+                    </div>
                     <Button className="mt-3" type="submit">
                         Save settings
                     </Button>

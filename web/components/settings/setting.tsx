@@ -13,6 +13,7 @@ import { Icon } from '@tabler/icons-react';
 import { Control, FieldPath, FieldPathValue, FieldValues } from 'react-hook-form';
 import { SettingAction } from './setting-action';
 import { ReactNode } from 'react';
+import { cn } from '@lib/utils';
 
 export type SelectOption = {
     icon?: Icon;
@@ -33,6 +34,34 @@ export type SettingProps<
     defaultValue?: FieldPathValue<TFieldValues, TName>;
     placeholder?: string;
 } & ({ type?: 'text' | 'textarea' } | { type: 'select'; options: SelectOption[] });
+
+export type SettingLikeHeaderProps = React.ComponentProps<'div'> & {
+    title: string;
+    description?: ReactNode;
+    icon?: Icon;
+};
+
+export function SettingLikeHeader({
+    title,
+    description,
+    icon: Icon,
+    className,
+}: SettingLikeHeaderProps) {
+    return (
+        <div className="mb-2">
+            <div
+                className={cn(
+                    'flex items-center gap-1 text-sm leading-none font-medium select-none',
+                    className
+                )}
+            >
+                {Icon && <Icon className="text-muted-foreground size-4" />}
+                <div>{title}</div>
+            </div>
+            {description && <div className="mt-0.5 text-muted-foreground">{description}</div>}
+        </div>
+    );
+}
 
 export function Setting<
     TFieldValues extends FieldValues = FieldValues,

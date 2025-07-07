@@ -1,4 +1,5 @@
 'use client';
+import { Confirm } from '../Confirm';
 import { ConfirmDeletion } from '../ConfirmDeletion';
 import { ModalComponentBindings, ModalDefinition } from './types';
 
@@ -11,8 +12,18 @@ export type Modals = {
         };
         returnValue: boolean;
     }>;
+    Confirm: ModalDefinition<{
+        payload: {
+            title: string;
+            description?: string;
+            cancelText?: string;
+            confirmText?: string;
+        };
+        returnValue: boolean;
+    }>;
 };
 
 export const ModalsBinding: ModalComponentBindings = {
     ConfirmDeletion: ConfirmDeletion,
+    Confirm: Confirm,
 };

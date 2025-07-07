@@ -1,25 +1,25 @@
 'use client';
 import { formSchema, FormSchema } from '@/app/app/(orgs)/orgs/[org_slug]/projects/new/page';
-import { PageHeader } from '@components/page-header';
 import { SettingsSection } from '@components/settings/section';
 import { Setting } from '@components/settings/setting';
 import { SettingAction } from '@components/settings/setting-action';
-import { SettingsTabs } from '@components/settings/tabs';
 import { Button } from '@components/ui/button';
 import { Form } from '@components/ui/form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useOrg, useProject } from '@lib/hooks';
+import { useModals } from '@lib/modals/ModalsManager';
 import { $api } from '@lib/providers/api';
-import { IconLink, IconPencil, IconSettings } from '@tabler/icons-react';
+import { IconLink, IconPencil } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { useRef } from 'react';
+import { useCallback, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
 export default function Page() {
     const { thisOrgSlug } = useOrg();
     const { thisProject, thisProjectSlug } = useProject();
+    const modals = useModals();
 
     const modifyingSlug = useRef<boolean>(false);
     const newSlug = useRef<string | null>(null);
@@ -85,6 +85,54 @@ export default function Page() {
         }
     );
 
+    const deleteProject = $api.useMutation(
+        'delete',
+        '/api/organizations/{org_slug}/projects/{project_slug}',
+        {
+            onSuccess: () => {
+                toast.success('Project deleted successfully');
+                queryClient.invalidateQueries({
+                    queryKey: [
+                        'get',
+                        '/api/organizations/{org_slug}/projects',
+                        {
+                            params: {
+                                path: {
+                                    org_slug: thisOrgSlug,
+                                },
+                            },
+                        },
+                    ],
+                });
+                router.push(`/app/orgs/${thisOrgSlug}/projects`);
+            },
+            onError: (error) => {
+                toast.error('Failed to delete project', {
+                    description: error.error,
+                });
+            },
+        }
+    );
+
+    const onDelete = useCallback(async () => {
+        const confirmed = await modals.show('ConfirmDeletion', {
+            title: 'Delete Organization',
+            description: `Are you sure you want to delete the project "${thisProject?.name}"? This action cannot be undone.`,
+            objectName: `${thisOrgSlug}/${thisProjectSlug}`,
+        });
+
+        if (!confirmed) return;
+
+        deleteProject.mutate({
+            params: {
+                path: {
+                    org_slug: thisOrgSlug,
+                    project_slug: thisProjectSlug,
+                },
+            },
+        });
+    }, [thisProject?.name, thisOrgSlug, thisProjectSlug]);
+
     return (
         <>
             <Form {...generalForm}>
@@ -126,7 +174,11 @@ export default function Page() {
                     <SettingAction
                         title="Delete Project"
                         description="This action cannot be undone."
-                        rightSection={<Button variant="destructive">Delete Project</Button>}
+                        rightSection={
+                            <Button variant="destructive" onClick={onDelete}>
+                                Delete Project
+                            </Button>
+                        }
                     />
                 </SettingsSection>
             </Form>

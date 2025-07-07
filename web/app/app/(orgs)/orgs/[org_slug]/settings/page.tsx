@@ -91,7 +91,7 @@ export default function Page() {
         const confirmed = await modals.show('ConfirmDeletion', {
             title: 'Delete Organization',
             description: `Are you sure you want to delete the organization "${thisOrg?.name}"? This action cannot be undone.`,
-            objectName: thisOrg?.name || '',
+            objectName: thisOrgSlug || '',
         });
 
         if (!confirmed) return;
@@ -103,7 +103,7 @@ export default function Page() {
                 },
             },
         });
-    }, [thisOrg?.name]);
+    }, [thisOrg?.name, thisOrgSlug]);
 
     return (
         <>

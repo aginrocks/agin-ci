@@ -151,6 +151,26 @@ export interface paths {
         patch: operations["edit_project"];
         trace?: never;
     };
+    "/api/organizations/{org_slug}/projects/{project_slug}/regenerate-keys": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Regenerate project deploy keys
+         * @description These keys are used to pull the repository. You can get the public key from the project details.
+         */
+        get: operations["regenerate_project_keys"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/organizations/{org_slug}/secrets": {
         parameters: {
             query?: never;
@@ -282,6 +302,7 @@ export interface components {
         /** @description ProjectRepository object that can be safely sent to the client */
         PublicProjectRepository: {
             deploy_key_generated: boolean;
+            deploy_public_key?: string | null;
             source: components["schemas"]["ProjectRepositorySource"];
             url: string;
             webhook_secret_generated: boolean;
@@ -900,6 +921,49 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CreateSuccess"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedError"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForbiddenError"];
+                };
+            };
+        };
+    };
+    regenerate_project_keys: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Organization slug */
+                org_slug: string;
+                /** @description Project slug */
+                project_slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicProject"];
                 };
             };
             /** @description Unauthorized */

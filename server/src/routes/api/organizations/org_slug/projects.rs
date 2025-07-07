@@ -127,7 +127,8 @@ async fn create_project(
             url: normalize_git_url(&body.repository.url)?,
             source: body.repository.source,
             webhook_secret: None,
-            deploy_key: None,
+            deploy_private_key: None,
+            deploy_public_key: None,
         },
     };
 

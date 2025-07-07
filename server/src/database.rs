@@ -6,6 +6,7 @@ use mongodb::{
 };
 use partial_struct::Partial;
 use serde::{Deserialize, Serialize};
+use ssh_key::{Algorithm, PrivateKey, rand_core::OsRng, sec1::der::zeroize::Zeroizing};
 use tower_sessions::{
     Expiry, SessionManagerLayer,
     cookie::{SameSite, time::Duration},
@@ -210,7 +211,22 @@ pub struct ProjectRepository {
     pub url: String,
     pub source: ProjectRepositorySource,
     pub webhook_secret: Option<String>,
-    pub deploy_key: Option<String>,
+    pub deploy_private_key: Option<String>,
+    pub deploy_public_key: Option<String>,
+}
+
+// TODO: Encryption of the private key
+impl ProjectRepository {
+    pub fn generate_deploy_keys(&self) -> Result<(String, Zeroizing<String>)> {
+        let mut rng = OsRng;
+        let private_key = PrivateKey::random(&mut rng, Algorithm::Ed25519)?;
+        let public_key = private_key.public_key();
+
+        let public_key_openssh = public_key.to_openssh()?;
+        let private_key_openssh = private_key.to_openssh(ssh_key::LineEnding::LF)?;
+
+        Ok((public_key_openssh, private_key_openssh))
+    }
 }
 
 database_object!(Project {
@@ -240,7 +256,8 @@ impl Project {
                 url: self.repository.url.clone(),
                 source: self.repository.source.clone(),
                 webhook_secret_generated: self.repository.webhook_secret.is_some(),
-                deploy_key_generated: self.repository.deploy_key.is_some(),
+                deploy_key_generated: self.repository.deploy_private_key.is_some(),
+                deploy_public_key: self.repository.deploy_public_key.clone(),
             },
         }
     }
@@ -253,6 +270,7 @@ pub struct PublicProjectRepository {
     pub source: ProjectRepositorySource,
     pub webhook_secret_generated: bool,
     pub deploy_key_generated: bool,
+    pub deploy_public_key: Option<String>,
 }
 
 /// Project object that can be safely sent to the client

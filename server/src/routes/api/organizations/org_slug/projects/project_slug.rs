@@ -1,3 +1,5 @@
+mod regenerate_keys;
+
 use axum::{
     Json,
     extract::{Path, State},
@@ -26,10 +28,14 @@ use super::{CreateProjectBody, Route};
 const PATH: &str = "/api/organizations/{org_slug}/projects/{project_slug}";
 
 pub fn routes() -> Vec<Route> {
-    vec![(
-        routes!(get_project, edit_project, delete_project),
-        RouteProtectionLevel::Authenticated,
-    )]
+    [
+        vec![(
+            routes!(get_project, edit_project, delete_project),
+            RouteProtectionLevel::Authenticated,
+        )],
+        regenerate_keys::routes(),
+    ]
+    .concat()
 }
 
 /// Get project
@@ -105,7 +111,8 @@ async fn edit_project(
             url: normalize_git_url(&body.repository.url)?,
             source: body.repository.source,
             webhook_secret: None,
-            deploy_key: None,
+            deploy_private_key: None,
+            deploy_public_key: None,
         },
     };
 

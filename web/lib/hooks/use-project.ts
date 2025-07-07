@@ -1,3 +1,4 @@
+'use client';
 import { $api } from '@lib/providers/api';
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
@@ -20,5 +21,5 @@ export function useProject() {
         [project_slug, projects.data]
     );
 
-    return { thisProject, projects: projects.data };
+    return { thisProject, projects: projects.data, thisProjectSlug: project_slug };
 }

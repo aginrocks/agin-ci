@@ -3,15 +3,7 @@ import { paths } from '@/types/api';
 import { PageHeader } from '@components/page-header';
 import { Wizard } from '@components/wizards/wizard';
 import { WizardPage } from '@components/wizards/wizard-page';
-import {
-    IconBuildings,
-    IconCheck,
-    IconCube,
-    IconGitMerge,
-    IconLink,
-    IconPencil,
-    IconX,
-} from '@tabler/icons-react';
+import { IconCheck, IconCube, IconGitMerge, IconLink } from '@tabler/icons-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -26,7 +18,6 @@ import {
 } from '@components/ui/form';
 import { Input } from '@components/ui/input';
 import { Button } from '@components/ui/button';
-import { Textarea } from '@components/ui/textarea';
 import { $api } from '@lib/providers/api';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -43,7 +34,7 @@ const isValidSlug = (s: string): boolean => {
         .every((c) => (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c === '-' || c === '_');
 };
 
-const formSchema = z.object({
+export const formSchema = z.object({
     name: z.string().min(1, 'Name is required').max(32, 'Name must be at most 32 characters long'),
     slug: z
         .string()
@@ -60,9 +51,11 @@ const formSchema = z.object({
     }),
 }) satisfies z.ZodType<
     paths['/api/organizations/{org_slug}/projects']['post']['requestBody']['content']['application/json']
+> satisfies z.ZodType<
+    paths['/api/organizations/{org_slug}/projects/{project_slug}']['patch']['requestBody']['content']['application/json']
 >;
 
-type FormSchema = z.infer<typeof formSchema>;
+export type FormSchema = z.infer<typeof formSchema>;
 
 export default function Page() {
     const router = useRouter();

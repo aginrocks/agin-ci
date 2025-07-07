@@ -1,3 +1,4 @@
+'use client';
 import { $api } from '@lib/providers/api';
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
@@ -12,5 +13,5 @@ export function useOrg() {
         [org_slug, orgs.data]
     );
 
-    return { thisOrg, orgs: orgs.data };
+    return { thisOrg, orgs: orgs.data, thisOrgSlug: org_slug };
 }

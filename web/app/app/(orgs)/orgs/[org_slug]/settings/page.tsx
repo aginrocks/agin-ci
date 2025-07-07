@@ -3,6 +3,7 @@ import { formSchema, FormSchema } from '@/app/app/(global)/orgs/new/page';
 import { PageHeader } from '@components/page-header';
 import { SettingsSection } from '@components/settings/section';
 import { Setting } from '@components/settings/setting';
+import { SettingAction } from '@components/settings/setting-action';
 import { Button } from '@components/ui/button';
 import { Form } from '@components/ui/form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -16,7 +17,7 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
 export default function Page() {
-    const { thisOrg } = useOrg();
+    const { thisOrg, thisOrgSlug } = useOrg();
     const router = useRouter();
     const queryClient = useQueryClient();
 
@@ -87,11 +88,11 @@ export default function Page() {
                     <Form {...generalForm}>
                         <form
                             onSubmit={generalForm.handleSubmit((v) => {
-                                modifyingSlug.current = v.slug !== thisOrg?.slug;
+                                modifyingSlug.current = v.slug !== thisOrgSlug;
                                 newSlug.current = v.slug;
 
                                 mutate({
-                                    params: { path: { org_slug: thisOrg?.slug || '' } },
+                                    params: { path: { org_slug: thisOrgSlug } },
                                     body: {
                                         ...v,
                                         avatar_email: v.avatar_email || undefined, // Ensure empty string is not sent
@@ -99,7 +100,7 @@ export default function Page() {
                                 });
                             })}
                         >
-                            <SettingsSection title="General" description="Name, description, etc.">
+                            <SettingsSection title="General">
                                 <Setting
                                     title="Name"
                                     formControl={generalForm.control}
@@ -129,12 +130,21 @@ export default function Page() {
                                     icon={IconMail}
                                     placeholder="gravatar@example.com"
                                 />
+                                <Button className="mt-3" type="submit">
+                                    Save settings
+                                </Button>
                             </SettingsSection>
-                            <Button className="mt-1" type="submit">
-                                Save settings
-                            </Button>
                         </form>
                     </Form>
+                    <SettingsSection title="Danger Zone">
+                        <SettingAction
+                            title="Delete Organization"
+                            description="This action cannot be undone."
+                            rightSection={
+                                <Button variant="destructive">Delete Organization</Button>
+                            }
+                        />
+                    </SettingsSection>
                 </div>
             </div>
         </>

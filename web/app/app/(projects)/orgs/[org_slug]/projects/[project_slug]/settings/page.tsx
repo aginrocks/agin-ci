@@ -8,6 +8,7 @@ import { Form } from '@components/ui/form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useOrg, useProject } from '@lib/hooks';
 import { useModals } from '@lib/modals/ModalsManager';
+import { useProjectMutation } from '@lib/mutations';
 import { $api } from '@lib/providers/api';
 import { IconLink, IconPencil } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -40,50 +41,13 @@ export default function Page() {
         },
     });
 
-    const { mutate } = $api.useMutation(
-        'patch',
-        '/api/organizations/{org_slug}/projects/{project_slug}',
-        {
-            onSuccess: () => {
-                toast.success('Project settings updated successfully');
-                queryClient.invalidateQueries({
-                    queryKey: [
-                        'get',
-                        '/api/organizations/{org_slug}/projects',
-                        {
-                            params: {
-                                path: {
-                                    org_slug: thisOrgSlug,
-                                },
-                            },
-                        },
-                    ],
-                });
-                queryClient.invalidateQueries({
-                    queryKey: [
-                        'get',
-                        '/api/organizations/{org_slug}/projects/{project_slug}',
-                        {
-                            params: {
-                                path: {
-                                    org_slug: thisOrgSlug,
-                                    project_slug: thisProjectSlug,
-                                },
-                            },
-                        },
-                    ],
-                });
-                if (modifyingSlug.current && newSlug.current) {
-                    router.push(`/app/orgs/${thisOrgSlug}/projects/${newSlug.current}/settings`);
-                }
-            },
-            onError: (error) => {
-                toast.error('Failed to update project settings', {
-                    description: error.error,
-                });
-            },
-        }
-    );
+    const { mutate } = useProjectMutation({
+        onSuccess: () => {
+            if (modifyingSlug.current && newSlug.current) {
+                router.push(`/app/orgs/${thisOrgSlug}/projects/${newSlug.current}/settings`);
+            }
+        },
+    });
 
     const deleteProject = $api.useMutation(
         'delete',

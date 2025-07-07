@@ -9,6 +9,7 @@ import { Form } from '@components/ui/form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useOrg } from '@lib/hooks';
 import { useModals } from '@lib/modals/ModalsManager';
+import { useOrgMutation } from '@lib/mutations';
 import { $api } from '@lib/providers/api';
 import { IconLink, IconMail, IconPencil } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -42,33 +43,11 @@ export default function Page() {
     const modifyingSlug = useRef<boolean>(false);
     const newSlug = useRef<string | null>(null);
 
-    const { mutate } = $api.useMutation('patch', '/api/organizations/{org_slug}', {
+    const { mutate } = useOrgMutation({
         onSuccess: () => {
-            toast.success('Organization settings updated successfully');
-            queryClient.invalidateQueries({
-                queryKey: ['get', '/api/organizations'],
-            });
-            queryClient.invalidateQueries({
-                queryKey: [
-                    'get',
-                    '/api/organizations/{org_slug}',
-                    {
-                        params: {
-                            path: {
-                                org_slug: thisOrg?.slug || '',
-                            },
-                        },
-                    },
-                ],
-            });
             if (modifyingSlug.current && newSlug.current) {
                 router.push(`/app/orgs/${newSlug.current}/settings`);
             }
-        },
-        onError: (error) => {
-            toast.error('Failed to update organization settings', {
-                description: error.error,
-            });
         },
     });
 

@@ -23,6 +23,7 @@ openidconnect = { version = "4.0.0", default-features = false, features = [
 partial_struct = "0.4.5"
 paste = "1.0.15"
 rand = { version = "0.9.1", features = ["thread_rng"] }
+regex = "1.11.1"
 reqwest = { version = "0.12.15", features = [
     "rustls-tls",
     "http2",
@@ -47,6 +48,7 @@ tracing-subscriber = { version = "0.3.19", features = [
     "serde_json",
     "time",
 ] }
+url = "2.5.4"
 utoipa = { version = "5.3.1", features = ["axum_extras"] }
 utoipa-axum = "0.2.0"
 utoipa-rapidoc = { version = "6.0.0", features = ["axum"] }

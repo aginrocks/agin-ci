@@ -10,7 +10,7 @@ use utoipa_axum::routes;
 
 use crate::{
     axum_error::{AxumError, AxumResult},
-    database::{Project, PublicProject, fetch_project},
+    database::{Project, fetch_project},
     middlewares::{
         require_auth::UnauthorizedError,
         require_org_permissions::{ForbiddenError, OrgDataMember},

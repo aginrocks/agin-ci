@@ -224,6 +224,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/webhook-handler/github": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * GitHub Webhook handler
+         * @description Handles incoming GitHub webhooks
+         */
+        post: operations["github_webhook_handler"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -290,7 +310,7 @@ export interface components {
         /** @enum {string} */
         OrganizationRole: "viewer" | "member" | "admin" | "owner";
         /** @enum {string} */
-        ProjectRepositorySource: "github" | "forgejo" | "genericgit";
+        ProjectRepositorySource: "github" | "gitea" | "genericgit";
         /** @description Project object that can be safely sent to the client */
         PublicProject: {
             _id: string;
@@ -327,6 +347,12 @@ export interface components {
             email: string;
             name: string;
             subject: string;
+        };
+        /** @example {
+         *       "success": true
+         *     } */
+        WebhookHandlerSuccess: {
+            success: boolean;
         };
     };
     responses: never;
@@ -1185,6 +1211,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UnauthorizedError"];
+                };
+            };
+        };
+    };
+    github_webhook_handler: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WebhookHandlerSuccess"];
                 };
             };
         };

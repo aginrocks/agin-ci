@@ -100,10 +100,10 @@ export default function Page() {
                                 icon: IconBrandGithub,
                             },
                             {
-                                label: 'Forgejo',
-                                value: 'forgejo',
+                                label: 'Forgejo / Gitea',
+                                value: 'gitea',
                                 description:
-                                    'Automatic workflow runs, build statuses directly in your Forgejo instance',
+                                    'Automatic workflow runs, build statuses directly in your Forgejo or Gitea instance',
                                 // TODO: Add Forgejo icon
                                 icon: IconBrandGit,
                             },

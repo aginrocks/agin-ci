@@ -196,7 +196,7 @@ pub struct MutableOrganization {
 #[serde(rename_all = "lowercase")]
 pub enum ProjectRepositorySource {
     GitHub,
-    Forgejo,
+    Gitea,
     GenericGit,
 }
 

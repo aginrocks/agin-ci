@@ -1,0 +1,25 @@
+---
+title: Setting up repository provider
+description: It's important to set up your repository provider correctly to ensure that Agin CI can access your code and run your pipelines automatically when events occur.
+---
+import { IconBrandGithub, IconBrandGit } from '@tabler/icons-react';
+
+## Choose your repository provider
+
+<Cards>
+  <Card title="GitHub" icon={<IconBrandGithub />} href="/platform/repo-setup/github">
+    Automatic workflow runs, build statuses directly in GitHub
+  </Card>
+  <Card title="Forgejo / Gitea" icon={<IconBrandGit />} href="/platform/repo-setup/gitea">
+    Automatic workflow runs, build statuses directly in your Forgejo or Gitea instance
+  </Card>
+  <Card title="Other" icon={<IconBrandGit />} href="/platform/repo-setup/other">
+    Use any SSH Git repository. You'll need to run workflows manually form the CLI or admin panel.
+  </Card>
+</Cards>
+
+If your provider is not listed here, feel free to [open an issue](https://github.com/aginrocks/agin-ci/issues/new) or a [pull request](https://github.com/aginrocks/agin-ci/pulls).
+
+<Callout>
+  You can also automate the setup process using the API. Check out the [API documentation](/api) for more details.
+</Callout>

@@ -1,0 +1,8 @@
+{
+    "title": "Setting up repository provider",
+    "pages": [
+        "github",
+        "gitea",
+        "other"
+    ]
+}

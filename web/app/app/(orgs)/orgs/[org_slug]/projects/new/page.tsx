@@ -47,7 +47,7 @@ export const formSchema = z.object({
         .refine((s) => !RESERVED_SLUGS.includes(s), 'This slug is reserved and cannot be used'),
     repository: z.object({
         url: z.string(),
-        source: z.enum(['github', 'forgejo', 'genericgit']),
+        source: z.enum(['github', 'gitea', 'genericgit']),
     }),
 }) satisfies z.ZodType<
     paths['/api/organizations/{org_slug}/projects']['post']['requestBody']['content']['application/json']
@@ -176,7 +176,7 @@ export default function Page() {
                                                         sourceHostname === 'github.com'
                                                             ? 'github'
                                                             : sourceHostname === 'codeberg.org'
-                                                              ? 'forgejo'
+                                                              ? 'gitea'
                                                               : 'genericgit',
                                                 },
                                             },

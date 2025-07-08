@@ -1,0 +1,39 @@
+---
+title: Forgejo / Gitea
+description: All Agin CI features supported
+---
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+## Set up deploy keys
+
+You can skip this step if your repository is public. Deploy keys are needed when your repository is private. They grant Agin CI read-only access.
+
+<Steps>
+  <Step>
+    Generate a new SSH keypair in the Agin CI Dashboard.
+    ![](/img/repo-setup/github/01.png)
+  </Step>
+  <Step>
+    Copy the public key
+    ![](/img/repo-setup/github/02.png)
+  </Step>
+  <Step>
+    Go to your repository settings in your Forgejo or Gitea instance, navigate to **Deploy keys** and add a new key. Do not check the write access option.
+    ![](/img/repo-setup/gitea/03.png)
+  </Step>
+</Steps>
+
+## Set up webhooks
+
+In order for Agin CI to automatically run workflows when events occur, you need to set up webhooks.
+
+<Steps>
+  <Step>
+    Generate a webhook secret in the Agin CI Dashboard. Remember to copy it, as you won't be able to see it again.
+    ![](/img/repo-setup/github/04.png)
+  </Step>
+  <Step>
+    Go to your repository settings in your Forgejo or Gitea instance, navigate to **Webhooks** and add a new webhook. Set the payload URL to the URL visible in the Agin CI Dashboard and paste your secret. Remember to set trigger events to **All events**.
+    ![](/img/repo-setup/gitea/05.png)
+  </Step>
+</Steps>

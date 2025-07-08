@@ -1,5 +1,7 @@
+use base64::{Engine, engine::general_purpose};
 use color_eyre::eyre::{ContextCompat, Result};
 use git_url_parse::GitUrl;
+use rand::RngCore;
 
 pub fn normalize_git_url(url: &str) -> Result<String> {
     if url.is_empty() {
@@ -21,4 +23,13 @@ pub fn normalize_git_url(url: &str) -> Result<String> {
     let normalized_url = format!("ssh://{user}@{host}{port}/{fullname}.git");
 
     Ok(normalized_url)
+}
+
+pub fn generate_webhook_secret() -> String {
+    let mut rng = rand::rngs::ThreadRng::default();
+
+    let mut bytes = [0u8; 32];
+    rng.fill_bytes(&mut bytes);
+
+    general_purpose::STANDARD.encode(bytes)
 }

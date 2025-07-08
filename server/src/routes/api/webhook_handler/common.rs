@@ -2,7 +2,6 @@ use color_eyre::eyre::{self};
 use hmac::{Hmac, Mac};
 use mongodb::{Database, bson::doc};
 use sha2::Sha256;
-use tracing::info;
 
 use crate::{
     axum_error::{AxumError, AxumResult},
@@ -18,11 +17,6 @@ pub fn verify_signature(secret: &str, signature: &str, body: &[u8]) -> AxumResul
     let expected = mac.finalize().into_bytes();
     let expected_hex = hex::encode(expected);
     let expected_signature = format!("sha256={}", expected_hex);
-
-    info!(
-        "Expected signature: {}, got signature: {}, secret: {}",
-        expected_signature, signature, secret
-    );
 
     if signature == expected_signature {
         Ok(())

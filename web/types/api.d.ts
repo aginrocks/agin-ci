@@ -171,6 +171,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/organizations/{org_slug}/projects/{project_slug}/regenerate-webhook-secret": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Regenerate webhook secret
+         * @description This secret is used to verify the authenticity of webhooks sent by the repository service. You won't be able to view it again after this call.
+         */
+        get: operations["regenerate_webhook_secret"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/organizations/{org_slug}/secrets": {
         parameters: {
             query?: never;
@@ -1012,6 +1032,49 @@ export interface operations {
             };
         };
     };
+    regenerate_webhook_secret: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Organization slug */
+                org_slug: string;
+                /** @description Project slug */
+                project_slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicProject"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedError"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForbiddenError"];
+                };
+            };
+        };
+    };
     get_organization_secrets: {
         parameters: {
             query?: never;
@@ -1222,7 +1285,11 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "text/plain": string;
+            };
+        };
         responses: {
             /** @description Success */
             200: {

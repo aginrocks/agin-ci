@@ -1,5 +1,5 @@
-use axum::Json;
-use color_eyre::eyre::{self};
+use axum::{Extension, Json, body::Bytes};
+use color_eyre::eyre::{self, ContextCompat};
 use http::HeaderMap;
 use octocrab::models::webhook_events::WebhookEvent;
 use tracing::info;
@@ -7,7 +7,14 @@ use utoipa_axum::routes;
 
 use crate::{
     axum_error::{AxumError, AxumResult},
-    routes::{RouteProtectionLevel, api::webhook_handler::WebhookHandlerSuccess},
+    routes::{
+        RouteProtectionLevel,
+        api::webhook_handler::{
+            WebhookHandlerSuccess,
+            common::{get_repo_secret, verify_signature},
+        },
+    },
+    state::AppState,
 };
 
 use super::Route;
@@ -27,14 +34,16 @@ pub fn routes() -> Vec<Route> {
 #[utoipa::path(
     method(post),
     path = PATH,
+    request_body = String,
     responses(
         (status = OK, description = "Success", body = WebhookHandlerSuccess),
     ),
     tag = "Webhook Handlers"
 )]
 async fn github_webhook_handler(
+    Extension(state): Extension<AppState>,
     headers: HeaderMap,
-    body: String,
+    body: Bytes,
 ) -> AxumResult<Json<WebhookHandlerSuccess>> {
     let header = headers
         .get("X-GitHub-Event")
@@ -44,9 +53,26 @@ async fn github_webhook_handler(
         })?;
 
     let event = WebhookEvent::try_from_header_and_body(header, &body)?;
-    // .map_err(|_| AxumError::bad_request(eyre::eyre!("Invalid webhook body")))?;
+
+    let git_url = event
+        .repository
+        .wrap_err("Missing repository")?
+        .ssh_url
+        .wrap_err("Missing git URL in repository")?
+        .to_string();
+
+    let secret = get_repo_secret(&state.database, &git_url).await?;
+    let signature = headers
+        .get("X-Hub-Signature-256")
+        .and_then(|h| h.to_str().ok())
+        .ok_or_else(|| {
+            AxumError::bad_request(eyre::eyre!("Missing or invalid X-Hub-Signature-256 header"))
+        })?;
+
+    verify_signature(secret.as_str(), signature, &body)?;
 
     info!("Received GitHub event: {:?}", event.kind);
+    info!("REPO {git_url}");
 
     Ok(Json(WebhookHandlerSuccess { success: true }))
 }

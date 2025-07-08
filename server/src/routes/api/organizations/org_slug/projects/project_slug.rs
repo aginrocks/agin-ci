@@ -1,4 +1,5 @@
 mod regenerate_keys;
+mod regenerate_webhook_secret;
 
 use axum::{
     Json,
@@ -34,6 +35,7 @@ pub fn routes() -> Vec<Route> {
             RouteProtectionLevel::Authenticated,
         )],
         regenerate_keys::routes(),
+        regenerate_webhook_secret::routes(),
     ]
     .concat()
 }

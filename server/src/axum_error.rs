@@ -62,7 +62,9 @@ impl<E: Into<Report>> From<E> for AxumError {
 
 impl IntoResponse for AxumError {
     fn into_response(self) -> Response {
+        #[cfg(debug_assertions)]
         error!(error = ?self.report, "An error occurred in an axum handler");
+
         let body = json!({
             "error": self.report.to_string()
         });

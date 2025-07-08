@@ -18,6 +18,7 @@ export type Modals = {
             description?: string;
             cancelText?: string;
             confirmText?: string;
+            destructive?: boolean;
         };
         returnValue: boolean;
     }>;

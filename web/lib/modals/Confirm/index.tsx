@@ -30,7 +30,10 @@ export function Confirm({
                     <Button variant="ghost" onClick={() => modals.hide('Confirm', false)}>
                         {payload?.cancelText || 'Cancel'}
                     </Button>
-                    <Button onClick={() => modals.hide('Confirm', true)}>
+                    <Button
+                        onClick={() => modals.hide('Confirm', true)}
+                        variant={payload?.destructive ? 'destructive' : 'default'}
+                    >
                         {payload?.confirmText || 'OK'}
                     </Button>
                 </div>

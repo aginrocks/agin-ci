@@ -9,9 +9,11 @@ import { REPO_URL, WEBHOOKS_SUPPORTED } from '@lib/constants';
 import { useOrg, useProject } from '@lib/hooks';
 import { useModals } from '@lib/modals/ModalsManager';
 import { useProjectKeysMutation, useProjectMutation } from '@lib/mutations';
+import { useClipboard } from '@mantine/hooks';
 import {
     IconBrandGit,
     IconBrandGithub,
+    IconCheck,
     IconCopy,
     IconGitBranch,
     IconKey,
@@ -21,11 +23,13 @@ import {
 } from '@tabler/icons-react';
 import { useCallback } from 'react';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 
 export default function Page() {
     const { thisOrgSlug } = useOrg();
     const { thisProject, thisProjectSlug } = useProject();
     const modals = useModals();
+    const clipboard = useClipboard({ timeout: 3000 });
 
     const repositoryForm = useForm<FormSchema>({
         resolver: zodResolver(formSchema),
@@ -149,8 +153,15 @@ export default function Page() {
                         <SettingLikeHeader title="Deploy Key" className="mt-4" icon={IconKey} />
                         <div className="flex gap-2 mt-1">
                             {thisProject?.repository.deploy_key_generated && (
-                                <Button variant="outline" type="button">
-                                    <IconCopy />
+                                <Button
+                                    variant="outline"
+                                    type="button"
+                                    onClick={() => {
+                                        clipboard.copy(thisProject.repository.deploy_public_key);
+                                        toast.success('Deploy key copied to clipboard');
+                                    }}
+                                >
+                                    {clipboard.copied ? <IconCheck /> : <IconCopy />}
                                     Copy
                                 </Button>
                             )}

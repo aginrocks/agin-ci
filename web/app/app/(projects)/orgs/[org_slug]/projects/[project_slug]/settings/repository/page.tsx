@@ -8,10 +8,14 @@ import { Button } from '@components/ui/button';
 import { Form } from '@components/ui/form';
 import { Input } from '@components/ui/input';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { REPO_URL, WEBHOOKS_SUPPORTED } from '@lib/constants';
+import { DISPLAY_NAME, REPO_URL, WEBHOOKS_SUPPORTED } from '@lib/constants';
 import { useOrg, useProject } from '@lib/hooks';
 import { useModals } from '@lib/modals/ModalsManager';
-import { useProjectKeysMutation, useProjectMutation } from '@lib/mutations';
+import {
+    useProjectKeysMutation,
+    useProjectMutation,
+    useWebhookSecretMutation,
+} from '@lib/mutations';
 import { useClipboard } from '@mantine/hooks';
 import {
     IconBrandGit,
@@ -55,6 +59,7 @@ export default function Page() {
 
     const { mutate } = useProjectMutation({});
     const keys = useProjectKeysMutation({});
+    const webhookSecret = useWebhookSecretMutation({});
 
     const repoProvider = repositoryForm.watch('repository.source');
     const webhookUrl = repoProvider
@@ -68,7 +73,7 @@ export default function Page() {
             title: `${regenerating ? 'Reg' : 'G'}enerate Deploy Key`,
             description: regenerating
                 ? "Are you sure you want to generate a new deploy key? This will replace the existing one. You can't undo this action."
-                : "Deploy Keys allow you to grant Agin CI read access to your repository. You don't need to generate a deploy key if your repository is public.",
+                : `Deploy Keys allow you to grant ${DISPLAY_NAME} read access to your repository. You don't need to generate a deploy key if your repository is public.`,
             confirmText: regenerating ? 'Regenerate' : 'Generate',
         });
         if (!confirmed) return;
@@ -82,6 +87,29 @@ export default function Page() {
             },
         });
     }, [thisProject?.repository.deploy_key_generated, thisOrgSlug, thisProjectSlug]);
+
+    const generateWebhookSecret = useCallback(async () => {
+        const regenerating = thisProject?.repository.webhook_secret_generated;
+
+        if (regenerating) {
+            const confirmed = await modals.show('Confirm', {
+                title: 'Regenerate Webhook Secret',
+                description:
+                    'Are you sure you want to regenerate the webhook secret? All existing webhooks will stop working until you update them with the new secret.',
+                confirmText: 'Regenerate',
+            });
+            if (!confirmed) return;
+        }
+
+        webhookSecret.mutate({
+            params: {
+                path: {
+                    org_slug: thisOrgSlug,
+                    project_slug: thisProjectSlug,
+                },
+            },
+        });
+    }, [thisProject?.repository.webhook_secret_generated, thisOrgSlug, thisProjectSlug]);
 
     return (
         <Form {...repositoryForm}>
@@ -163,7 +191,7 @@ export default function Page() {
                     <div>
                         <SettingLikeHeader title="Deploy Key" className="mt-4" icon={IconKey} />
                         <SettingAction
-                            description="Deploy Keys allow you to grant Agin CI read access to your repository."
+                            description={`Deploy Keys allow you to grant ${DISPLAY_NAME} read access to your repository.`}
                             className="mt-3"
                             rightSection={
                                 <div className="flex gap-2">
@@ -249,7 +277,7 @@ export default function Page() {
                                         <Button
                                             variant="outline"
                                             type="button"
-                                            // onClick={generateDeployKey}
+                                            onClick={generateWebhookSecret}
                                         >
                                             <IconRefresh />
                                             {thisProject?.repository.webhook_secret_generated

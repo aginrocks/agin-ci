@@ -48,7 +48,7 @@ struct RegenerateSecretResponse {
         ("project_slug" = String, Path, description = "Project slug"),
     ),
     responses(
-        (status = OK, description = "Success", body = PublicProject, content_type = "application/json"),
+        (status = OK, description = "Success", body = RegenerateSecretResponse, content_type = "application/json"),
         (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError, content_type = "application/json"),
         (status = FORBIDDEN, description = "Forbidden", body = ForbiddenError, content_type = "application/json")
     ),

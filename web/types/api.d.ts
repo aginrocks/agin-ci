@@ -354,6 +354,9 @@ export interface components {
             project_id?: string | null;
             scope: components["schemas"]["SecretScope"];
         };
+        RegenerateSecretResponse: {
+            webhook_secret: string;
+        };
         /** @enum {string} */
         SecretScope: "organization" | "project";
         /** @example {
@@ -1052,7 +1055,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PublicProject"];
+                    "application/json": components["schemas"]["RegenerateSecretResponse"];
                 };
             };
             /** @description Unauthorized */

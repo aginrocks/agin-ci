@@ -1,0 +1,58 @@
+---
+title: Troubleshooting
+description: Help with common issues when setting up your repository
+---
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+
+## Common webhook-related issues
+
+If you are experiencing issues with webhooks, here are some common troubleshooting steps:
+
+- Check that you pasted the correct webhook URL and secret in your repository provider.
+- View the webhook delivery logs in your repository provider to see if there are any errors.
+
+---
+
+### Webhook secret is not configured in Agin CI for this repository
+
+```json
+{
+  "error": "Webhook secret is not configured in Agin CI for this repository"
+}
+```
+
+If you see this error, it means that you have not set up a webhook secret in the Agin CI Dashboard. To fix this, go to the Agin CI Dashboard, generate a new webhook secret, and paste it into your repository provider's webhook settings.
+
+### Missing or invalid X-Hub-Signature-256 header
+
+```json
+{
+  "error": "Missing or invalid X-Hub-Signature-256 header"
+}
+```
+
+If you see this error, it means that you haven't pasted the webhooks secret in your repository provider.
+
+### Invalid webhook signature
+
+```json
+{
+  "error": "Invalid webhook signature"
+}
+```
+
+If you see this error, it means that the webhook secret you pasted in your repository provider does not match the one generated in the Agin CI Dashboard. To fix this, go to the Agin CI Dashboard, generate a new webhook secret, and paste it into your repository provider's webhook settings.
+
+### Webhook repository does not match the project repository
+
+```json
+{
+  "error": "Webhook repository does not match the project repository. You likely pasted URL from another project or need to update repository URL in the Agin CI Dashboard."
+}
+```
+
+If you see this error, it means that the webhook URL you pasted in your repository provider does not match the URL of the project in the Agin CI Dashboard. To fix this:
+
+- Verify that the repository URL in the Agin CI Dashboard exactly matches the URL of the repository in your repository provider.
+- Ensure that you pasted the webhook URL and secret to a correct repository

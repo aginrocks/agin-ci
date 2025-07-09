@@ -3,6 +3,7 @@
     "pages": [
         "github",
         "gitea",
-        "other"
+        "other",
+        "troubleshooting"
     ]
 }

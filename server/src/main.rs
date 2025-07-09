@@ -40,7 +40,7 @@ use crate::{
     middlewares::require_auth::require_auth,
     routes::RouteProtectionLevel,
     settings::Settings,
-    state::{AppState, InnerState},
+    state::AppState,
 };
 
 #[derive(OpenApi)]
@@ -69,10 +69,10 @@ async fn main() -> Result<()> {
 
     let database = init_database(&settings).await?;
 
-    let app_state = AppState::new(InnerState {
+    let app_state = AppState {
         database,
         settings: settings.clone(),
-    });
+    };
 
     let session_layer = init_session_store(&settings).await?;
     let app = init_axum(app_state, session_layer).await?;

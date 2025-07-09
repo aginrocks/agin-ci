@@ -57,7 +57,7 @@ pub async fn get_project_secret(
 /// This is used to ensure that webhook events aren't spoofed
 pub fn verify_repostiory(webhook_claimed_url: &str, repository_url: &str) -> AxumResult<()> {
     let normalized_claimed_url =
-        normalize_git_url(&webhook_claimed_url).wrap_err("Failed to normalize git URL")?;
+        normalize_git_url(webhook_claimed_url).wrap_err("Failed to normalize git URL")?;
 
     if normalized_claimed_url != repository_url {
         return Err(AxumError::bad_request(eyre::eyre!(

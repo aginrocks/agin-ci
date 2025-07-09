@@ -56,3 +56,13 @@ If you see this error, it means that the webhook URL you pasted in your reposito
 
 - Verify that the repository URL in the Agin CI Dashboard exactly matches the URL of the repository in your repository provider.
 - Ensure that you pasted the webhook URL and secret to a correct repository
+
+### provided hex string representation must be exactly 12 bytes
+
+```json
+{
+  "error": "provided hex string representation must be exactly 12 bytes, instead got: \"86ce80d274952cc865dc3eb\", length 23"
+}
+```
+
+If you see this error, it means that the webhook URL wasn't pasted correctly in your repository provider. To fix this, go to the Agin CI Dashboard, copy the webhook URL, and paste it into your repository provider's webhook settings.

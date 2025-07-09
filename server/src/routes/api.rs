@@ -2,7 +2,7 @@ mod health;
 mod login;
 mod organizations;
 mod user;
-mod webhook_handler;
+mod webhooks;
 
 use serde::Serialize;
 use utoipa::{ToSchema, schema};
@@ -15,7 +15,7 @@ pub fn routes() -> Vec<Route> {
         user::routes(),
         login::routes(),
         organizations::routes(),
-        webhook_handler::routes(),
+        webhooks::routes(),
     ]
     .concat()
 }

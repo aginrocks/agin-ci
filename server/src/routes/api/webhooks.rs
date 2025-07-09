@@ -1,6 +1,5 @@
 mod common;
-mod gitea;
-mod github;
+mod project_id;
 
 use serde::Serialize;
 use utoipa::ToSchema;
@@ -8,7 +7,7 @@ use utoipa::ToSchema;
 use super::Route;
 
 pub fn routes() -> Vec<Route> {
-    [github::routes(), gitea::routes()].concat()
+    [project_id::routes()].concat()
 }
 
 #[derive(Serialize, ToSchema)]

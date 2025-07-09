@@ -62,9 +62,10 @@ export default function Page() {
     const webhookSecret = useWebhookSecretMutation({});
 
     const repoProvider = repositoryForm.watch('repository.source');
-    const webhookUrl = repoProvider
-        ? `${typeof window !== 'undefined' ? window.location.origin : ''}/api/webhook-handler/${repoProvider}`
-        : '';
+    const webhookUrl =
+        repoProvider && thisProject?._id
+            ? `${typeof window !== 'undefined' ? window.location.origin : ''}/api/webhooks/${thisProject?._id}/${repoProvider}`
+            : '';
 
     const generateDeployKey = useCallback(async () => {
         const regenerating = thisProject?.repository.deploy_key_generated;

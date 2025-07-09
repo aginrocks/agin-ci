@@ -1,4 +1,4 @@
-use axum::{Extension, Json, body::Bytes};
+use axum::{Extension, Json, body::Bytes, extract::Path};
 use color_eyre::eyre::{self, ContextCompat};
 use http::HeaderMap;
 use octocrab::models::webhook_events::WebhookEvent;
@@ -9,9 +9,9 @@ use crate::{
     axum_error::{AxumError, AxumResult},
     routes::{
         RouteProtectionLevel,
-        api::webhook_handler::{
+        api::webhooks::{
             WebhookHandlerSuccess,
-            common::{get_repo_secret, verify_signature},
+            common::{get_project_secret, verify_repostiory, verify_signature},
         },
     },
     state::AppState,
@@ -19,7 +19,7 @@ use crate::{
 
 use super::Route;
 
-const PATH: &str = "/api/webhook-handler/github";
+const PATH: &str = "/api/webhooks/{project_id}/github";
 
 pub fn routes() -> Vec<Route> {
     vec![(
@@ -34,6 +34,9 @@ pub fn routes() -> Vec<Route> {
 #[utoipa::path(
     method(post),
     path = PATH,
+    params(
+        ("project_id" = String, Path, description = "Project ID")
+    ),
     request_body = String,
     responses(
         (status = OK, description = "Success", body = WebhookHandlerSuccess),
@@ -43,8 +46,19 @@ pub fn routes() -> Vec<Route> {
 async fn github_webhook_handler(
     Extension(state): Extension<AppState>,
     headers: HeaderMap,
+    Path(project_id): Path<String>,
     body: Bytes,
 ) -> AxumResult<Json<WebhookHandlerSuccess>> {
+    let (project, secret) = get_project_secret(&state.database, &project_id).await?;
+    let signature = headers
+        .get("X-Hub-Signature-256")
+        .and_then(|h| h.to_str().ok())
+        .ok_or_else(|| {
+            AxumError::bad_request(eyre::eyre!("Missing or invalid X-Hub-Signature-256 header"))
+        })?;
+
+    verify_signature(secret.as_str(), signature, &body)?;
+
     let header = headers
         .get("X-GitHub-Event")
         .and_then(|h| h.to_str().ok())
@@ -61,15 +75,7 @@ async fn github_webhook_handler(
         .wrap_err("Missing git URL in repository")?
         .to_string();
 
-    let secret = get_repo_secret(&state.database, &git_url).await?;
-    let signature = headers
-        .get("X-Hub-Signature-256")
-        .and_then(|h| h.to_str().ok())
-        .ok_or_else(|| {
-            AxumError::bad_request(eyre::eyre!("Missing or invalid X-Hub-Signature-256 header"))
-        })?;
-
-    verify_signature(secret.as_str(), signature, &body)?;
+    verify_repostiory(&git_url, &project.repository.url)?;
 
     info!("Received GitHub event: {:?}", event.kind);
     info!("REPO {git_url}");

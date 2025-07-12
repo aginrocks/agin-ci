@@ -3,12 +3,14 @@ use axum::{
     extract::{Path, State},
     response::IntoResponse,
 };
+use axum_valid::Valid;
 use color_eyre::eyre;
 use http::StatusCode;
 use mongodb::bson::{doc, oid::ObjectId};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use utoipa_axum::routes;
+use validator::Validate;
 
 use crate::{
     axum_error::{AxumError, AxumResult},
@@ -71,8 +73,9 @@ async fn delete_organization_secret(
     Ok((StatusCode::NO_CONTENT, ()))
 }
 
-#[derive(Serialize, Deserialize, ToSchema)]
+#[derive(Serialize, Deserialize, ToSchema, Validate)]
 pub struct EditOrgSecretBody {
+    #[validate(length(min = 1, max = 64))]
     pub name: Option<String>,
     pub secret: Option<String>,
 }
@@ -97,7 +100,7 @@ async fn edit_organization_secret(
     org: OrgDataMember,
     State(state): State<AppState>,
     Path((_org_slug, secret_id)): Path<(String, String)>,
-    Json(body): Json<EditOrgSecretBody>,
+    Valid(Json(body)): Valid<Json<EditOrgSecretBody>>,
 ) -> AxumResult<Json<CreateSuccess>> {
     let secret_id = ObjectId::parse_str(&secret_id)?;
 

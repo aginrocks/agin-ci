@@ -1,12 +1,14 @@
 mod secret_id;
 
 use axum::{Json, extract::State};
+use axum_valid::Valid;
 use color_eyre::eyre::{self, ContextCompat};
 use futures::TryStreamExt;
 use mongodb::bson::doc;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use utoipa_axum::routes;
+use validator::Validate;
 
 use crate::{
     axum_error::{AxumError, AxumResult},
@@ -66,8 +68,9 @@ async fn get_organization_secrets(
     Ok(Json(secrets))
 }
 
-#[derive(Serialize, Deserialize, ToSchema)]
+#[derive(Serialize, Deserialize, ToSchema, Validate)]
 pub struct CreateOrgSecretBody {
+    #[validate(length(min = 1, max = 64))]
     pub name: String,
     pub secret: String,
 }
@@ -90,7 +93,7 @@ pub struct CreateOrgSecretBody {
 async fn create_organization_secret(
     org: OrgDataMember,
     State(state): State<AppState>,
-    Json(body): Json<CreateOrgSecretBody>,
+    Valid(Json(body)): Valid<Json<CreateOrgSecretBody>>,
 ) -> AxumResult<Json<CreateSuccess>> {
     let existing_secret = state
         .database

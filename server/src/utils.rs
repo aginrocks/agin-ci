@@ -17,7 +17,7 @@ pub fn normalize_git_url(url: &str) -> Result<String> {
     if port == "22" {
         port = "".to_string();
     } else {
-        port = format!(":{}", port);
+        port = format!(":{port}");
     }
 
     let normalized_url = format!("ssh://{user}@{host}{port}/{fullname}.git");
@@ -32,4 +32,13 @@ pub fn generate_webhook_secret() -> String {
     rng.fill_bytes(&mut bytes);
 
     general_purpose::STANDARD.encode(bytes)
+}
+
+pub fn generate_pat() -> String {
+    let mut rng = rand::rngs::ThreadRng::default();
+
+    let mut bytes = [0u8; 48];
+    rng.fill_bytes(&mut bytes);
+
+    format!("aginci_pat_{}", general_purpose::STANDARD.encode(bytes))
 }

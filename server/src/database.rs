@@ -295,8 +295,60 @@ database_object!(Worker {
     #[serde(rename = "_id", with = "object_id_as_string_required")]
     #[schema(value_type = String)]
     id: ObjectId,
-    token: String,
+    hashed_token: String,
 });
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, ToSchema)]
+#[serde(rename_all = "lowercase")]
+pub enum Permission {
+    Read,
+    Write,
+    Admin,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, ToSchema)]
+#[serde(tag = "type", content = "slug", rename_all = "lowercase")]
+pub enum ScopeType {
+    /// Allows access to the user account
+    User,
+    /// Allows access to all organizations and projects
+    Global,
+    /// Allows access to an organization
+    Org(String),
+    // TODO: Implement project access
+    // /// Allows access to a project
+    // Project(String),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, ToSchema)]
+pub struct Scope {
+    pub permission: Permission,
+    pub scope: ScopeType,
+}
+
+database_object!(AccessToken {
+    #[serde(rename = "_id", with = "object_id_as_string_required")]
+    #[schema(value_type = String)]
+    id: ObjectId,
+
+    #[serde(rename = "_id", with = "object_id_as_string_required")]
+    #[schema(value_type = String)]
+    user_id: ObjectId,
+
+    hashed_token: String,
+
+    display_name: String,
+
+    scopes: Vec<Scope>,
+});
+
+#[derive(Serialize, Deserialize, ToSchema, Validate)]
+pub struct AccessTokenCreateBody {
+    #[validate(length(min = 1, max = 64))]
+    pub display_name: String,
+
+    pub scopes: Vec<Scope>,
+}
 
 pub async fn fetch_project(
     database: &Database,

@@ -19,7 +19,7 @@ pub fn verify_signature(secret: &str, signature: &str, body: &[u8]) -> AxumResul
     mac.update(body);
     let expected = mac.finalize().into_bytes();
     let expected_hex = hex::encode(expected);
-    let expected_signature = format!("sha256={}", expected_hex);
+    let expected_signature = format!("sha256={expected_hex}");
 
     if signature == expected_signature {
         Ok(())

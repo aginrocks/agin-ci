@@ -6,7 +6,7 @@ use axum::{
     response::Response,
 };
 use axum_oidc::OidcClaims;
-use color_eyre::eyre::{self, Context, ContextCompat, eyre};
+use color_eyre::eyre::{self, ContextCompat};
 use mongodb::{
     bson::{doc, oid::ObjectId},
     options::ReturnDocument,

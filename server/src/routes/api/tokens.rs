@@ -1,8 +1,8 @@
 use axum::{Extension, Json};
 use axum_valid::Valid;
-use color_eyre::eyre::{Context, ContextCompat};
+use color_eyre::eyre::Context;
 use serde::Serialize;
-use sha2::{Digest, Sha256};
+
 use utoipa::ToSchema;
 use utoipa_axum::routes;
 

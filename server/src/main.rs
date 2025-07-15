@@ -202,8 +202,8 @@ async fn init_axum(
                     match handle_oidc_redirect::<GroupClaims>(session, oidc_client, query).await {
                         Ok(response) => response.into_response(),
                         Err(e) => {
-                            error!(error = ?e, "OIDC redirect handler error: {}", e);
-                            (StatusCode::BAD_REQUEST, format!("OIDC error: {}", e)).into_response()
+                            error!(error = ?e, "OIDC redirect handler error: {e}");
+                            (StatusCode::BAD_REQUEST, format!("OIDC error: {e}")).into_response()
                         }
                     }
                 }),

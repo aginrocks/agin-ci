@@ -13,9 +13,9 @@ use crate::{
     state::AppState,
 };
 
-/// Organization data type for request extensions
-#[derive(Clone, Debug, Serialize, ToSchema, Deserialize)]
-pub struct OrgData(pub Organization);
+// Organization data type for request extensions
+// #[derive(Clone, Debug, Serialize, ToSchema, Deserialize)]
+// pub struct OrgData(pub Organization);
 
 /// Organization data with viewer role requirement
 #[derive(Clone, Debug, Serialize, ToSchema, Deserialize)]

@@ -143,7 +143,7 @@ async fn delete_organization(
         .try_collect::<Vec<Project>>()
         .await?
         .into_iter()
-        .filter_map(|p| Some(p.id))
+        .map(|p| p.id)
         .collect();
 
     // Step 2: Delete the projects

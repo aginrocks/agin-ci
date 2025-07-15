@@ -1,6 +1,6 @@
 use axum::{Extension, Json};
 use axum_valid::Valid;
-use color_eyre::eyre::Context;
+use color_eyre::eyre::{Context, ContextCompat};
 use serde::Serialize;
 use sha2::{Digest, Sha256};
 use utoipa::ToSchema;
@@ -12,7 +12,7 @@ use crate::{
     middlewares::require_auth::{UnauthorizedError, UserData, UserId},
     routes::RouteProtectionLevel,
     state::AppState,
-    utils::generate_pat,
+    utils::{generate_pat, hash_pat},
 };
 
 use super::Route;
@@ -64,7 +64,7 @@ async fn create_token(
 ) -> AxumResult<Json<AccessTokenCreateResponse>> {
     let token = generate_pat();
 
-    let hashed_token = format!("{:X}", Sha256::digest(&token));
+    let hashed_token = hash_pat(&token);
 
     let token_object = PartialAccessToken {
         user_id: *user_id,
@@ -75,7 +75,7 @@ async fn create_token(
 
     state
         .database
-        .collection::<PartialAccessToken>("tokens")
+        .collection("tokens")
         .insert_one(token_object)
         .await
         .wrap_err("Failed to create access token")?;

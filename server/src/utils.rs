@@ -1,7 +1,8 @@
 use base64::{Engine, engine::general_purpose};
 use color_eyre::eyre::{ContextCompat, Result};
 use git_url_parse::GitUrl;
-use rand::RngCore;
+use rand::{Rng, RngCore, distr::Alphanumeric};
+use sha2::{Digest, Sha256};
 
 pub fn normalize_git_url(url: &str) -> Result<String> {
     if url.is_empty() {
@@ -35,10 +36,17 @@ pub fn generate_webhook_secret() -> String {
 }
 
 pub fn generate_pat() -> String {
-    let mut rng = rand::rngs::ThreadRng::default();
+    let rng = rand::rngs::ThreadRng::default();
 
-    let mut bytes = [0u8; 48];
-    rng.fill_bytes(&mut bytes);
+    let token: String = rng
+        .sample_iter(&Alphanumeric)
+        .take(48)
+        .map(char::from)
+        .collect();
 
-    format!("aginci_pat_{}", general_purpose::STANDARD.encode(bytes))
+    format!("aginci_pat_{token}")
+}
+
+pub fn hash_pat(pat: &str) -> String {
+    format!("{:x}", Sha256::digest(pat))
 }

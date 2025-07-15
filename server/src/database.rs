@@ -331,7 +331,7 @@ database_object!(AccessToken {
     #[schema(value_type = String)]
     id: ObjectId,
 
-    #[serde(rename = "_id", with = "object_id_as_string_required")]
+    #[serde(with = "object_id_as_string_required")]
     #[schema(value_type = String)]
     user_id: ObjectId,
 

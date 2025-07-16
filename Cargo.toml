@@ -1,3 +1,3 @@
 [workspace]
 resolver = "2"
-members = ["aginci_core", "server", "worker"]
+members = ["aginci_core", "container_runner", "node_runner", "server"]

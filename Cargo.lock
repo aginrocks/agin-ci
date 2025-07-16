@@ -461,6 +461,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "container_runner"
+version = "0.1.0"
+
+[[package]]
 name = "convert_case"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1967,6 +1971,10 @@ dependencies = [
  "quote",
  "syn 2.0.104",
 ]
+
+[[package]]
+name = "node_runner"
+version = "0.1.0"
 
 [[package]]
 name = "nom"
@@ -4724,10 +4732,6 @@ checksum = "6f42320e61fe2cfd34354ecb597f86f413484a798ba44a8ca1165c58d42da6c1"
 dependencies = [
  "bitflags 2.9.1",
 ]
-
-[[package]]
-name = "worker"
-version = "1.0.0"
 
 [[package]]
 name = "writeable"

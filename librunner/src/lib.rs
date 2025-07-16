@@ -8,6 +8,7 @@ use color_eyre::eyre::{Context, Result};
 use socketioxide::{SocketIo, SocketIoBuilder, layer::SocketIoLayer};
 use std::sync::Arc;
 use tokio::sync::RwLock;
+use tracing::error;
 
 use crate::tokens_manager::{JobRun, TokensManager};
 
@@ -38,7 +39,7 @@ impl WorkflowRunner {
 
         self.init_axum(layer)
             .await
-            .wrap_err("Failed to initialize axum server")?;
+            .expect("Failed to initialize axum server");
 
         Ok(())
     }
@@ -47,7 +48,7 @@ impl WorkflowRunner {
         let app = Router::new()
             .route(
                 "/",
-                get(|| async { format!("LibRunner {}", env!("CARGO_PKG_VERSION")) }),
+                get(|| async { format!("Agin CI LibRunner {}", env!("CARGO_PKG_VERSION")) }),
             )
             .fallback(|| async { (StatusCode::NOT_FOUND, "Not found").into_response() });
 
@@ -57,9 +58,11 @@ impl WorkflowRunner {
             .await
             .wrap_err("Failed to bind")?;
 
-        if let Err(err) = axum::serve(listener, app).await {
-            eprintln!("Server error: {err:?}");
-        }
+        tokio::spawn(async move {
+            if let Err(err) = axum::serve(listener, app).await {
+                error!("Server crashed: {:?}", err);
+            }
+        });
 
         Ok(())
     }

@@ -1,4 +1,4 @@
-mod steps;
+pub mod steps;
 
 use schemars::{JsonSchema, schema_for};
 use serde::{Deserialize, Serialize};

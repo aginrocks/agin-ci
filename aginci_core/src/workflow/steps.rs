@@ -1,9 +1,9 @@
-mod build;
-mod checkout;
-mod restore_cache;
-mod run;
-mod save_cache;
-mod upload_artifact;
+pub mod build;
+pub mod checkout;
+pub mod restore_cache;
+pub mod run;
+pub mod save_cache;
+pub mod upload_artifact;
 
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};

@@ -1,8 +1,10 @@
+use aginci_core::workflow::{Job, OS};
 use color_eyre::eyre::{Context, Result};
-use librunner::WorkflowRunner;
+use librunner::{WorkflowRunner, tokens_manager::JobRun};
 use tracing::{info, level_filters::LevelFilter};
 use tracing_error::ErrorLayer;
 use tracing_subscriber::{fmt::format::FmtSpan, layer::SubscriberExt, util::SubscriberInitExt};
+use uuid::Uuid;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -21,15 +23,21 @@ async fn main() -> Result<()> {
     info!("Initialized workflow runner");
 
     runner.serve().await.wrap_err("Failed to start server")?;
-    // runner.run_workflow(JobRun {
-    //     id: Uuid::new_v4(),
-    //     job: Job {
-    //         base_image: Some("rust:latest".to_string()),
-    //         name: Some("Example Job".to_string()),
-    //         runs_on: OS::Linux,
-    //         steps: vec![],
-    //     },
-    // })
+
+    runner
+        .run_workflow(JobRun {
+            id: Uuid::new_v4(),
+            job: Job {
+                base_image: Some("rust:latest".to_string()),
+                name: Some("Example Job".to_string()),
+                runs_on: OS::Linux,
+                steps: vec![],
+            },
+        })
+        .await?;
+
+    // Simulating queue connection for now
+    tokio::time::sleep(std::time::Duration::MAX).await;
 
     Ok(())
 }

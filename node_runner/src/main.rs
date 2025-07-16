@@ -1,4 +1,5 @@
 use color_eyre::eyre::{Context, Result};
+use librunner::WorkflowRunner;
 use tracing::{info, level_filters::LevelFilter};
 use tracing_error::ErrorLayer;
 use tracing_subscriber::{fmt::format::FmtSpan, layer::SubscriberExt, util::SubscriberInitExt};
@@ -15,7 +16,11 @@ async fn main() -> Result<()> {
         env!("CARGO_PKG_VERSION"),
     );
 
-    println!("Hello, world!");
+    let mut runner = WorkflowRunner::new()?;
+
+    info!("Initialized workflow runner");
+
+    runner.serve().await?;
 
     Ok(())
 }

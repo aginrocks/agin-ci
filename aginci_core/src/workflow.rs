@@ -21,11 +21,16 @@ pub struct Job {
     #[serde(rename = "runs-on")]
     pub runs_on: OS,
 
+    /// Base image for the job, can be any valid Docker image. By default, it's pulled from the Docker Hub. Defaults to ubuntu:latest on Linux and chroot on macOS. Warning: Image entrypoint will be ignored.
+    #[serde(rename = "base-image")]
+    pub base_image: Option<String>,
+
     pub steps: Vec<Step>,
 }
 
 #[derive(Serialize, Deserialize, JsonSchema)]
 pub struct Workflow {
+    /// The name of the workflow. It is shown in the UI.
     pub name: String,
 
     #[serde(rename = "run-name", skip_serializing_if = "Option::is_none")]

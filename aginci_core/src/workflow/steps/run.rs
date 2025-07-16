@@ -17,7 +17,7 @@ pub struct RunStepWith {
 }
 
 define_step!(
-    "aginrocks/run",
+    "aginci/run",
     RunStep {
         pub run: String,
         pub env: Option<HashMap<String, String>>,

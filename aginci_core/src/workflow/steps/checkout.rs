@@ -1,3 +1,3 @@
 use crate::define_step;
 
-define_step!("aginrocks/checkout", CheckoutStep { a: String });
+define_step!("aginci/checkout", CheckoutStep { a: String });

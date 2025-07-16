@@ -1,3 +1,3 @@
 use crate::define_step;
 
-define_step!("aginrocks/build", BuildStep { test: String });
+define_step!("aginci/build", BuildStep { test: String });

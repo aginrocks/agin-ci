@@ -1,6 +1,8 @@
 mod build;
 mod checkout;
+mod restore_cache;
 mod run;
+mod save_cache;
 
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -11,6 +13,8 @@ pub enum Step {
     Checkout(checkout::CheckoutStep),
     Build(build::BuildStep),
     Run(run::RunStep),
+    RestoreCache(restore_cache::RestoreCacheStep),
+    SaveCache(save_cache::SaveCacheStep),
 }
 
 #[macro_export]
@@ -20,6 +24,10 @@ macro_rules! define_step {
             #[derive(serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
             pub struct $struct_name {
                 pub uses: [<Uses$struct_name>],
+
+                /// You can reference a step by ID to access its outputs in subsequent steps.
+                #[serde(skip_serializing_if = "Option::is_none")]
+                pub id: Option<String>,
 
                 #[serde(skip_serializing_if = "Option::is_none")]
                 pub name: Option<String>,

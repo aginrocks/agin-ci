@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::define_step;
 
-#[derive(Serialize, Deserialize, JsonSchema)]
+#[derive(Serialize, Deserialize, JsonSchema, Clone)]
 pub struct UploadArtifactStepWith {
     /// Path to the artifact to upload.
     pub path: String,

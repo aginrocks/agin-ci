@@ -1,22 +1,33 @@
-use std::sync::Arc;
+pub mod tokens_manager;
 
 use axum::{Router, http::StatusCode, response::IntoResponse, routing::get};
-use bollard::Docker;
+use bollard::{
+    Docker, query_parameters::CreateContainerOptionsBuilder, secret::ContainerCreateBody,
+};
 use color_eyre::eyre::{Context, Result};
 use socketioxide::{SocketIo, SocketIoBuilder, layer::SocketIoLayer};
+use std::sync::Arc;
+use tokio::sync::RwLock;
 
+use crate::tokens_manager::{JobRun, TokensManager};
+
+#[allow(dead_code)]
 pub struct WorkflowRunner {
     docker: Arc<Docker>,
     io: Arc<Option<SocketIo>>,
+    tokens: Arc<RwLock<TokensManager>>,
 }
 
 impl WorkflowRunner {
     pub fn new() -> Result<Self> {
         let docker = Docker::connect_with_defaults().wrap_err("Failed to connect to Docker")?;
 
+        let tokens = TokensManager::new();
+
         Ok(WorkflowRunner {
             docker: Arc::new(docker),
             io: Arc::new(None),
+            tokens: Arc::new(RwLock::new(tokens)),
         })
     }
 
@@ -49,6 +60,34 @@ impl WorkflowRunner {
         if let Err(err) = axum::serve(listener, app).await {
             eprintln!("Server error: {err:?}");
         }
+
+        Ok(())
+    }
+
+    pub async fn run_workflow(&self, run: JobRun) -> Result<()> {
+        let token = {
+            let mut tokens_write = self.tokens.write().await;
+            tokens_write.generate_run_token(run.clone())
+        };
+
+        let container_config = ContainerCreateBody {
+            image: run.job.base_image,
+            cmd: Some(vec!["/bin/aginci-container-runner".to_string()]),
+            env: Some(vec![
+                format!("AGINCI_LIBRUNNER_TOKEN={token}"),
+                "AGINCI_LIBRUNNER_URL=ws://172.17.0.1:37581".to_string(),
+            ]),
+            ..Default::default()
+        };
+
+        let container_name = format!("aginci_{}", run.id);
+        let create_options = CreateContainerOptionsBuilder::new()
+            .name(&container_name)
+            .build();
+
+        self.docker
+            .create_container(Some(create_options), container_config)
+            .await?;
 
         Ok(())
     }

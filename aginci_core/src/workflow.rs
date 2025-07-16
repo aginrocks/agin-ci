@@ -7,14 +7,14 @@ use std::{collections::HashMap, sync::LazyLock};
 
 use crate::workflow::steps::Step;
 
-#[derive(Serialize, Deserialize, JsonSchema)]
+#[derive(Serialize, Deserialize, JsonSchema, Clone)]
 #[serde(rename_all = "lowercase")]
 pub enum OS {
     Linux,
     MacOS,
 }
 
-#[derive(Serialize, Deserialize, JsonSchema)]
+#[derive(Serialize, Deserialize, JsonSchema, Clone)]
 pub struct Job {
     pub name: Option<String>,
 
@@ -28,7 +28,7 @@ pub struct Job {
     pub steps: Vec<Step>,
 }
 
-#[derive(Serialize, Deserialize, JsonSchema)]
+#[derive(Serialize, Deserialize, JsonSchema, Clone)]
 pub struct Workflow {
     /// The name of the workflow. It is shown in the UI.
     pub name: String,

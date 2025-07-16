@@ -20,3 +20,4 @@ tracing-subscriber = { version = "0.3.19", features = [
     "serde_json",
     "time",
 ] }
+uuid = { version = "1.17.0", features = ["v4"] }

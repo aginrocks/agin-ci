@@ -1920,8 +1920,10 @@ dependencies = [
  "axum",
  "bollard",
  "color-eyre",
+ "rand 0.9.1",
  "socketioxide",
  "tokio",
+ "uuid",
 ]
 
 [[package]]
@@ -2173,6 +2175,7 @@ dependencies = [
  "tracing",
  "tracing-error",
  "tracing-subscriber",
+ "uuid",
 ]
 
 [[package]]

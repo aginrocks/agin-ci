@@ -8,5 +8,7 @@ aginci_core = { version = "0.1.0", path = "../aginci_core" }
 axum = "0.8.4"
 bollard = "0.19.1"
 color-eyre = "0.6.5"
+rand = "0.9.1"
 socketioxide = { version = "0.17.2", features = ["state", "tracing"] }
 tokio = { version = "1.46.1", features = ["full"] }
+uuid = { version = "1.17.0", features = ["v4"] }

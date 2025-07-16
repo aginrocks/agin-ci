@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::define_step;
 
-#[derive(Serialize, Deserialize, JsonSchema)]
+#[derive(Serialize, Deserialize, JsonSchema, Clone)]
 pub struct RunStepWith {
     /// The user ID or name to run the command as. Works only on Linux. Defaults to "1000"
     #[serde(rename = "user", skip_serializing_if = "Option::is_none")]

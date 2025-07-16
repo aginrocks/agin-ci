@@ -20,7 +20,16 @@ async fn main() -> Result<()> {
 
     info!("Initialized workflow runner");
 
-    runner.serve().await?;
+    runner.serve().await.wrap_err("Failed to start server")?;
+    // runner.run_workflow(JobRun {
+    //     id: Uuid::new_v4(),
+    //     job: Job {
+    //         base_image: Some("rust:latest".to_string()),
+    //         name: Some("Example Job".to_string()),
+    //         runs_on: OS::Linux,
+    //         steps: vec![],
+    //     },
+    // })
 
     Ok(())
 }

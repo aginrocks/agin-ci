@@ -1,6 +1,7 @@
 mod health;
 mod login;
 mod organizations;
+mod schema;
 mod tokens;
 mod user;
 mod webhooks;
@@ -18,6 +19,7 @@ pub fn routes() -> Vec<Route> {
         organizations::routes(),
         webhooks::routes(),
         tokens::routes(),
+        schema::routes(),
     ]
     .concat()
 }

@@ -4,6 +4,7 @@ version = "1.0.0"
 edition = "2024"
 
 [dependencies]
+aginci_core = { version = "0.1.0", path = "../aginci_core" }
 async-trait = "0.1.88"
 axum = { version = "0.8.4", features = ["macros"] }
 axum-oidc = { git = "https://github.com/pfzetto/axum-oidc.git", branch = "pfzetto" }

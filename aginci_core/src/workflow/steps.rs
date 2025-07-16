@@ -3,6 +3,7 @@ mod checkout;
 mod restore_cache;
 mod run;
 mod save_cache;
+mod upload_artifact;
 
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -15,6 +16,7 @@ pub enum Step {
     Run(run::RunStep),
     RestoreCache(restore_cache::RestoreCacheStep),
     SaveCache(save_cache::SaveCacheStep),
+    UploadArtifact(upload_artifact::UploadArtifactStep),
 }
 
 #[macro_export]

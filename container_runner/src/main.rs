@@ -3,6 +3,7 @@ use std::env;
 use color_eyre::eyre::{Context, Result, eyre};
 use reqwest::StatusCode;
 use rust_socketio::asynchronous::ClientBuilder;
+use serde_json::json;
 use tracing::{info, level_filters::LevelFilter};
 use tracing_error::ErrorLayer;
 use tracing_subscriber::{fmt::format::FmtSpan, layer::SubscriberExt, util::SubscriberInitExt};
@@ -40,13 +41,15 @@ async fn main() -> Result<()> {
 
     info!("Successfully authenticated to LibRunner");
 
-    let _socket = ClientBuilder::new(server_url)
+    let socket = ClientBuilder::new(server_url)
         .opening_header("Authorization", format!("Bearer {token}"))
         .connect()
         .await
         .wrap_err("Failed to connect to LibRunner")?;
 
     info!("Successfully connected to LibRunner");
+
+    socket.emit("get_job", json!(null)).await?;
 
     tokio::time::sleep(std::time::Duration::MAX).await;
 

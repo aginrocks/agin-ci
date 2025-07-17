@@ -564,6 +564,7 @@ dependencies = [
  "color-eyre",
  "reqwest 0.12.22",
  "rust_socketio",
+ "serde_json",
  "tokio",
  "tracing",
  "tracing-error",

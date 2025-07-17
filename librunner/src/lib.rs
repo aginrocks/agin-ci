@@ -1,6 +1,10 @@
+mod require_auth;
+mod socket;
 pub mod tokens_manager;
 
-use axum::{Router, http::StatusCode, response::IntoResponse, routing::get};
+use axum::{
+    Router, http::StatusCode, middleware::from_fn_with_state, response::IntoResponse, routing::get,
+};
 use bollard::{
     Docker, query_parameters::CreateContainerOptionsBuilder, secret::ContainerCreateBody,
 };
@@ -8,15 +12,24 @@ use color_eyre::eyre::{Context, Result};
 use socketioxide::{SocketIo, SocketIoBuilder, layer::SocketIoLayer};
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use tracing::error;
+use tracing::{error, info};
 
-use crate::tokens_manager::{JobRun, TokensManager};
+use crate::{
+    require_auth::require_auth,
+    socket::init_io,
+    tokens_manager::{JobRun, TokensManager},
+};
 
-#[allow(dead_code)]
+#[derive(Clone)]
+pub struct AppState {
+    pub docker: Arc<Docker>,
+    pub tokens: Arc<RwLock<TokensManager>>,
+}
+
 pub struct WorkflowRunner {
     docker: Arc<Docker>,
     io: Arc<Option<SocketIo>>,
-    tokens: Arc<RwLock<TokensManager>>,
+    state: AppState,
 }
 
 impl WorkflowRunner {
@@ -25,15 +38,22 @@ impl WorkflowRunner {
 
         let tokens = TokensManager::new();
 
+        let state = AppState {
+            docker: Arc::new(docker.clone()),
+            tokens: Arc::new(RwLock::new(tokens)),
+        };
+
         Ok(WorkflowRunner {
             docker: Arc::new(docker),
             io: Arc::new(None),
-            tokens: Arc::new(RwLock::new(tokens)),
+            state,
         })
     }
 
     pub async fn serve(&mut self) -> Result<()> {
         let (layer, io) = SocketIoBuilder::new().build_layer();
+
+        init_io(&io).await?;
 
         self.io = Arc::new(Some(io));
 
@@ -45,20 +65,22 @@ impl WorkflowRunner {
     }
 
     async fn init_axum(&self, io_layer: SocketIoLayer) -> Result<()> {
-        let app = Router::new()
-            .route(
-                "/",
-                get(|| async { format!("Agin CI LibRunner {}", env!("CARGO_PKG_VERSION")) }),
-            )
-            .fallback(|| async { (StatusCode::NOT_FOUND, "Not found").into_response() });
+        let app_state = self.state.clone();
 
-        let app = app.merge(Router::new().layer(io_layer));
+        let app = Router::new()
+            .route("/", get(root_handler))
+            .fallback(|| async { (StatusCode::NOT_FOUND, "Not found").into_response() })
+            .layer(io_layer)
+            .layer(from_fn_with_state(app_state.clone(), require_auth))
+            .with_state(app_state); // Provide shared state here
 
         let listener = tokio::net::TcpListener::bind("0.0.0.0:37581")
             .await
             .wrap_err("Failed to bind")?;
 
         tokio::spawn(async move {
+            let app = app.into_make_service();
+
             if let Err(err) = axum::serve(listener, app).await {
                 error!("Server crashed: {:?}", err);
             }
@@ -68,10 +90,13 @@ impl WorkflowRunner {
     }
 
     pub async fn run_workflow(&self, run: JobRun) -> Result<()> {
+        // Access tokens inside the state for token generation
         let token = {
-            let mut tokens_write = self.tokens.write().await;
+            let mut tokens_write = self.state.tokens.write().await;
             tokens_write.generate_run_token(run.clone())
         };
+
+        info!("Token: {token}");
 
         let container_config = ContainerCreateBody {
             image: run.job.base_image,
@@ -88,12 +113,17 @@ impl WorkflowRunner {
             .name(&container_name)
             .build();
 
+        // Use docker from the field directly
         self.docker
             .create_container(Some(create_options), container_config)
             .await?;
 
         Ok(())
     }
+}
+
+async fn root_handler() -> String {
+    format!("Agin CI LibRunner {}", env!("CARGO_PKG_VERSION"))
 }
 
 // Default cannot return Result, so we must panic if it fails

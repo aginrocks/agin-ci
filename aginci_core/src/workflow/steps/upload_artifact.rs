@@ -1,8 +1,6 @@
 #[cfg(feature = "step_executor")]
-use std::pin::Pin;
+use {color_eyre::eyre::Result, std::pin::Pin};
 
-#[cfg(feature = "step_executor")]
-use color_eyre::eyre::Result;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 

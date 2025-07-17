@@ -6,7 +6,7 @@ use rust_socketio::{
 };
 use serde::de::DeserializeOwned;
 use serde_json::from_value;
-use std::{env, pin::Pin, sync::Arc};
+use std::{env, sync::Arc};
 use tokio::sync::OnceCell;
 
 // For now, only one arg is supported. I HATE THAT I HAVE TO DO THIS SHIT IN ORDER TO JUST DESERIALIZE OBJECTS

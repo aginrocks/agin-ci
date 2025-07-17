@@ -1,9 +1,7 @@
 use std::collections::HashMap;
 
 #[cfg(feature = "step_executor")]
-use color_eyre::eyre::Result;
-#[cfg(feature = "step_executor")]
-use std::pin::Pin;
+use {color_eyre::eyre::Result, std::pin::Pin};
 
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};

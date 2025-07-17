@@ -1,9 +1,5 @@
 #[cfg(feature = "step_executor")]
-use async_trait::async_trait;
-#[cfg(feature = "step_executor")]
-use color_eyre::eyre::Result;
-#[cfg(feature = "step_executor")]
-use std::pin::Pin;
+use {async_trait::async_trait, color_eyre::eyre::Result, std::pin::Pin};
 
 use crate::define_step;
 #[cfg(feature = "step_executor")]

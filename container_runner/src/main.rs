@@ -32,7 +32,7 @@ async fn main() -> Result<()> {
             json!(null),
             Duration::from_secs(2),
             handler!(Job, async |job: Job| {
-                run_job(job).await;
+                run_job(job).await.ok();
             }),
         )
         .await?;

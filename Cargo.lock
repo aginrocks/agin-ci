@@ -2031,6 +2031,8 @@ dependencies = [
  "bollard",
  "color-eyre",
  "rand 0.9.1",
+ "serde",
+ "serde_json",
  "socketioxide",
  "tokio",
  "tracing",

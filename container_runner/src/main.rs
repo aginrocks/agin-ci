@@ -1,5 +1,6 @@
 use std::env;
 
+use aginci_core::runner_messages::auth::Auth;
 use color_eyre::eyre::{Context, Result, eyre};
 use reqwest::StatusCode;
 use rust_socketio::asynchronous::ClientBuilder;
@@ -24,25 +25,8 @@ async fn main() -> Result<()> {
 
     let token = env::var("AGINCI_LIBRUNNER_TOKEN").wrap_err("Missing AGINCI_LIBRUNNER_TOKEN")?;
 
-    let client = reqwest::Client::new();
-
-    client
-        .get(&server_url)
-        .header("Authorization", format!("Bearer {token}"))
-        .send()
-        .await
-        .wrap_err("Unable to reach LibRunner")?
-        .error_for_status()
-        .map_err(|e| match e.status() {
-            Some(StatusCode::UNAUTHORIZED) => eyre!("Invalid LibRunner token"),
-            None => eyre!("Unable to reach LibRunner"),
-            Some(status) => eyre!("HTTP error: {}", status),
-        })?;
-
-    info!("Successfully authenticated to LibRunner");
-
     let socket = ClientBuilder::new(server_url)
-        .opening_header("Authorization", format!("Bearer {token}"))
+        .auth(serde_json::to_value(Auth { token })?)
         .connect()
         .await
         .wrap_err("Failed to connect to LibRunner")?;

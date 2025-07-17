@@ -1,4 +1,3 @@
-mod require_auth;
 mod socket;
 pub mod tokens_manager;
 
@@ -15,7 +14,6 @@ use tokio::sync::RwLock;
 use tracing::{error, info};
 
 use crate::{
-    require_auth::require_auth,
     socket::init_io,
     tokens_manager::{JobRun, TokensManager},
 };
@@ -51,7 +49,9 @@ impl WorkflowRunner {
     }
 
     pub async fn serve(&mut self) -> Result<()> {
-        let (layer, io) = SocketIoBuilder::new().build_layer();
+        let (layer, io) = SocketIoBuilder::new()
+            .with_state(self.state.clone())
+            .build_layer();
 
         init_io(&io).await?;
 
@@ -71,7 +71,7 @@ impl WorkflowRunner {
             .route("/", get(root_handler))
             .fallback(|| async { (StatusCode::NOT_FOUND, "Not found").into_response() })
             .layer(io_layer)
-            .layer(from_fn_with_state(app_state.clone(), require_auth))
+            // .layer(from_fn_with_state(app_state.clone(), require_auth))
             .with_state(app_state); // Provide shared state here
 
         let listener = tokio::net::TcpListener::bind("0.0.0.0:37581")

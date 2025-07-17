@@ -5,11 +5,19 @@ pub mod run;
 pub mod save_cache;
 pub mod upload_artifact;
 
+#[cfg(feature = "step_executor")]
+use crate::workflow::step_executor::StepExecutor;
+#[cfg(feature = "step_executor")]
+use color_eyre::eyre::Result;
+use enum_dispatch::enum_dispatch;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+#[cfg(feature = "step_executor")]
+use std::pin::Pin;
 
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]
 #[serde(untagged)]
+#[enum_dispatch]
 pub enum Step {
     Checkout(checkout::CheckoutStep),
     Build(build::BuildStep),

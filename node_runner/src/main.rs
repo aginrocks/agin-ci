@@ -1,4 +1,7 @@
-use aginci_core::workflow::{Job, OS};
+use aginci_core::workflow::{
+    Job, OS,
+    steps::{Step, run::RunStep},
+};
 use color_eyre::eyre::{Context, Result};
 use librunner::{WorkflowRunner, tokens_manager::JobRun};
 use tracing::{info, level_filters::LevelFilter};
@@ -31,7 +34,16 @@ async fn main() -> Result<()> {
                 base_image: Some("rust:latest".to_string()),
                 name: Some("Example Job".to_string()),
                 runs_on: OS::Linux,
-                steps: vec![],
+                steps: vec![Step::Run(RunStep {
+                    run: "ls".to_string(),
+                    uses: aginci_core::workflow::steps::run::UsesRunStep::Value,
+                    id: None,
+                    name: Some("Run".to_string()),
+                    continue_on_error: Some(false),
+                    working_directory: None,
+                    env: None,
+                    with: None,
+                })],
             },
         })
         .await?;

@@ -1,13 +1,16 @@
-use std::env;
+mod socket;
 
-use aginci_core::runner_messages::auth::Auth;
+use aginci_core::{runner_messages::auth::Auth, workflow::Job};
 use color_eyre::eyre::{Context, Result, eyre};
 use reqwest::StatusCode;
 use rust_socketio::asynchronous::ClientBuilder;
 use serde_json::json;
+use std::{env, time::Duration};
 use tracing::{info, level_filters::LevelFilter};
 use tracing_error::ErrorLayer;
 use tracing_subscriber::{fmt::format::FmtSpan, layer::SubscriberExt, util::SubscriberInitExt};
+
+use crate::socket::deserialize_payload;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -33,7 +36,16 @@ async fn main() -> Result<()> {
 
     info!("Successfully connected to LibRunner");
 
-    socket.emit("get_job", json!(null)).await?;
+    socket
+        .emit_with_ack(
+            "get_job",
+            json!(null),
+            Duration::from_secs(2),
+            handler!(Job, async |job: Job| {
+                info!("job {}", job.name.unwrap());
+            }),
+        )
+        .await?;
 
     tokio::time::sleep(std::time::Duration::MAX).await;
 

@@ -1,22 +1,122 @@
+use async_trait::async_trait;
+use color_eyre::eyre::{Result, eyre};
+use gitea_client::{apis::configuration::Configuration, models::ContentsResponse};
 use gitea_sdk::{Auth, Client};
+use octocrab::models::repos::{Content, ContentLinks};
+use reqwest::header::{self, HeaderValue};
 use std::sync::Arc;
+use url::Url;
 
 use crate::git_provider::{GitProvider, GitProviderCreateOptions};
 
 pub struct GiteaProvider {
     client: Arc<Client>,
+    configuration: Arc<Configuration>,
+    base_url: Url,
 }
 
+#[async_trait]
 impl GitProvider for GiteaProvider {
-    fn new(options: GitProviderCreateOptions) -> Self {
+    fn new(options: GitProviderCreateOptions) -> Result<Self> {
         let base_url = options
             .base_url
             .unwrap_or_else(|| "https://codeberg.org".to_string());
 
-        let client = Client::new(base_url, Auth::Token(options.token));
+        let base = Url::parse(&base_url).expect("Failed to parse base URL for Gitea");
 
-        GiteaProvider {
+        let client = Client::new(base_url.clone(), Auth::Token(options.token.clone()));
+
+        let mut headers = header::HeaderMap::new();
+        headers.append(
+            "Authorization",
+            HeaderValue::from_str(format!("token {}", options.token).as_str())?,
+        );
+
+        let reqwest_client = reqwest::Client::builder()
+            .default_headers(headers)
+            .build()?;
+
+        let configuration = Arc::new(Configuration {
+            base_path: base_url,
+            user_agent: None,
+            client: reqwest_client,
+            basic_auth: None,
+            oauth_access_token: None,
+            bearer_access_token: None,
+            api_key: None,
+        });
+
+        Ok(GiteaProvider {
             client: Arc::new(client),
-        }
+            configuration,
+            base_url: base,
+        })
+    }
+    async fn get_folder_contents(
+        &self,
+        owner: String,
+        repo: String,
+        path: String,
+        r#ref: String,
+    ) -> Result<Vec<Content>> {
+        let path = format!(
+            "repos/{}/{}/contents/{}",
+            urlencoding::encode(&owner),
+            urlencoding::encode(&repo),
+            path,
+        );
+
+        let results = self
+            .client
+            .get(path)
+            .query(&[("ref", r#ref)])
+            .send()
+            .await
+            .unwrap()
+            .json::<Vec<ContentsResponse>>()
+            .await
+            .unwrap();
+
+        let parsed_results = results
+            .iter()
+            .map(|result| {
+                let links = result._links.as_ref();
+
+                let git = links
+                    .and_then(|l| l.git.as_ref())
+                    .and_then(|s| Url::parse(s).ok());
+
+                let html = links
+                    .and_then(|l| l.html.as_ref())
+                    .and_then(|s| Url::parse(s).ok());
+
+                let self_url = links
+                    .and_then(|l| l.param_self.as_ref())
+                    .and_then(|s| Url::parse(s).ok())
+                    .ok_or_else(|| eyre!("Missing or invalid `_self` URL"))?;
+
+                Ok(Content {
+                    name: result.name.clone().unwrap_or_default(),
+                    path: result.path.clone().unwrap_or_default(),
+                    sha: result.sha.clone().unwrap_or_default(),
+                    encoding: result.encoding.clone(),
+                    content: result.content.clone(),
+                    size: result.size.unwrap_or_default(),
+                    url: result.url.clone().unwrap_or_default(),
+                    html_url: result.html_url.clone(),
+                    git_url: result.git_url.clone(),
+                    download_url: result.download_url.clone(),
+                    r#type: result.r#type.clone().unwrap_or_default(),
+                    links: ContentLinks {
+                        git,
+                        html,
+                        _self: self_url,
+                    },
+                    license: None,
+                })
+            })
+            .collect::<Result<Vec<_>>>()?;
+
+        Ok(parsed_results)
     }
 }

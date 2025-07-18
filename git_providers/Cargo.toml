@@ -6,6 +6,23 @@ edition = "2024"
 [dependencies]
 async-trait = "0.1.88"
 color-eyre = "0.6.5"
+gitea-client = "1.22.1"
 gitea-sdk = "0.5.1"
 octocrab = "0.44.1"
+reqwest = { version = "0.12.22", default-features = false, features = [
+    "rustls-tls",
+    "http2",
+    "charset",
+    "json",
+    "multipart",
+] }
+reqwest-middleware = { version = "0.4.2", features = [
+    "rustls-tls",
+    "http2",
+    "charset",
+    "json",
+    "multipart",
+] }
 tokio = { version = "1.46.1", features = ["full"] }
+url = "2.5.4"
+urlencoding = "2.1.3"

@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use color_eyre::eyre::{Result, eyre};
-use gitea_client::{apis::configuration::Configuration, models::ContentsResponse};
+use gitea_client::models::ContentsResponse;
 use gitea_sdk::{Auth, Client};
 use octocrab::models::repos::{Content, ContentLinks};
 use reqwest::header::{self, HeaderValue};
@@ -11,8 +11,6 @@ use crate::git_provider::{GitProvider, GitProviderCreateOptions};
 
 pub struct GiteaProvider {
     client: Arc<Client>,
-    configuration: Arc<Configuration>,
-    base_url: Url,
 }
 
 #[async_trait]
@@ -22,8 +20,6 @@ impl GitProvider for GiteaProvider {
             .base_url
             .unwrap_or_else(|| "https://codeberg.org".to_string());
 
-        let base = Url::parse(&base_url).expect("Failed to parse base URL for Gitea");
-
         let client = Client::new(base_url.clone(), Auth::Token(options.token.clone()));
 
         let mut headers = header::HeaderMap::new();
@@ -32,24 +28,8 @@ impl GitProvider for GiteaProvider {
             HeaderValue::from_str(format!("token {}", options.token).as_str())?,
         );
 
-        let reqwest_client = reqwest::Client::builder()
-            .default_headers(headers)
-            .build()?;
-
-        let configuration = Arc::new(Configuration {
-            base_path: base_url,
-            user_agent: None,
-            client: reqwest_client,
-            basic_auth: None,
-            oauth_access_token: None,
-            bearer_access_token: None,
-            api_key: None,
-        });
-
         Ok(GiteaProvider {
             client: Arc::new(client),
-            configuration,
-            base_url: base,
         })
     }
     async fn get_folder_contents(

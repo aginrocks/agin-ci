@@ -5,7 +5,7 @@ use std::pin::Pin;
 use crate::runner_messages::report_progress::ProgressReport;
 
 pub type ReportCallback =
-    Box<dyn Fn(ProgressReport) -> Pin<Box<dyn Future<Output = ()> + Send>> + Send + Sync>;
+    Box<dyn Fn(ProgressReport) -> Pin<Box<dyn Future<Output = Result<()>> + Send>> + Send + Sync>;
 
 #[enum_dispatch(Step)]
 #[cfg(feature = "step_executor")]

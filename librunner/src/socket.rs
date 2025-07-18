@@ -1,4 +1,5 @@
 mod get_job;
+mod report_progress;
 
 use std::ops::Deref;
 
@@ -24,6 +25,7 @@ pub async fn on_connection(s: SocketRef) {
     info!("new connection");
 
     s.on("get_job", get_job::handler);
+    s.on("report_progress", report_progress::handler);
 }
 
 #[derive(Clone)]

@@ -44,6 +44,9 @@ impl StepExecutor for RunStep {
                 io::{AsyncBufReadExt, BufReader},
                 process::Command,
             };
+            use tracing::info;
+
+            use crate::runner_messages::report_progress::{ProgressReport, ProgressReportExit};
 
             let shell = self
                 .with
@@ -89,12 +92,17 @@ impl StepExecutor for RunStep {
                     output_type: OutputType::Stdout,
                     body: line.clone(),
                 }))
-                .await;
+                .await?;
                 println!("stdout: {line}");
             }
 
             let status = child.wait().await?;
-            println!("Exited with: {status}");
+            info!("Child process exited with status: {status}");
+
+            (report_callback)(ProgressReport::Exit(ProgressReportExit {
+                exit_code: status.code().unwrap_or(0),
+            }))
+            .await?;
 
             Ok(())
         })

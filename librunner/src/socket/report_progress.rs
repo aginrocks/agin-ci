@@ -1,8 +1,7 @@
 use aginci_core::runner_messages::report_progress::ProgressReport;
-use serde_json::{Value, json};
 use socketioxide::{
     SocketIo,
-    extract::{AckSender, Data, Extension, SocketRef},
+    extract::{Data, Extension, SocketRef},
 };
 use tracing::info;
 

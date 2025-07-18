@@ -4,7 +4,6 @@ use std::ops::Deref;
 
 use aginci_core::runner_messages::auth::Auth;
 use color_eyre::eyre::{Result, bail};
-use serde::Deserialize;
 use socketioxide::{
     SocketIo,
     extract::{Data, SocketRef, State},

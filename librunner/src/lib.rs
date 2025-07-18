@@ -1,9 +1,7 @@
 mod socket;
 pub mod tokens_manager;
 
-use axum::{
-    Router, http::StatusCode, middleware::from_fn_with_state, response::IntoResponse, routing::get,
-};
+use axum::{Router, http::StatusCode, response::IntoResponse, routing::get};
 use bollard::{
     Docker, query_parameters::CreateContainerOptionsBuilder, secret::ContainerCreateBody,
 };

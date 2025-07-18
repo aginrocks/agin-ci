@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::define_step;
 #[cfg(feature = "step_executor")]
-use crate::workflow::step_executor::StepExecutor;
+use crate::workflow::step_executor::{ReportCallback, StepExecutor};
 
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]
 pub struct SaveCacheStepWith {
@@ -23,7 +23,10 @@ define_step!(
 
 #[cfg(feature = "step_executor")]
 impl StepExecutor for SaveCacheStep {
-    fn execute(&self) -> Pin<Box<dyn Future<Output = Result<()>> + Send + '_>> {
+    fn execute(
+        &self,
+        report_callback: ReportCallback,
+    ) -> Pin<Box<dyn Future<Output = Result<()>> + Send + '_>> {
         Box::pin(async move { Ok(()) })
     }
 }

@@ -1,5 +1,5 @@
 #[cfg(feature = "step_executor")]
-use {color_eyre::eyre::Result, std::pin::Pin};
+use {crate::workflow::step_executor::ReportCallback, color_eyre::eyre::Result, std::pin::Pin};
 
 use crate::define_step;
 #[cfg(feature = "step_executor")]
@@ -9,7 +9,10 @@ define_step!("aginci/checkout", CheckoutStep {});
 
 #[cfg(feature = "step_executor")]
 impl StepExecutor for CheckoutStep {
-    fn execute(&self) -> Pin<Box<dyn Future<Output = Result<()>> + Send + '_>> {
+    fn execute(
+        &self,
+        report_callback: ReportCallback,
+    ) -> Pin<Box<dyn Future<Output = Result<()>> + Send + '_>> {
         Box::pin(async move { Ok(()) })
     }
 }

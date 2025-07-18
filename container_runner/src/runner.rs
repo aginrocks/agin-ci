@@ -11,7 +11,12 @@ pub async fn run_job(job: Job) -> Result<()> {
 
     for (index, step) in job.steps.iter().enumerate() {
         info!("Running step {}/{total_steps}", index + 1);
-        step.execute().await?;
+        step.execute(Box::new(|report| {
+            Box::pin(async move {
+                info!("Received report");
+            })
+        }))
+        .await?;
     }
 
     Ok(())

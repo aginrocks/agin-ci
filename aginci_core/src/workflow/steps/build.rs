@@ -1,9 +1,11 @@
 #[cfg(feature = "step_executor")]
-use {crate::workflow::step_executor::ReportCallback, color_eyre::eyre::Result, std::pin::Pin};
+use {
+    crate::workflow::step_executor::{ReportCallback, StepExecutor},
+    color_eyre::eyre::Result,
+    std::pin::Pin,
+};
 
 use crate::define_step;
-#[cfg(feature = "step_executor")]
-use crate::workflow::step_executor::StepExecutor;
 
 define_step!("aginci/build", BuildStep { test: String });
 

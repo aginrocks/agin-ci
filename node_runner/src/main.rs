@@ -38,7 +38,7 @@ async fn main() -> Result<()> {
                 name: Some("Example Job".to_string()),
                 runs_on: OS::Linux,
                 steps: vec![Step::Run(RunStep {
-                    run: "echo \"$CI\"".to_string(),
+                    run: "ls".to_string(),
                     uses: aginci_core::workflow::steps::run::UsesRunStep::Value,
                     id: Some("example_step".to_string()),
                     name: Some("Run".to_string()),
@@ -46,7 +46,7 @@ async fn main() -> Result<()> {
                     working_directory: None,
                     env: None,
                     with: Some(RunStepWith {
-                        shell: Some("zsh".to_string()),
+                        shell: Some("nu".to_string()),
                         user: None,
                     }),
                 })],

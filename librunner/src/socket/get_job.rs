@@ -1,4 +1,3 @@
-use serde_json::{Value, json};
 use socketioxide::{
     SocketIo,
     extract::{AckSender, Extension, SocketRef},

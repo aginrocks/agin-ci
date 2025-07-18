@@ -1,0 +1,10 @@
+[package]
+name = "git_providers"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+async-trait = "0.1.88"
+color-eyre = "0.6.5"
+octocrab = "0.44.1"
+tokio = { version = "1.46.1", features = ["full"] }

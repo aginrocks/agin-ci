@@ -1310,6 +1310,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "git_providers"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "color-eyre",
+ "octocrab",
+ "tokio",
+]
+
+[[package]]
 name = "gritea"
 version = "0.1.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"

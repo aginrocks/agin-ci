@@ -4,6 +4,6 @@ use tracing::info;
 
 use crate::socket::UserData;
 
-pub async fn handler(Data(progress): Data<ProgressReport>, Extension(data): Extension<UserData>) {
+pub async fn handler(Data(progress): Data<ProgressReport>, Extension(_data): Extension<UserData>) {
     info!("Received progress report: {:?}", progress);
 }

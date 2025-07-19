@@ -36,7 +36,7 @@ pub fn routes() -> Vec<Route> {
     ),
     tag = "Tokens"
 )]
-async fn get_tokens(Extension(user): Extension<UserData>) -> Json<User> {
+async fn get_tokens(Extension(_user): Extension<UserData>) -> Json<User> {
     todo!()
 }
 

@@ -19,11 +19,17 @@ pub fn print_success(text: &str) {
 pub fn get_render_config() -> RenderConfig<'static> {
     let highlight_color = Color::DarkGreen;
 
+    let grey = Color::Rgb {
+        r: 100,
+        g: 100,
+        b: 100,
+    };
+
     let mut render_config = RenderConfig::default();
     render_config.prompt = StyleSheet::new().with_attr(Attributes::BOLD);
     render_config.prompt_prefix = Styled::new("→").with_fg(Color::LightBlue);
     render_config.answered_prompt_prefix = Styled::new("").with_fg(Color::LightGreen);
-    render_config.placeholder = StyleSheet::new().with_fg(Color::LightRed);
+    render_config.placeholder = StyleSheet::new().with_fg(grey);
     render_config.selected_option = Some(StyleSheet::new().with_fg(highlight_color));
     render_config.highlighted_option_prefix = Styled::new("→").with_fg(highlight_color);
     render_config.selected_checkbox = Styled::new("☑").with_fg(highlight_color);
@@ -37,11 +43,7 @@ pub fn get_render_config() -> RenderConfig<'static> {
     render_config.answer = StyleSheet::new()
         .with_attr(Attributes::BOLD)
         .with_fg(highlight_color);
-    let grey = Color::Rgb {
-        r: 100,
-        g: 100,
-        b: 100,
-    };
+
     render_config.help_message = StyleSheet::new()
         .with_fg(grey)
         .with_attr(Attributes::ITALIC);

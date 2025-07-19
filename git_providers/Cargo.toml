@@ -8,6 +8,8 @@ async-trait = "0.1.88"
 color-eyre = "0.6.5"
 gitea-client = "1.22.1"
 gitea-sdk = "0.5.1"
+http-body = "1.0.1"
+http-body-util = "0.1.3"
 octocrab = "0.44.1"
 reqwest = { version = "0.12.22", default-features = false, features = [
     "rustls-tls",

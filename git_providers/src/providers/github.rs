@@ -1,6 +1,8 @@
 use async_trait::async_trait;
 use color_eyre::eyre::Context;
 use color_eyre::eyre::Result;
+use http_body::Body;
+use http_body_util::BodyExt;
 use octocrab::Octocrab;
 use octocrab::models::repos::Content;
 use std::sync::Arc;
@@ -45,5 +47,20 @@ impl GitProvider for GitHubProvider {
             .wrap_err("Failed to fetch repository contents")?;
 
         Ok(result.items)
+    }
+    async fn raw_file(
+        &self,
+        owner: String,
+        repo: String,
+        path: String,
+        r#ref: String,
+    ) -> Result<String> {
+        let response = self.client.repos(owner, repo).raw_file(r#ref, path).await?;
+
+        let (_, body) = response.into_parts();
+        let body = body.collect().await?.to_bytes();
+        let file = str::from_utf8(&body)?;
+
+        Ok(file.to_string())
     }
 }

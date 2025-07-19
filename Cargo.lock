@@ -1328,6 +1328,8 @@ dependencies = [
  "color-eyre",
  "gitea-client",
  "gitea-sdk",
+ "http-body 1.0.1",
+ "http-body-util",
  "octocrab",
  "reqwest 0.12.22",
  "reqwest-middleware",

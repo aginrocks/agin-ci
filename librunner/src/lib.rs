@@ -3,13 +3,16 @@ pub mod tokens_manager;
 
 use axum::{Router, http::StatusCode, response::IntoResponse, routing::get};
 use bollard::{
-    Docker, query_parameters::CreateContainerOptionsBuilder, secret::ContainerCreateBody,
+    Docker,
+    query_parameters::{CreateContainerOptionsBuilder, CreateImageOptions},
+    secret::ContainerCreateBody,
 };
 use color_eyre::eyre::{Context, Result};
+use futures_util::TryStreamExt;
 use socketioxide::{SocketIo, SocketIoBuilder, layer::SocketIoLayer};
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use tracing::{error, info};
+use tracing::{error, info, info_span};
 
 use crate::{
     socket::init_io,
@@ -88,6 +91,11 @@ impl WorkflowRunner {
     }
 
     pub async fn run_workflow(&self, run: JobRun) -> Result<()> {
+        let run_id = run.id.to_string();
+
+        let span = info_span!("job_run", run_id);
+        let _enter = span.enter();
+
         // Access tokens inside the state for token generation
         let token = {
             let mut tokens_write = self.state.tokens.write().await;
@@ -96,22 +104,54 @@ impl WorkflowRunner {
 
         info!("Token: {token}");
 
+        let base_image = run
+            .job
+            .base_image
+            .clone()
+            .unwrap_or("ubuntu:latest".to_string());
+
+        info!("Checking image {}", &base_image);
+
+        let image = self.docker.inspect_image(&base_image).await;
+        if image.is_err() {
+            info!("Image {} not found, pulling...", &base_image);
+
+            let options = Some(CreateImageOptions {
+                from_image: Some(base_image.clone()),
+                ..Default::default()
+            });
+
+            // TODO: Add authentication options if needed
+            let mut stream = self.docker.create_image(options, None, None);
+
+            while let Some(pull_info) = stream.try_next().await.wrap_err("Pulling failed")? {
+                if let Some(status) = pull_info.status {
+                    info!("{status}");
+                }
+            }
+
+            info!("Image {} pulled successfully.", &base_image);
+        } else {
+            info!("Image {} already exists", &base_image);
+        }
+
         let container_config = ContainerCreateBody {
             image: run.job.base_image,
             cmd: Some(vec!["/bin/aginci-container-runner".to_string()]),
             env: Some(vec![
                 format!("AGINCI_LIBRUNNER_TOKEN={token}"),
-                "AGINCI_LIBRUNNER_URL=ws://172.17.0.1:37581".to_string(),
+                "AGINCI_LIBRUNNER_URL=http://172.17.0.1:37581".to_string(),
             ]),
             ..Default::default()
         };
+
+        info!("Starting job container");
 
         let container_name = format!("aginci_{}", run.id);
         let create_options = CreateContainerOptionsBuilder::new()
             .name(&container_name)
             .build();
 
-        // Use docker from the field directly
         self.docker
             .create_container(Some(create_options), container_config)
             .await?;

@@ -1,9 +1,10 @@
 use api_client::apis::auth_api;
 use inquire::{Password, Text};
 use miette::{Context, IntoDiagnostic, Result};
+use owo_colors::OwoColorize;
 use tokio::task;
 
-use crate::{api::create_config, errors::UserInfoFetchFailed};
+use crate::{api::create_config, errors::UserInfoFetchFailed, utils::print_success};
 
 pub async fn run() -> Result<()> {
     let base_url = task::spawn_blocking(|| Text::new("Server URL").prompt())
@@ -28,7 +29,7 @@ pub async fn run() -> Result<()> {
         .await
         .map_err(|_| UserInfoFetchFailed)?;
 
-    println!("Logged in as: {}", user.email);
+    print_success(&format!("Logged in as {}", user.email.bold()));
 
     Ok(())
 }

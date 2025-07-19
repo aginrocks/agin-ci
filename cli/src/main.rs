@@ -7,7 +7,7 @@ mod utils;
 use clap::{Parser, Subcommand};
 use miette::Result;
 
-use crate::report_handler::ErrorReportHandler;
+use crate::{report_handler::ErrorReportHandler, utils::get_render_config};
 
 /// Agin CI CLI (https://github.com/aginrocks/agin-ci)
 #[derive(Parser, Debug)]
@@ -28,6 +28,7 @@ enum Commands {
 #[tokio::main]
 async fn main() -> Result<()> {
     miette::set_hook(Box::new(|_| Box::new(ErrorReportHandler::new())))?;
+    inquire::set_global_render_config(get_render_config());
 
     let cli = Cli::parse();
 

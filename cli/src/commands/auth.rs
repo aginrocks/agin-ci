@@ -3,6 +3,7 @@ pub mod logout;
 pub mod whoami;
 
 use clap::Subcommand;
+use color_eyre::eyre::Result;
 
 #[derive(Subcommand, Debug)]
 pub enum AuthCommands {
@@ -11,10 +12,11 @@ pub enum AuthCommands {
     Logout,
 }
 
-pub fn handle_auth(cmd: AuthCommands) {
-    // match cmd {
-    //     AuthCommands::Whoami => whoami::run(),
-    //     AuthCommands::Login => login::run(),
-    //     AuthCommands::Logout => logout::run(),
-    // }
+pub async fn handle_auth(cmd: AuthCommands) -> Result<()> {
+    match cmd {
+        // AuthCommands::Whoami => whoami::run(),
+        AuthCommands::Login => login::run().await,
+        // AuthCommands::Logout => logout::run(),
+        _ => todo!(),
+    }
 }

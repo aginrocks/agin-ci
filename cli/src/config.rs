@@ -1,7 +1,7 @@
 use std::{env, path::PathBuf, sync::Arc};
 
 use directories::ProjectDirs;
-use miette::{IntoDiagnostic, Result, miette};
+use miette::{Result, miette};
 use serde::{Deserialize, Serialize};
 use tokio::{fs, sync::OnceCell};
 

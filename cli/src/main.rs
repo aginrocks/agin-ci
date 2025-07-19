@@ -5,20 +5,30 @@ mod errors;
 mod report_handler;
 mod utils;
 
-use clap::{Parser, Subcommand};
+use clap::{Parser, Subcommand, ValueEnum};
 use miette::Result;
 
 use crate::{report_handler::ErrorReportHandler, utils::get_render_config};
 
 /// Agin CI CLI (https://github.com/aginrocks/agin-ci)
-#[derive(Parser, Debug)]
+#[derive(Parser, Debug, Clone)]
 #[command(version, about, long_about = None)]
 struct Cli {
+    #[arg(global = true, long, value_enum, default_value_t = OutputType::Text, short = 'o')]
+    output: OutputType,
+
     #[command(subcommand)]
     command: Commands,
 }
 
-#[derive(Subcommand, Debug)]
+#[derive(ValueEnum, Clone, Debug, PartialEq, Eq)]
+enum OutputType {
+    Text,
+    Json,
+    Yaml,
+}
+
+#[derive(Subcommand, Debug, Clone)]
 enum Commands {
     Auth {
         #[command(subcommand)]
@@ -33,8 +43,8 @@ async fn main() -> Result<()> {
 
     let cli = Cli::parse();
 
-    let result = match cli.command {
-        Commands::Auth { subcommand } => commands::auth::handle_auth(subcommand).await,
+    let result = match cli.clone().command {
+        Commands::Auth { subcommand } => commands::auth::handle_auth(&cli, subcommand).await,
     };
 
     if let Err(e) = result {

@@ -1,5 +1,3 @@
-use std::sync::LazyLock;
-
 use inquire::ui::{Attributes, Color, IndexPrefix, RenderConfig, StyleSheet, Styled};
 use owo_colors::OwoColorize;
 
@@ -12,8 +10,14 @@ pub fn make_link(text: &str, url: &str) -> String {
     )
 }
 
+// TODO: Move to tracing crate
+
 pub fn print_success(text: &str) {
     println!("{} {}", "success:".green().bold(), text);
+}
+
+pub fn print_warning(text: &str) {
+    println!("{} {}", "warning:".yellow().bold(), text);
 }
 
 pub fn get_render_config() -> RenderConfig<'static> {

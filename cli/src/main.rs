@@ -1,5 +1,6 @@
 mod api;
 mod commands;
+mod config;
 mod errors;
 mod report_handler;
 mod utils;

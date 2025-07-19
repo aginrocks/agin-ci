@@ -14,9 +14,8 @@ pub enum AuthCommands {
 
 pub async fn handle_auth(cmd: AuthCommands) -> Result<()> {
     match cmd {
-        // AuthCommands::Whoami => whoami::run(),
+        AuthCommands::Whoami => whoami::run().await,
         AuthCommands::Login => login::run().await,
-        // AuthCommands::Logout => logout::run(),
-        _ => todo!(),
+        AuthCommands::Logout => logout::run().await,
     }
 }

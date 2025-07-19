@@ -1,12 +1,15 @@
 use api_client::apis::configuration::Configuration;
+use keyring::Entry;
 use miette::{IntoDiagnostic, Result};
 use reqwest::header::{AUTHORIZATION, HeaderMap};
 use std::sync::Arc;
 use tokio::sync::OnceCell;
 
-static CONFIG: OnceCell<Arc<Configuration>> = OnceCell::const_new();
+use crate::config::init_config;
 
-pub fn create_config(base_url: &str, token: &str) -> Result<Configuration> {
+static API_CONFIG: OnceCell<Arc<Configuration>> = OnceCell::const_new();
+
+pub fn create_api_config(base_url: &str, token: &str) -> Result<Configuration> {
     let mut headers = HeaderMap::new();
     headers.insert(
         AUTHORIZATION,
@@ -31,13 +34,15 @@ pub fn create_config(base_url: &str, token: &str) -> Result<Configuration> {
     Ok(config)
 }
 
-pub async fn init_config() -> Result<&'static Arc<Configuration>> {
-    CONFIG
+pub async fn init_api_config() -> Result<&'static Arc<Configuration>> {
+    API_CONFIG
         .get_or_try_init(|| async {
-            let config = create_config(
-                "http://localhost:8080",
-                "aginci_pat_tzfTGiSMgcFFzEWV7b0H4BNXIHaBHK1unn87qRjsqyYcaCwM",
-            )?;
+            let app_config = init_config().await?;
+
+            let entry = Entry::new("aginci-cli", &app_config.username).into_diagnostic()?;
+            let token = entry.get_password().into_diagnostic()?;
+
+            let config = create_api_config(&app_config.base_url, &token)?;
 
             Ok(Arc::new(config))
         })

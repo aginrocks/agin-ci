@@ -3,7 +3,7 @@ pub mod logout;
 pub mod whoami;
 
 use clap::Subcommand;
-use color_eyre::eyre::Result;
+use miette::Result;
 
 #[derive(Subcommand, Debug)]
 pub enum AuthCommands {

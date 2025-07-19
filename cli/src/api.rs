@@ -1,5 +1,5 @@
 use api_client::apis::configuration::Configuration;
-use color_eyre::eyre::Result;
+use miette::{IntoDiagnostic, Result};
 use reqwest::header::{AUTHORIZATION, HeaderMap};
 use std::sync::Arc;
 use tokio::sync::OnceCell;
@@ -8,11 +8,15 @@ static CONFIG: OnceCell<Arc<Configuration>> = OnceCell::const_new();
 
 pub fn create_config(base_url: &str, token: &str) -> Result<Configuration> {
     let mut headers = HeaderMap::new();
-    headers.insert(AUTHORIZATION, format!("Bearer {token}").parse()?);
+    headers.insert(
+        AUTHORIZATION,
+        format!("Bearer {token}").parse().into_diagnostic()?,
+    );
 
     let client = reqwest::Client::builder()
         .default_headers(headers)
-        .build()?;
+        .build()
+        .into_diagnostic()?;
 
     let config = Configuration {
         base_path: base_url.to_string(),

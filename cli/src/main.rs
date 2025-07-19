@@ -1,11 +1,13 @@
 mod api;
 mod commands;
+mod errors;
+mod report_handler;
 mod utils;
 
 use clap::{Parser, Subcommand};
-use owo_colors::OwoColorize;
+use miette::Result;
 
-use crate::utils::make_link;
+use crate::report_handler::ErrorReportHandler;
 
 /// Agin CI CLI (https://github.com/aginrocks/agin-ci)
 #[derive(Parser, Debug)]
@@ -24,7 +26,9 @@ enum Commands {
 }
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<()> {
+    miette::set_hook(Box::new(|_| Box::new(ErrorReportHandler::new())))?;
+
     let cli = Cli::parse();
 
     let result = match cli.command {
@@ -32,12 +36,8 @@ async fn main() {
     };
 
     if let Err(e) = result {
-        eprintln!("{} {e}\n", "error:".bold().red());
-        eprintln!(
-            "For more information visit {} {}",
-            make_link("Agin CI Documentation", "https://docs.ci.agin.rocks"),
-            "(control-click the link)".dimmed()
-        );
-        std::process::exit(1);
+        eprintln!("{e:?}");
     }
+
+    Ok(())
 }

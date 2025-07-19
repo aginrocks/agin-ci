@@ -8,5 +8,3 @@ pub fn make_link(text: &str, url: &str) -> String {
         visible_text.bright_blue().underline().bold()
     )
 }
-
-// pub fn

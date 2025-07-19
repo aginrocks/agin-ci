@@ -19,11 +19,5 @@ pub trait GitProvider {
         path: String,
         r#ref: String,
     ) -> Result<Vec<Content>>;
-    async fn raw_file(
-        &self,
-        owner: String,
-        repo: String,
-        path: String,
-        r#ref: String,
-    ) -> Result<String>;
+    async fn raw_file(&self, raw_url: String) -> Result<String>;
 }

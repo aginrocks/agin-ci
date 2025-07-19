@@ -3,14 +3,18 @@ use color_eyre::eyre::{Result, eyre};
 use gitea_client::models::ContentsResponse;
 use gitea_sdk::{Auth, Client};
 use octocrab::models::repos::{Content, ContentLinks};
-use reqwest::header::{self, HeaderValue};
+use reqwest::header::{AUTHORIZATION, HeaderValue, USER_AGENT};
 use std::sync::Arc;
 use url::Url;
 
-use crate::git_provider::{GitProvider, GitProviderCreateOptions};
+use crate::{
+    AGINCI_USER_AGENT,
+    git_provider::{GitProvider, GitProviderCreateOptions},
+};
 
 pub struct GiteaProvider {
     client: Arc<Client>,
+    token: String,
 }
 
 #[async_trait]
@@ -22,14 +26,9 @@ impl GitProvider for GiteaProvider {
 
         let client = Client::new(base_url.clone(), Auth::Token(options.token.clone()));
 
-        let mut headers = header::HeaderMap::new();
-        headers.append(
-            "Authorization",
-            HeaderValue::from_str(format!("token {}", options.token).as_str())?,
-        );
-
         Ok(GiteaProvider {
             client: Arc::new(client),
+            token: options.token,
         })
     }
     async fn get_folder_contents(
@@ -98,5 +97,19 @@ impl GitProvider for GiteaProvider {
             .collect::<Result<Vec<_>>>()?;
 
         Ok(parsed_results)
+    }
+    async fn raw_file(&self, raw_url: String) -> Result<String> {
+        let client = reqwest::Client::new();
+        let res = client
+            .get(raw_url)
+            .header(USER_AGENT, HeaderValue::from_static(&AGINCI_USER_AGENT))
+            .header(
+                AUTHORIZATION,
+                HeaderValue::from_str(&format!("token {}", self.token))?,
+            )
+            .send()
+            .await?;
+
+        Ok(res.text().await?)
     }
 }

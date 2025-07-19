@@ -28,7 +28,7 @@ pub fn get_render_config() -> RenderConfig<'static> {
     let mut render_config = RenderConfig::default();
     render_config.prompt = StyleSheet::new().with_attr(Attributes::BOLD);
     render_config.prompt_prefix = Styled::new("→").with_fg(Color::LightBlue);
-    render_config.answered_prompt_prefix = Styled::new("").with_fg(Color::LightGreen);
+    render_config.answered_prompt_prefix = Styled::new("").with_fg(Color::LightGreen);
     render_config.placeholder = StyleSheet::new().with_fg(grey);
     render_config.selected_option = Some(StyleSheet::new().with_fg(highlight_color));
     render_config.highlighted_option_prefix = Styled::new("→").with_fg(highlight_color);

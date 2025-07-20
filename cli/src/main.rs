@@ -22,6 +22,20 @@ struct Cli {
     command: Commands,
 }
 
+#[derive(Parser, Debug, Clone)]
+pub struct SelectOrgArgs {
+    /// Organization slug, defaults to current project's organization
+    #[arg(long, short = 'O')]
+    pub org: Option<String>,
+}
+
+#[derive(Parser, Debug, Clone)]
+pub struct SelectProjectArgs {
+    /// Project slug, defaults to current project's slug
+    #[arg(long, short = 'p')]
+    pub project: Option<String>,
+}
+
 #[derive(ValueEnum, Clone, Debug, PartialEq, Eq)]
 enum OutputType {
     Text,
@@ -35,6 +49,19 @@ enum Commands {
         #[command(subcommand)]
         subcommand: commands::auth::AuthCommands,
     },
+    Run {
+        workflow: String,
+
+        #[command(flatten)]
+        org: SelectOrgArgs,
+
+        #[command(flatten)]
+        project: SelectProjectArgs,
+
+        /// Run the workflow locally (in Docker)
+        #[arg(long)]
+        local: bool,
+    },
 }
 
 #[tokio::main]
@@ -46,6 +73,12 @@ async fn main() -> Result<()> {
 
     let result = match cli.clone().command {
         Commands::Auth { subcommand } => commands::auth::handle_auth(&cli, subcommand).await,
+        Commands::Run {
+            workflow,
+            org,
+            project,
+            local,
+        } => commands::run::handle_run(&cli, workflow, org, project, local).await,
     };
 
     if let Err(e) = result {

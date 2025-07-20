@@ -12,6 +12,7 @@ aginci_core = { version = "0.1.0", path = "../aginci_core", features = ["reader"
 api_client = { version = "1.0.0", path = "../api_client" }
 clap = { version = "4.5.41", features = ["derive"] }
 directories = "6.0.0"
+indicatif = "0.18.0"
 inquire = "0.7.5"
 keyring = { version = "3.6.2", features = ["tokio", "apple-native", "async-secret-service", "linux-native-async-persistent", "windows-native"] }
 librunner = { version = "0.1.0", path = "../librunner" }

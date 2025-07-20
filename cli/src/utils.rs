@@ -1,3 +1,4 @@
+use indicatif::ProgressStyle;
 use inquire::ui::{Attributes, Color, IndexPrefix, RenderConfig, StyleSheet, Styled};
 use owo_colors::OwoColorize;
 
@@ -18,6 +19,10 @@ pub fn print_success(text: &str) {
 
 pub fn print_warning(text: &str) {
     println!("{} {}", "warning:".yellow().bold(), text);
+}
+
+pub fn print_with_arrow(text: &str) {
+    println!("{} {}", "→".bright_blue().bold(), text);
 }
 
 pub fn get_render_config() -> RenderConfig<'static> {
@@ -53,4 +58,10 @@ pub fn get_render_config() -> RenderConfig<'static> {
         .with_attr(Attributes::ITALIC);
 
     render_config
+}
+
+pub fn get_spinner_style() -> ProgressStyle {
+    ProgressStyle::with_template("{prefix:.bold.dim}{spinner:.bold.blue} {wide_msg}")
+        .unwrap()
+        .tick_chars("⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏")
 }

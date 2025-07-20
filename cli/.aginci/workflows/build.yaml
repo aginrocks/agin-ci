@@ -1,0 +1,12 @@
+# yaml-language-server: $schema=http://localhost:8080/api/schema/workflow
+name: Build
+jobs:
+    build:
+        runs-on: linux
+        base-image: rust:latest
+        name: Build Rust Project
+        steps:
+            - uses: aginci/run
+              run: ls
+              with:
+                  shell: nu

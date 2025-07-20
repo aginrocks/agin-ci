@@ -23,3 +23,12 @@ pub struct NotLoggedIn;
 #[error("Config saving failed")]
 #[diagnostic(code(config::save_fail), help("Unable to save configuration file"))]
 pub struct ConfigSavingFailed;
+
+#[derive(Error, Debug, Diagnostic)]
+#[error("Cannot specify organization or project when running locally")]
+#[diagnostic(
+    code(local_run::org_project_specified),
+    help("When running locally, the organization and project are determined from your working directory and cannot be specified."),
+    url("https://docs.agin.rocks/platform/cli/errors#{}", self.code().unwrap())
+)]
+pub struct LocalOrgProjectSpecified;

@@ -7,6 +7,7 @@ mod utils;
 
 use clap::{Parser, Subcommand, ValueEnum};
 use miette::Result;
+use std::process;
 
 use crate::{report_handler::ErrorReportHandler, utils::get_render_config};
 
@@ -49,6 +50,7 @@ async fn main() -> Result<()> {
 
     if let Err(e) = result {
         eprintln!("{e:?}");
+        process::exit(1);
     }
 
     Ok(())

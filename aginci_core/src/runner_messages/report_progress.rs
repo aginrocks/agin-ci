@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 pub enum ProgressReport {
     Output(ProgressReportOutput),
     Exit(ProgressReportExit),
+    Step(ProgressReportStep),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -23,4 +24,9 @@ pub struct ProgressReportOutput {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ProgressReportExit {
     pub exit_code: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ProgressReportStep {
+    pub index: u32,
 }

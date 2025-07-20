@@ -4,17 +4,18 @@ use keyring::Entry;
 use miette::{Context, IntoDiagnostic, Result};
 use owo_colors::OwoColorize;
 use tokio::task;
+use tracing::warn;
 
 use crate::{
     api::create_api_config,
     config::{AppConfig, init_config},
     errors::UserInfoFetchFailed,
-    utils::{print_success, print_warning},
+    utils::print_success,
 };
 
 pub async fn run() -> Result<()> {
     if init_config().await.is_ok() {
-        print_warning(
+        warn!(
             "You are already logged in. By entering credentials you'll override the existing ones.",
         );
     }

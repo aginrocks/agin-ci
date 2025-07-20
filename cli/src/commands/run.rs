@@ -1,15 +1,19 @@
 use std::time::Duration;
 
-use aginci_core::workflow::read_workflow_by_name;
+use aginci_core::{
+    runner_messages::report_progress::ProgressReport, workflow::read_workflow_by_name,
+};
 use indicatif::ProgressBar;
+use librunner::{WorkflowRunner, tokens_manager::JobRun};
 use miette::{Result, miette};
 use owo_colors::OwoColorize;
+use tracing::{Level, info, info_span, span};
+use tracing_indicatif::indicatif_eprintln;
+use uuid::Uuid;
 
 use crate::{
-    Cli, SelectOrgArgs, SelectProjectArgs,
-    config::init_config,
-    errors::LocalOrgProjectSpecified,
-    utils::{get_spinner_style, print_with_arrow},
+    Cli, SelectOrgArgs, SelectProjectArgs, config::init_config, errors::LocalOrgProjectSpecified,
+    utils::get_spinner_style,
 };
 
 pub async fn handle_run(
@@ -30,14 +34,30 @@ pub async fn handle_run(
                 .await
                 .map_err(|_| miette!("Failed to read workflow"))?;
 
-            print_with_arrow(&format!(
+            info!(
                 "{} {}",
                 "Running workflow".dimmed(),
                 workflow.name.bold().blue()
-            ));
+            );
+
+            let mut runner =
+                WorkflowRunner::new().map_err(|_| miette!("Failed to start workflow runner"))?;
+
+            runner
+                .serve()
+                .await
+                .map_err(|_| miette!("Failed to start server"))?;
 
             for (job_id, job) in workflow.jobs.iter() {
+                let span = info_span!("aginci_cli::nested");
+                let _enter = span.enter();
+
                 let job_name = job.name.clone().unwrap_or(job_id.clone());
+
+                info!("{} {}", "Running job".dimmed(), job_name.bold().blue());
+
+                let span = info_span!("aginci_cli::nested::nested");
+                let _enter = span.enter();
 
                 let bar = ProgressBar::new_spinner();
                 bar.set_style(get_spinner_style());
@@ -48,11 +68,45 @@ pub async fn handle_run(
                 ));
                 bar.enable_steady_tick(Duration::from_millis(100));
 
-                // println!("{}", workflow.name);
+                let job_run = JobRun {
+                    id: Uuid::new_v4(),
+                    job: job.clone(),
+                };
 
-                tokio::time::sleep(Duration::from_secs(10)).await;
+                let mut progress = runner
+                    .run_workflow(job_run)
+                    .await
+                    .map_err(|_| miette!("Failed to run workflow"))?;
 
-                bar.finish();
+                while let Ok(report) = progress.recv().await {
+                    bar.suspend(|| match report {
+                        ProgressReport::Output(output) => {
+                            dbg!("dhjfgfghd");
+                            info!("{}", output.body);
+                        }
+                        ProgressReport::Exit(exit) => {
+                            info!(
+                                "{} {}",
+                                "Exited with code".bold(),
+                                exit.exit_code.bold().green()
+                            );
+                        }
+                        ProgressReport::Step(step) => {
+                            info!(
+                                "{} {}",
+                                "Running step".dimmed(),
+                                step.index.to_string().bold().blue()
+                            );
+                            bar.set_message(format!(
+                                "{} {}",
+                                "Running step".dimmed(),
+                                step.index.to_string().bold().blue()
+                            ));
+                        }
+                    });
+                }
+
+                bar.finish_and_clear();
             }
         }
         false => {

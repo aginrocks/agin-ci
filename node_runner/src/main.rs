@@ -67,6 +67,9 @@ async fn main() -> Result<()> {
                 info!("Received exit: {:?}", exit);
                 // Handle exit code
             }
+            ProgressReport::Step(step) => {
+                info!("Running step: {:?}", step);
+            }
         }
     }
 

@@ -2,12 +2,16 @@ mod api;
 mod commands;
 mod config;
 mod errors;
+mod formatter;
 mod report_handler;
 mod utils;
 
 use clap::{Parser, Subcommand, ValueEnum};
 use miette::Result;
 use std::process;
+use tracing::level_filters::LevelFilter;
+use tracing_indicatif::IndicatifLayer;
+use tracing_subscriber::{fmt, prelude::*};
 
 use crate::{report_handler::ErrorReportHandler, utils::get_render_config};
 
@@ -70,6 +74,18 @@ enum Commands {
 async fn main() -> Result<()> {
     miette::set_hook(Box::new(|_| Box::new(ErrorReportHandler::new())))?;
     inquire::set_global_render_config(get_render_config());
+
+    // let indicatif_layer = IndicatifLayer::new();
+
+    tracing_subscriber::registry()
+        .with(
+            fmt::layer()
+                .event_format(formatter::EventFormatter)
+                // .with_writer(indicatif_layer.get_stderr_writer())
+                .with_filter(LevelFilter::INFO),
+        )
+        // .with(indicatif_layer)
+        .init();
 
     let cli = Cli::parse();
 

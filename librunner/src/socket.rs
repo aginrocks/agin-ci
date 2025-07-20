@@ -11,7 +11,7 @@ use socketioxide::{
     handler::ConnectHandler,
 };
 use tokio::sync::broadcast;
-use tracing::info;
+use tracing::debug;
 
 use crate::AppState;
 use crate::tokens_manager::JobRun;
@@ -23,7 +23,7 @@ pub async fn init_io(io: &SocketIo) -> Result<()> {
 }
 
 pub async fn on_connection(s: SocketRef) {
-    info!("new connection");
+    debug!("new connection");
 
     s.on("get_job", get_job::handler);
     s.on("report_progress", report_progress::handler);

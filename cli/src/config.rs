@@ -4,11 +4,9 @@ use directories::ProjectDirs;
 use miette::{Result, miette};
 use serde::{Deserialize, Serialize};
 use tokio::{fs, sync::OnceCell};
+use tracing::warn;
 
-use crate::{
-    errors::{ConfigSavingFailed, NotLoggedIn},
-    utils::print_warning,
-};
+use crate::errors::{ConfigSavingFailed, NotLoggedIn};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AppConfig {
@@ -42,7 +40,7 @@ pub fn get_config_directory() -> PathBuf {
         return proj_dirs.config_dir().to_path_buf();
     };
 
-    print_warning("Unable to get config path. Defaulting to current directory.");
+    warn!("Unable to get config path. Defaulting to current directory.");
     env::current_dir().unwrap_or(PathBuf::from("."))
 }
 

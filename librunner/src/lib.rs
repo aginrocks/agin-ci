@@ -13,7 +13,7 @@ use futures_util::TryStreamExt;
 use socketioxide::{SocketIo, SocketIoBuilder, layer::SocketIoLayer};
 use std::sync::Arc;
 use tokio::sync::{RwLock, broadcast};
-use tracing::{error, info, info_span};
+use tracing::{debug, error, info_span};
 
 use crate::{
     socket::init_io,
@@ -108,7 +108,7 @@ impl WorkflowRunner {
             tokens_write.generate_run_token(run.clone())
         };
 
-        info!("Token: {token}");
+        debug!("Token: {token}");
 
         let base_image = run
             .job
@@ -116,11 +116,11 @@ impl WorkflowRunner {
             .clone()
             .unwrap_or("ubuntu:latest".to_string());
 
-        info!("Checking image {}", &base_image);
+        debug!("Checking image {}", &base_image);
 
         let image = self.docker.inspect_image(&base_image).await;
         if image.is_err() {
-            info!("Image {} not found, pulling...", &base_image);
+            debug!("Image {} not found, pulling...", &base_image);
 
             let options = Some(CreateImageOptions {
                 from_image: Some(base_image.clone()),
@@ -132,13 +132,13 @@ impl WorkflowRunner {
 
             while let Some(pull_info) = stream.try_next().await.wrap_err("Pulling failed")? {
                 if let Some(status) = pull_info.status {
-                    info!("{status}");
+                    debug!("{status}");
                 }
             }
 
-            info!("Image {} pulled successfully.", &base_image);
+            debug!("Image {} pulled successfully.", &base_image);
         } else {
-            info!("Image {} already exists", &base_image);
+            debug!("Image {} already exists", &base_image);
         }
 
         let container_config = ContainerCreateBody {
@@ -151,7 +151,7 @@ impl WorkflowRunner {
             ..Default::default()
         };
 
-        info!("Starting job container");
+        debug!("Starting job container");
 
         let container_name = format!("aginci_{}", run.id);
         let create_options = CreateContainerOptionsBuilder::new()

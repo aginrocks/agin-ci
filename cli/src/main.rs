@@ -45,10 +45,12 @@ enum OutputType {
 
 #[derive(Subcommand, Debug, Clone)]
 enum Commands {
+    /// Authentication commands, auth not required for local runs
     Auth {
         #[command(subcommand)]
         subcommand: commands::auth::AuthCommands,
     },
+    /// Run a workflow (locally or in the cloud)
     Run {
         workflow: String,
 

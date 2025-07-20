@@ -766,6 +766,7 @@ dependencies = [
  "directories",
  "inquire",
  "keyring",
+ "librunner",
  "miette",
  "owo-colors",
  "reqwest 0.12.22",

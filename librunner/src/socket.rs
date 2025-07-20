@@ -1,15 +1,16 @@
 mod get_job;
 mod report_progress;
 
-use std::ops::Deref;
+use std::{ops::Deref, sync::Arc};
 
-use aginci_core::runner_messages::auth::Auth;
+use aginci_core::runner_messages::{auth::Auth, report_progress::ProgressReport};
 use color_eyre::eyre::{Result, bail};
 use socketioxide::{
     SocketIo,
     extract::{Data, SocketRef, State},
     handler::ConnectHandler,
 };
+use tokio::sync::broadcast;
 use tracing::info;
 
 use crate::AppState;
@@ -29,13 +30,16 @@ pub async fn on_connection(s: SocketRef) {
 }
 
 #[derive(Clone)]
-pub struct UserData(pub JobRun);
+pub struct UserData {
+    pub job: JobRun,
+    pub progress_tx: Arc<broadcast::Sender<ProgressReport>>,
+}
 
 impl Deref for UserData {
     type Target = JobRun;
 
     fn deref(&self) -> &Self::Target {
-        &self.0
+        &self.job
     }
 }
 
@@ -54,7 +58,10 @@ pub async fn authenticate_middleware(
         }
     };
 
-    s.extensions.insert(UserData(token_info));
+    s.extensions.insert(UserData {
+        job: token_info,
+        progress_tx: state.progress_tx,
+    });
 
     Ok(())
 }

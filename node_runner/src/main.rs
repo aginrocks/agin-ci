@@ -1,8 +1,11 @@
-use aginci_core::workflow::{
-    Job, OS,
-    steps::{
-        Step,
-        run::{RunStep, RunStepWith},
+use aginci_core::{
+    runner_messages::report_progress::ProgressReport,
+    workflow::{
+        Job, OS,
+        steps::{
+            Step,
+            run::{RunStep, RunStepWith},
+        },
     },
 };
 use color_eyre::eyre::{Context, Result};
@@ -30,7 +33,7 @@ async fn main() -> Result<()> {
 
     runner.serve().await.wrap_err("Failed to start server")?;
 
-    runner
+    let mut progress = runner
         .run_workflow(JobRun {
             id: Uuid::new_v4(),
             job: Job {
@@ -53,6 +56,19 @@ async fn main() -> Result<()> {
             },
         })
         .await?;
+
+    while let Ok(report) = progress.recv().await {
+        match report {
+            ProgressReport::Output(output) => {
+                info!("Received output: {:?}", output);
+                // Handle stdout/stderr
+            }
+            ProgressReport::Exit(exit) => {
+                info!("Received exit: {:?}", exit);
+                // Handle exit code
+            }
+        }
+    }
 
     // Simulating queue connection for now
     tokio::time::sleep(std::time::Duration::MAX).await;

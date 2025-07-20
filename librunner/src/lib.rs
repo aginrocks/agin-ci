@@ -1,6 +1,7 @@
 mod socket;
 pub mod tokens_manager;
 
+use aginci_core::runner_messages::report_progress::ProgressReport;
 use axum::{Router, http::StatusCode, response::IntoResponse, routing::get};
 use bollard::{
     Docker,
@@ -11,7 +12,7 @@ use color_eyre::eyre::{Context, Result};
 use futures_util::TryStreamExt;
 use socketioxide::{SocketIo, SocketIoBuilder, layer::SocketIoLayer};
 use std::sync::Arc;
-use tokio::sync::RwLock;
+use tokio::sync::{RwLock, broadcast};
 use tracing::{error, info, info_span};
 
 use crate::{
@@ -23,6 +24,7 @@ use crate::{
 pub struct AppState {
     pub docker: Arc<Docker>,
     pub tokens: Arc<RwLock<TokensManager>>,
+    pub progress_tx: Arc<broadcast::Sender<ProgressReport>>,
 }
 
 pub struct WorkflowRunner {
@@ -37,9 +39,13 @@ impl WorkflowRunner {
 
         let tokens = TokensManager::new();
 
+        let (progress_tx, _) = broadcast::channel(100);
+        let progress_tx = Arc::new(progress_tx);
+
         let state = AppState {
             docker: Arc::new(docker.clone()),
             tokens: Arc::new(RwLock::new(tokens)),
+            progress_tx: progress_tx.clone(),
         };
 
         Ok(WorkflowRunner {
@@ -90,7 +96,7 @@ impl WorkflowRunner {
         Ok(())
     }
 
-    pub async fn run_workflow(&self, run: JobRun) -> Result<()> {
+    pub async fn run_workflow(&self, run: JobRun) -> Result<broadcast::Receiver<ProgressReport>> {
         let run_id = run.id.to_string();
 
         let span = info_span!("job_run", run_id);
@@ -156,7 +162,8 @@ impl WorkflowRunner {
             .create_container(Some(create_options), container_config)
             .await?;
 
-        Ok(())
+        let receiver = self.state.progress_tx.subscribe();
+        Ok(receiver)
     }
 }
 

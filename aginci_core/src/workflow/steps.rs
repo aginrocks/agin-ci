@@ -8,10 +8,8 @@ pub mod upload_artifact;
 #[cfg(feature = "step_executor")]
 use {
     crate::{
-        runner_messages::report_progress::ProgressReport,
-        workflow::step_executor::{StepExecutor, StepExecutorInner},
+        runner_messages::report_progress::ProgressReport, workflow::step_executor::StepExecutor,
     },
-    std::{pin::Pin, sync::Arc},
     tokio::sync::broadcast::Receiver,
 };
 
@@ -22,7 +20,7 @@ use serde::{Deserialize, Serialize};
 #[cfg(feature = "step_executor")]
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]
 #[serde(untagged)]
-#[enum_dispatch(StepExecutor<Step>)]
+#[enum_dispatch]
 pub enum Step {
     Checkout(checkout::CheckoutStep),
     Build(build::BuildStep),
@@ -34,7 +32,7 @@ pub enum Step {
 
 #[macro_export]
 macro_rules! define_step {
-    ($tag_value:literal, $struct_name:ident { $($field:tt)* }) => {
+    ($tag_value:literal, $struct_name:ident { $($field:tt)* }, $run:ident) => {
         paste::paste! {
             #[derive(serde::Serialize, serde::Deserialize, schemars::JsonSchema, Clone)]
             pub struct $struct_name {
@@ -61,6 +59,23 @@ macro_rules! define_step {
             pub enum [<Uses$struct_name>] {
                 #[serde(rename = $tag_value)]
                 Value,
+            }
+
+            #[cfg(feature = "step_executor")]
+            use {
+                $crate::workflow::step_executor::StepExecutor,
+                tokio::sync::broadcast::{self, Receiver},
+            };
+
+            #[cfg(feature = "step_executor")]
+            impl StepExecutor for $struct_name {
+                fn execute(&self) -> Receiver<ProgressReport> {
+                    let (progress_tx, progress_rx) = broadcast::channel::<ProgressReport>(1000);
+
+                    tokio::spawn($run(self.clone(), progress_tx));
+
+                    progress_rx
+                }
             }
         }
     };

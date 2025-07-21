@@ -27,18 +27,13 @@ pub async fn run_job(job: Job) -> Result<()> {
             )
             .await?;
 
-        step.execute(Box::new(|report: ProgressReport| {
-            Box::pin(async move {
-                let socket = socket::init_socket().await?;
+        let mut progress = step.execute();
 
-                socket
-                    .emit("report_progress", serde_json::to_value(report)?)
-                    .await?;
-
-                Ok(())
-            })
-        }))
-        .await?;
+        while let Ok(report) = progress.recv().await {
+            socket
+                .emit("report_progress", serde_json::to_value(report)?)
+                .await?;
+        }
     }
 
     Ok(())

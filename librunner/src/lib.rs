@@ -39,7 +39,7 @@ impl WorkflowRunner {
 
         let tokens = TokensManager::new();
 
-        let (progress_tx, _) = broadcast::channel(100);
+        let (progress_tx, _) = broadcast::channel(1000);
         let progress_tx = Arc::new(progress_tx);
 
         let state = AppState {

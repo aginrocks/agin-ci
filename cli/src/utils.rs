@@ -1,7 +1,6 @@
 use indicatif::ProgressStyle;
 use inquire::ui::{Attributes, Color, IndexPrefix, RenderConfig, StyleSheet, Styled};
 use owo_colors::OwoColorize;
-use tracing::{Level, event};
 
 pub fn make_link(text: &str, url: &str) -> String {
     let visible_text = text.replace(' ', "\u{00A0}");
@@ -12,10 +11,12 @@ pub fn make_link(text: &str, url: &str) -> String {
     )
 }
 
-// TODO: Move to tracing crate
-
-pub fn print_success(text: &str) {
-    event!(target: "success", Level::INFO, text);
+#[macro_export]
+macro_rules! success {
+    ($($arg:tt)*) => {
+        use tracing::{Level, event};
+        event!(target: "success", Level::INFO, $($arg)*);
+    };
 }
 
 pub fn get_render_config() -> RenderConfig<'static> {

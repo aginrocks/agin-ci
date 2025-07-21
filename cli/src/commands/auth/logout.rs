@@ -6,7 +6,7 @@ use tokio::fs;
 use crate::{
     Cli, OutputType,
     config::{get_config_directory, init_config},
-    utils::print_success,
+    success,
 };
 
 pub async fn run(cli: &Cli) -> Result<()> {
@@ -29,7 +29,7 @@ pub async fn run(cli: &Cli) -> Result<()> {
         return Ok(());
     }
 
-    print_success("Logged out successfully");
+    success!("Logged out successfully");
 
     Ok(())
 }

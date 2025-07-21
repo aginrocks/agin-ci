@@ -4,13 +4,13 @@ use keyring::Entry;
 use miette::{Context, IntoDiagnostic, Result};
 use owo_colors::OwoColorize;
 use tokio::task;
-use tracing::warn;
+use tracing::{Level, event, warn};
 
 use crate::{
     api::create_api_config,
     config::{AppConfig, init_config},
     errors::UserInfoFetchFailed,
-    utils::print_success,
+    success,
 };
 
 pub async fn run() -> Result<()> {
@@ -51,12 +51,11 @@ pub async fn run() -> Result<()> {
     };
 
     config.save().await?;
-
-    print_success(&format!(
+    success!(
         "Logged in as {} {}",
         user.name.bold(),
         format!("({})", user.email).dimmed()
-    ));
+    );
 
     Ok(())
 }

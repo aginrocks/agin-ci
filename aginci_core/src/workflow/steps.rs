@@ -22,7 +22,7 @@ use serde::{Deserialize, Serialize};
 #[cfg(feature = "step_executor")]
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]
 #[serde(untagged)]
-#[enum_dispatch]
+#[enum_dispatch(StepExecutor<Step>)]
 pub enum Step {
     Checkout(checkout::CheckoutStep),
     Build(build::BuildStep),

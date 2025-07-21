@@ -7,9 +7,12 @@ pub mod upload_artifact;
 
 #[cfg(feature = "step_executor")]
 use {
-    crate::workflow::step_executor::{ReportCallback, StepExecutor},
-    color_eyre::eyre::Result,
-    std::pin::Pin,
+    crate::{
+        runner_messages::report_progress::ProgressReport,
+        workflow::step_executor::{StepExecutor, StepExecutorInner},
+    },
+    std::{pin::Pin, sync::Arc},
+    tokio::sync::broadcast::Receiver,
 };
 
 use enum_dispatch::enum_dispatch;

@@ -1,8 +1,12 @@
 #[cfg(feature = "step_executor")]
 use {
-    crate::workflow::step_executor::{ReportCallback, StepExecutor},
+    crate::{
+        runner_messages::report_progress::ProgressReport,
+        workflow::step_executor::StepExecutorInner,
+    },
     color_eyre::eyre::Result,
-    std::pin::Pin,
+    std::{pin::Pin, sync::Arc},
+    tokio::sync::broadcast::Sender,
 };
 
 use crate::define_step;
@@ -10,11 +14,11 @@ use crate::define_step;
 define_step!("aginci/build", BuildStep { test: String });
 
 #[cfg(feature = "step_executor")]
-impl StepExecutor for BuildStep {
+impl StepExecutorInner for BuildStep {
     fn execute(
-        &self,
-        report_callback: ReportCallback,
-    ) -> Pin<Box<dyn Future<Output = Result<()>> + Send + '_>> {
+        self: Arc<Self>,
+        progress_tx: Sender<ProgressReport>,
+    ) -> Pin<Box<dyn Future<Output = Result<()>> + Send + 'static>> {
         Box::pin(async move { Ok(()) })
     }
 }

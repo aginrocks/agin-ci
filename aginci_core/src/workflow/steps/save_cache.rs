@@ -1,14 +1,17 @@
 #[cfg(feature = "step_executor")]
-use {
-    crate::workflow::step_executor::{ReportCallback, StepExecutor},
-    color_eyre::eyre::Result,
-    std::pin::Pin,
-};
+use std::sync::Arc;
+
+#[cfg(feature = "step_executor")]
+use {crate::workflow::step_executor::StepExecutorInner, color_eyre::eyre::Result, std::pin::Pin};
 
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+#[cfg(feature = "step_executor")]
+use tokio::sync::broadcast::Sender;
 
 use crate::define_step;
+#[cfg(feature = "step_executor")]
+use crate::runner_messages::report_progress::ProgressReport;
 
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]
 pub struct SaveCacheStepWith {
@@ -24,11 +27,11 @@ define_step!(
 );
 
 #[cfg(feature = "step_executor")]
-impl StepExecutor for SaveCacheStep {
+impl StepExecutorInner for SaveCacheStep {
     fn execute(
-        &self,
-        report_callback: ReportCallback,
-    ) -> Pin<Box<dyn Future<Output = Result<()>> + Send + '_>> {
+        self: Arc<Self>,
+        progress_tx: Sender<ProgressReport>,
+    ) -> Pin<Box<dyn Future<Output = Result<()>> + Send + 'static>> {
         Box::pin(async move { Ok(()) })
     }
 }

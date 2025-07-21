@@ -1,16 +1,18 @@
 use std::collections::HashMap;
+#[cfg(feature = "step_executor")]
+use std::sync::Arc;
 
 #[cfg(feature = "step_executor")]
-use {
-    crate::workflow::step_executor::{ReportCallback, StepExecutor},
-    color_eyre::eyre::Result,
-    std::pin::Pin,
-};
+use {crate::workflow::step_executor::StepExecutorInner, color_eyre::eyre::Result, std::pin::Pin};
 
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+#[cfg(feature = "step_executor")]
+use tokio::sync::broadcast::Sender;
 
 use crate::define_step;
+#[cfg(feature = "step_executor")]
+use crate::runner_messages::report_progress::ProgressReport;
 
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]
 pub struct RunStepWith {
@@ -33,11 +35,11 @@ define_step!(
 );
 
 #[cfg(feature = "step_executor")]
-impl StepExecutor for RunStep {
+impl StepExecutorInner for RunStep {
     fn execute(
-        &self,
-        report_callback: ReportCallback,
-    ) -> Pin<Box<dyn Future<Output = Result<()>> + Send + '_>> {
+        self: Arc<Self>,
+        progress_tx: Sender<ProgressReport>,
+    ) -> Pin<Box<dyn Future<Output = Result<()>> + Send + 'static>> {
         Box::pin(async move {
             use std::process::Stdio;
 
@@ -62,7 +64,7 @@ impl StepExecutor for RunStep {
                 .wrap_err("Failed to get pwd")?
                 .to_string();
 
-            let pwd = self.clone().working_directory.unwrap_or(current_dir);
+            let pwd = self.working_directory.clone().unwrap_or(current_dir);
 
             let mut child = Command::new(shell)
                 .arg("-c")
@@ -90,21 +92,20 @@ impl StepExecutor for RunStep {
                     OutputType, ProgressReport, ProgressReportOutput,
                 };
 
-                (report_callback)(ProgressReport::Output(ProgressReportOutput {
+                progress_tx.send(ProgressReport::Output(ProgressReportOutput {
                     output_type: OutputType::Stdout,
                     body: line.clone(),
-                }))
-                .await?;
+                }))?;
+
                 println!("stdout: {line}");
             }
 
             let status = child.wait().await?;
             info!("Child process exited with status: {status}");
 
-            (report_callback)(ProgressReport::Exit(ProgressReportExit {
+            progress_tx.send(ProgressReport::Exit(ProgressReportExit {
                 exit_code: status.code().unwrap_or(0),
-            }))
-            .await?;
+            }))?;
 
             Ok(())
         })

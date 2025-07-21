@@ -1,20 +1,20 @@
 mod get_job;
 mod report_progress;
 
-use std::{collections::BTreeMap, ops::Deref, sync::Arc};
+use std::{ops::Deref, sync::Arc};
 
 use aginci_core::runner_messages::{auth::Auth, report_progress::ProgressReport};
-use color_eyre::eyre::{ContextCompat, Result, bail};
+use color_eyre::eyre::{Result, bail};
 use socketioxide::{
     SocketIo,
     extract::{Data, SocketRef, State},
     handler::ConnectHandler,
 };
-use tokio::sync::{Mutex, RwLock, broadcast};
+use tokio::sync::broadcast;
 use tracing::debug;
 
-use crate::{AppState, JobEventsBuffer};
-use crate::{SocketData, tokens_manager::JobRun};
+use crate::AppState;
+use crate::tokens_manager::JobRun;
 
 pub async fn init_io(io: &SocketIo) -> Result<()> {
     io.ns("/", on_connection.with(authenticate_middleware));

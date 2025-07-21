@@ -10,7 +10,6 @@ use clap::{Parser, Subcommand, ValueEnum};
 use miette::Result;
 use std::process;
 use tracing::level_filters::LevelFilter;
-use tracing_indicatif::IndicatifLayer;
 use tracing_subscriber::{fmt, prelude::*};
 
 use crate::{report_handler::ErrorReportHandler, utils::get_render_config};

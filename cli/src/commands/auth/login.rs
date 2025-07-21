@@ -4,7 +4,7 @@ use keyring::Entry;
 use miette::{Context, IntoDiagnostic, Result};
 use owo_colors::OwoColorize;
 use tokio::task;
-use tracing::{Level, event, warn};
+use tracing::{event, warn};
 
 use crate::{
     api::create_api_config,

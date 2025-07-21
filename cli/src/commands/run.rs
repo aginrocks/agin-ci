@@ -7,8 +7,7 @@ use indicatif::ProgressBar;
 use librunner::{WorkflowRunner, tokens_manager::JobRun};
 use miette::{Result, miette};
 use owo_colors::OwoColorize;
-use tracing::{Level, info, info_span, span};
-use tracing_indicatif::indicatif_eprintln;
+use tracing::{info, info_span};
 use uuid::Uuid;
 
 use crate::{

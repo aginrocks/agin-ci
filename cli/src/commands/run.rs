@@ -81,7 +81,6 @@ pub async fn handle_run(
                 while let Ok(report) = progress.recv().await {
                     bar.suspend(|| match report {
                         ProgressReport::Output(output) => {
-                            dbg!("dhjfgfghd");
                             info!("{}", output.body);
                         }
                         ProgressReport::Exit(exit) => {

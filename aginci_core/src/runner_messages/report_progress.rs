@@ -30,3 +30,9 @@ pub struct ProgressReportExit {
 pub struct ProgressReportStep {
     pub index: u32,
 }
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct OrderedReport {
+    pub ord: u64,
+    pub body: ProgressReport,
+}

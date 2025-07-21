@@ -1,5 +1,5 @@
 use aginci_core::{
-    runner_messages::report_progress::{ProgressReport, ProgressReportStep},
+    runner_messages::report_progress::OrderedReport,
     workflow::{Job, step_executor::StepExecutor},
 };
 use color_eyre::eyre::Result;
@@ -18,20 +18,27 @@ pub async fn run_job(job: Job) -> Result<()> {
 
     for (index, step) in job.steps.iter().enumerate() {
         info!("Running step {}/{total_steps}", index + 1);
-        socket
-            .emit(
-                "report_progress",
-                serde_json::to_value(ProgressReport::Step(ProgressReportStep {
-                    index: index as u32,
-                }))?,
-            )
-            .await?;
+        // socket
+        //     .emit(
+        //         "report_progress",
+        //         serde_json::to_value(ProgressReport::Step(ProgressReportStep {
+        //             index: index as u32,
+        //         }))?,
+        //     )
+        //     .await?;
 
         let mut progress = step.execute();
+        let mut seq = 0;
 
         while let Ok(report) = progress.recv().await {
+            let ordered = OrderedReport {
+                ord: seq,
+                body: report,
+            };
+            seq += 1;
+
             socket
-                .emit("report_progress", serde_json::to_value(report)?)
+                .emit("report_progress", serde_json::to_value(ordered)?)
                 .await?;
         }
     }

@@ -10,7 +10,8 @@ pub struct JobRun {
     pub job: Job,
 }
 
-pub struct TokensManager {
+/// TokensManager stores data per-token
+pub(crate) struct TokensManager {
     pub tokens: HashMap<String, JobRun>,
 }
 

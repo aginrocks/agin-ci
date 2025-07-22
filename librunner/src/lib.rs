@@ -1,3 +1,4 @@
+pub mod session;
 mod socket;
 pub mod tokens_manager;
 
@@ -19,6 +20,7 @@ use tokio::sync::{Mutex, RwLock, broadcast};
 use tracing::{debug, error, info_span};
 
 use crate::{
+    session::SessionManager,
     socket::init_io,
     tokens_manager::{JobRun, TokensManager},
 };
@@ -29,18 +31,13 @@ pub struct JobEventsBuffer {
     pub events_buffer: BTreeMap<u64, ProgressReport>,
 }
 
-/// Data stored per socket ID
-pub struct SocketData {
-    pub events_buffer: Arc<RwLock<JobEventsBuffer>>,
-}
-
 #[derive(Clone)]
-pub struct AppState {
+pub(crate) struct AppState {
     pub docker: Arc<Docker>,
     pub tokens: Arc<RwLock<TokensManager>>,
     // TODO: Move to token data
     pub progress_tx: Arc<broadcast::Sender<ProgressReport>>,
-    pub sockets_data: Arc<Mutex<HashMap<Sid, SocketData>>>,
+    pub sessions: Arc<SessionManager>,
 }
 
 pub struct WorkflowRunner {
@@ -62,7 +59,7 @@ impl WorkflowRunner {
             docker: Arc::new(docker.clone()),
             tokens: Arc::new(RwLock::new(tokens)),
             progress_tx: progress_tx.clone(),
-            sockets_data: Arc::new(Mutex::new(HashMap::new())),
+            sessions: Arc::new(SessionManager::new()),
         };
 
         Ok(WorkflowRunner {

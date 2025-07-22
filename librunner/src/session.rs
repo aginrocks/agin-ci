@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::sync::Arc;
 
 use aginci_core::runner_messages::report_progress::ProgressReport;
 use socketioxide::socket::Sid;
@@ -16,6 +15,7 @@ pub struct Session {
     pub events: EventsState,
 }
 
+#[derive(Default)]
 pub struct SessionManager {
     sessions: RwLock<HashMap<Sid, Session>>,
 }

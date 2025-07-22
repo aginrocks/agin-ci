@@ -12,11 +12,8 @@ use bollard::{
 use color_eyre::eyre::{Context, Result};
 use futures_util::TryStreamExt;
 use socketioxide::{SocketIo, SocketIoBuilder, layer::SocketIoLayer, socket::Sid};
-use std::{
-    collections::{BTreeMap, HashMap},
-    sync::Arc,
-};
-use tokio::sync::{Mutex, RwLock, broadcast};
+use std::{collections::BTreeMap, sync::Arc};
+use tokio::sync::{RwLock, broadcast};
 use tracing::{debug, error, info_span};
 
 use crate::{

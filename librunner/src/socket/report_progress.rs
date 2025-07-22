@@ -1,6 +1,6 @@
 use aginci_core::runner_messages::report_progress::OrderedReport;
 use socketioxide::extract::{Data, Extension, SocketRef, State};
-use tracing::{debug, info};
+use tracing::debug;
 
 use crate::{AppState, socket::UserData};
 

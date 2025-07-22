@@ -59,3 +59,11 @@ pub fn get_spinner_style() -> ProgressStyle {
         .unwrap()
         .tick_chars("⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏")
 }
+
+pub fn colored_exit_code(content: &str, status: i32) -> String {
+    if status == 0 {
+        content.green().bold().to_string()
+    } else {
+        content.red().bold().to_string()
+    }
+}

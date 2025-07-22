@@ -10,7 +10,7 @@ pub async fn handler(
     Extension(data): Extension<UserData>,
     State(state): State<AppState>,
 ) {
-    debug!("Received progress report {ord}");
+    debug!("Received progress report {ord} {body:?}");
 
     let mut sessions = state.sessions.get_map_mut().await;
 

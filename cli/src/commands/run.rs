@@ -1,7 +1,8 @@
 use std::time::Duration;
 
 use aginci_core::{
-    runner_messages::report_progress::ProgressReport, workflow::read_workflow_by_name,
+    runner_messages::report_progress::ProgressReport,
+    workflow::{read_workflow_by_name, steps::StepInfo},
 };
 use indicatif::ProgressBar;
 use librunner::{WorkflowRunner, tokens_manager::JobRun};
@@ -11,12 +12,14 @@ use tracing::{info, info_span};
 use uuid::Uuid;
 
 use crate::{
-    Cli, SelectOrgArgs, SelectProjectArgs, config::init_config, errors::LocalOrgProjectSpecified,
-    utils::get_spinner_style,
+    Cli, SelectOrgArgs, SelectProjectArgs,
+    config::init_config,
+    errors::LocalOrgProjectSpecified,
+    utils::{colored_exit_code, get_spinner_style},
 };
 
 pub async fn handle_run(
-    cli: &Cli,
+    _cli: &Cli,
     workflow: String,
     org: SelectOrgArgs,
     project: SelectProjectArgs,
@@ -60,11 +63,7 @@ pub async fn handle_run(
 
                 let bar = ProgressBar::new_spinner();
                 bar.set_style(get_spinner_style());
-                bar.set_message(format!(
-                    "{} {}",
-                    "Starting job".dimmed(),
-                    job_name.bold().blue()
-                ));
+                bar.set_message(format!("{}", "Waiting for runner".bold()));
                 bar.enable_steady_tick(Duration::from_millis(100));
 
                 let job_run = JobRun {
@@ -78,30 +77,37 @@ pub async fn handle_run(
                     .map_err(|_| miette!("Failed to run workflow"))?;
 
                 while let Ok(report) = progress.recv().await {
-                    bar.suspend(|| match report {
+                    bar.suspend(|| match report.clone() {
                         ProgressReport::Output(output) => {
-                            info!("{}", output.body);
+                            println!("      {}", output.body);
                         }
                         ProgressReport::Exit(exit) => {
-                            info!(
-                                "{} {}",
-                                "Exited with code".bold(),
-                                exit.exit_code.bold().green()
+                            println!(
+                                "    {}",
+                                colored_exit_code(
+                                    &format!("← Exited with {}", exit.exit_code),
+                                    exit.exit_code
+                                ),
                             );
                         }
                         ProgressReport::Step(step) => {
-                            info!(
-                                "{} {}",
-                                "Running step".dimmed(),
-                                step.index.to_string().bold().blue()
-                            );
-                            bar.set_message(format!(
-                                "{} {}",
-                                "Running step".dimmed(),
-                                step.index.to_string().bold().blue()
-                            ));
+                            let step_info = job.steps.get(step.index as usize);
+                            let step_label = match step_info {
+                                Some(info) => info.name().unwrap_or(info.step_name()),
+                                None => "Unknown Step".to_string(),
+                            };
+                            info!("{} {}", "Running step".dimmed(), step_label.bold().blue());
                         }
                     });
+                    if let ProgressReport::Step(step) = report {
+                        bar.set_message(format!(
+                            "{} {} {} {}",
+                            "Step".bold(),
+                            (step.index + 1).to_string().bold().blue(),
+                            "out of".bold(),
+                            job.steps.len().to_string().bold().blue(),
+                        ));
+                    }
                 }
 
                 bar.finish_and_clear();

@@ -66,6 +66,8 @@ async fn execute(step: RunStep, progress_tx: Sender<ProgressReport>) -> Result<(
         .current_dir(pwd)
         .spawn()?;
 
+    // TODO: Capture stderr as well
+
     let stdout = child.stdout.take().expect("Failed to capture stdout");
     let reader = BufReader::new(stdout);
     let mut lines = reader.lines();

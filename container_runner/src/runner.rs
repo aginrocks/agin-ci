@@ -1,8 +1,8 @@
 use aginci_core::{
-    runner_messages::report_progress::OrderedReport,
-    workflow::{Job, step_executor::StepExecutor},
+    runner_messages::report_progress::{OrderedReport, ProgressReport, ProgressReportStep},
+    workflow::{Job, step_executor::StepExecutor, steps::StepInfo},
 };
-use color_eyre::eyre::Result;
+use color_eyre::eyre::{Result, bail, eyre};
 use tracing::info;
 
 use crate::socket;
@@ -16,30 +16,43 @@ pub async fn run_job(job: Job) -> Result<()> {
     let total_steps = job.steps.len();
     info!("Total steps: {total_steps}");
 
+    let mut seq = 0;
+
     for (index, step) in job.steps.iter().enumerate() {
         info!("Running step {}/{total_steps}", index + 1);
-        // socket
-        //     .emit(
-        //         "report_progress",
-        //         serde_json::to_value(ProgressReport::Step(ProgressReportStep {
-        //             index: index as u32,
-        //         }))?,
-        //     )
-        //     .await?;
+        let step_report = OrderedReport {
+            ord: seq,
+            body: ProgressReport::Step(ProgressReportStep {
+                index: index as u32,
+            }),
+        };
+
+        socket
+            .emit("report_progress", serde_json::to_value(step_report)?)
+            .await?;
+
+        seq += 1;
 
         let mut progress = step.execute();
-        let mut seq = 0;
 
         while let Ok(report) = progress.recv().await {
             let ordered = OrderedReport {
                 ord: seq,
-                body: report,
+                body: report.clone(),
             };
             seq += 1;
 
             socket
                 .emit("report_progress", serde_json::to_value(ordered)?)
                 .await?;
+
+            if let ProgressReport::Exit(exit) = report
+                && exit.exit_code != 0
+                && !step.continue_on_error()
+            {
+                info!("Job failed with exit code {}", exit.exit_code);
+                bail!("Job failed, aborting workflow");
+            }
         }
     }
 

@@ -17,7 +17,6 @@ use enum_dispatch::enum_dispatch;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
-#[cfg(feature = "step_executor")]
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]
 #[serde(untagged)]
 #[enum_dispatch]
@@ -28,6 +27,20 @@ pub enum Step {
     RestoreCache(restore_cache::RestoreCacheStep),
     SaveCache(save_cache::SaveCacheStep),
     UploadArtifact(upload_artifact::UploadArtifactStep),
+}
+
+#[enum_dispatch(Step)]
+pub trait StepInfo {
+    fn name(&self) -> Option<String> {
+        None
+    }
+    fn step_name(&self) -> String;
+    fn continue_on_error(&self) -> bool {
+        false
+    }
+    fn id(&self) -> Option<String> {
+        None
+    }
 }
 
 #[macro_export]
@@ -63,7 +76,7 @@ macro_rules! define_step {
 
             #[cfg(feature = "step_executor")]
             use {
-                $crate::workflow::step_executor::StepExecutor,
+                $crate::workflow::{step_executor::StepExecutor, steps::StepInfo},
                 tokio::sync::broadcast::{self, Receiver},
             };
 
@@ -75,6 +88,21 @@ macro_rules! define_step {
                     tokio::spawn($run(self.clone(), progress_tx));
 
                     progress_rx
+                }
+            }
+
+            impl StepInfo for $struct_name {
+                fn name(&self) -> Option<String> {
+                    self.name.clone()
+                }
+                fn step_name(&self) -> String {
+                    $tag_value.to_string()
+                }
+                fn continue_on_error(&self) -> bool {
+                    self.continue_on_error.unwrap_or(false)
+                }
+                fn id(&self) -> Option<String> {
+                    self.id.clone()
                 }
             }
         }

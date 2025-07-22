@@ -7,6 +7,14 @@ jobs:
         name: Build Rust Project
         steps:
             - uses: aginci/run
+              run: echo "Hello, World!" && echo "This is an error message" >&2 && exit 1
+              continue-on-error: true
+              name: Install Dependencies
+            - uses: aginci/run
               run: ls
               with:
                   shell: nu
+            - uses: aginci/run
+              run: hrgfedstrfd
+            - uses: aginci/run
+              run: sleep 5 && echo "Hello, World!"

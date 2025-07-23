@@ -1,0 +1,11 @@
+---
+title: Zitadel
+description: Set up Zitadel as your OIDC provider
+---
+import { IconBrandGoogle, IconBrandAuth0, IconDots, IconShieldLock } from '@tabler/icons-react';
+
+## Setting up Zitadel
+
+<Callout type="error">
+Unfortunately, Zitadel won't work with Agin CI at the moment. This is due to Zitadel's behavior of including multiple audiences in the ID token, which is not supported by Agin CI. We are working on a solution to this issue, but for now, we recommend using another OIDC provider. You can read more about this issue [here](https://github.com/zitadel/zitadel/issues/9200).
+</Callout>

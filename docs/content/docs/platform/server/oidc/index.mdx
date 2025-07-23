@@ -1,0 +1,40 @@
+---
+title: OIDC
+description: Set up OpenID Connect (OIDC) for Agin CI server
+---
+import { IconBrandGoogle, IconBrandAuth0, IconDots, IconShieldLock } from '@tabler/icons-react';
+
+## Why OIDC?
+
+Agin CI relies on OpenID Connect (OIDC) for authentication, as the server does not include a built-in user management system. This means that you need to set up an OIDC provider to handle user authentication.
+
+## Choosing an OIDC Provider
+
+<Callout>
+We recommend using a provider that supports refresh tokens. This allows users to stay logged in for a longer period of time without needing to re-authenticate.
+</Callout>
+
+<Callout type="warning">
+Please read this section carefully, as some OIDC providers may not be compatible with Agin CI. Additionally, some providers may require extra configuration steps to function correctly.
+</Callout>
+
+You can use many different OIDC providers. You'll find a list of popular OIDC providers below along with guides on how to set them up with Agin CI.
+
+If you're not sure which provider to choose, we recommend starting with Agin Auth, which is an open-source OIDC provider, designed to seamlessly integrate with Agin CI.
+
+### Self-hostable OIDC Providers
+
+<Cards>
+  <Card title="Agin Auth" icon={<IconShieldLock />} href="/platform/server/oidc/agin-auth" />
+  <Card title="Authelia" icon={<IconDots />} href="/platform/server/oidc/authelia" />
+  <Card title="Authentik" icon={<IconDots />} href="/platform/server/oidc/authentik" />
+  <Card title="Zitadel" icon={<IconDots />} href="/platform/server/oidc/zitadel" />
+</Cards>
+
+### Proprietary OIDC Providers
+
+<Cards>
+  <Card title="Google" icon={<IconBrandGoogle />} href="/platform/server/oidc/google" />
+  <Card title="Auth0" icon={<IconBrandAuth0 />} href="/platform/server/oidc/auth0" />
+  <Card title="Okta" icon={<IconDots />} href="/platform/server/oidc/okta" />
+</Cards>

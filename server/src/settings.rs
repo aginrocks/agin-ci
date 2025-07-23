@@ -9,7 +9,7 @@ use strum::{AsRefStr, Display, EnumString, IntoStaticStr};
 use tracing::warn;
 
 const ENV_PREFIX: &str = "AGINCI";
-const ENV_SEPARATOR: &str = "_";
+const ENV_SEPARATOR: &str = "__";
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(untagged)]

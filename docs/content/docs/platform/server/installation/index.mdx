@@ -1,0 +1,32 @@
+---
+title: Installation
+description: Install Agin CI server, which is the core of the Agin CI platform.
+---
+import { IconBrandDocker, IconPackages } from '@tabler/icons-react';
+
+Agin CI server is the core of the Agin CI platform. It is responsible for managing workflows, jobs, and other resources. In this section, you will learn how to install the Agin CI server.
+
+### Prerequisites
+
+Before you begin the installation, make sure you have the following prerequisites:
+
+<Callout>
+We officially support only Linux. Other operating systems might work, but they are not tested. Install Agin CI on them at your own risk.
+</Callout>
+
+- A Linux server
+- A public domain reachable by your Git provider (e.g. GitHub, GitLab, etc.)
+
+### Installation
+
+You can install the Agin CI server using either Docker or deploy it on a Kubernetes cluster. This choice does not impact your ability to add workers — workers can be machines with Docker installed or Kubernetes clusters. You can also mix different worker types.
+
+<Cards>
+  <Card title="Docker" icon={<IconBrandDocker />} href="/platform/server/installation/docker">
+    Install Agin CI server using Docker
+  </Card>
+  {/* TODO: Add Kubernetes logo */}
+  <Card title="Kubernetes" icon={<IconPackages />} href="/platform/server/installation/kubernetes">
+    Install Agin CI server on a Kubernetes cluster
+  </Card>
+</Cards>

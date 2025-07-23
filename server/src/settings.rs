@@ -66,11 +66,19 @@ pub struct Oidc {
 }
 
 #[derive(Debug, Deserialize, Serialize)]
+pub struct Pulsar {
+    pub connection_string: String,
+    pub tenant: String,
+    pub token: String,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
 pub struct Settings {
     pub general: General,
     pub db: Db,
     pub oidc: Oidc,
     pub redis: Redis,
+    pub pulsar: Pulsar,
 }
 
 impl Settings {
@@ -148,6 +156,11 @@ impl Settings {
             },
             redis: Redis {
                 connection_string: "redis://localhost:6379".to_string(),
+            },
+            pulsar: Pulsar {
+                connection_string: "pulsar://localhost:6650".to_string(),
+                tenant: "aginci".to_string(),
+                token: "".to_string(),
             },
         }
     }

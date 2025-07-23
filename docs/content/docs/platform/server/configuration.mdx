@@ -1,0 +1,114 @@
+---
+title: Configuration
+description: Configuring Agin CI server
+---
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+## Writing a configuration file
+
+Agin CI expects a configuration file in the same directory that you run the server from. The file should be named `config.toml`. When you first run Agin CI, it will create a default configuration file for you. You can edit it to suit your needs. Here's an example of a configuration file:
+
+```toml
+[general]
+listen_address = [
+    "0.0.0.0:8080",
+    "[::]:8080",
+]
+public_url = "http://localhost:8080/"
+
+[db]
+connection_string = "mongodb://localhost:27017"
+database_name = "agin-ci"
+
+[oidc]
+issuer = "https://example.com"
+client_id = "client_id"
+client_secret = "client_secret"
+
+[redis]
+connection_string = "redis://localhost:6379"
+
+[pulsar]
+connection_string = "pulsar://localhost:6650"
+tenant = "aginci"
+token = ""
+```
+
+## `[general]`
+
+This section contains general settings for the Agin CI server.
+
+#### `listen_address`
+
+The listen address can be a single address or an array of addresses. The server will listen on all specified addresses. The default is to listen on all interfaces on port 8080.
+
+#### `public_url`
+
+This is the public URL of the Agin CI server (FQDN). It is used to generate links and OIDC redirects. Make sure to set it correctly, especially if you are running the server behind a reverse proxy.
+
+
+## `[db]`
+
+This section contains settings for the database connection.
+
+#### `connection_string`
+
+The connection string for the database. This should be a valid MongoDB connection string.
+
+#### `database_name`
+
+The name of the database to use for Agin CI.
+
+## `[oidc]`
+
+Agin CI relies on OpenID Connect (OIDC) for authentication. This section contains settings for the OIDC provider.
+
+<Callout>
+We recommend using a provider that supports refresh tokens. This allows users to stay logged in for a longer period of time without needing to re-authenticate.
+</Callout>
+
+#### `issuer`
+
+The issuer URL of the OIDC provider. This is used to discover the OIDC configuration. For example, Google's OIDC issuer is `https://accounts.google.com`. You can find more information in the [Setting up OIDC]() article.
+
+#### `client_id`
+
+The client ID from your OIDC provider.
+
+#### `client_secret`
+
+The client secret from your OIDC provider.
+
+## `[redis]`
+
+<Callout>
+We recommend using Valkey as it is the open source fork of Redis and is developed by the community.
+</Callout>
+
+This section contains settings for the Redis (or Valkey) connection.
+
+#### `connection_string`
+
+The connection string for the Redis database. This should be a valid Redis connection string.
+
+## `[pulsar]`
+
+Agin CI relise on Apache Pulsar for event streaming. This section contains settings for the Pulsar connection.
+
+#### `connection_string`
+
+The connection string for the Pulsar cluster. This should be a valid Pulsar connection string, such as `pulsar://localhost:6650`.
+
+#### `tenant`
+
+The tenant to use for the Pulsar cluster. This is used to scope the resources in Pulsar. It is recommend to use a unique tenant name for your Agin CI instance, as Agin CI will create namespaces and topics under this tenant.
+
+#### `token`
+
+The token to use for the Pulsar cluster. This should be a valid Pulsar token. You can generate a token using the following command:
+
+```bash
+bin/pulsar tokens create \
+  --secret-key file:///path/to/my-secret.key \
+  --subject admin
+```

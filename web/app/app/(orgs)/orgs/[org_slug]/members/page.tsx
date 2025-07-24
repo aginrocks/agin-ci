@@ -148,38 +148,35 @@ export default function Page() {
             {
                 id: 'actions',
                 size: 80,
-                cell: ({ row }) => (
-                    <div className="flex gap-1">
-                        <Button
-                            variant="ghost"
-                            size="xsIcon"
-                            disabled={
-                                !canManage || (row.original.role === 'owner' && role === 'admin')
-                            }
-                            onClick={() => {
-                                changeRoleAsk(
-                                    row.original._id,
-                                    row.original.name,
-                                    row.original.role
-                                );
-                            }}
-                        >
-                            <IconPencil />
-                        </Button>
-                        <Button
-                            variant="ghostDestructive"
-                            size="xsIcon"
-                            disabled={
-                                !canManage || (row.original.role === 'owner' && role === 'admin')
-                            }
-                            onClick={() =>
-                                removeMemeberConfirm(row.original._id, row.original.name)
-                            }
-                        >
-                            <IconTrash />
-                        </Button>
-                    </div>
-                ),
+                cell: ({ row }) =>
+                    canManage && (
+                        <div className="flex gap-1">
+                            <Button
+                                variant="ghost"
+                                size="xsIcon"
+                                disabled={row.original.role === 'owner' && role === 'admin'}
+                                onClick={() => {
+                                    changeRoleAsk(
+                                        row.original._id,
+                                        row.original.name,
+                                        row.original.role
+                                    );
+                                }}
+                            >
+                                <IconPencil />
+                            </Button>
+                            <Button
+                                variant="ghostDestructive"
+                                size="xsIcon"
+                                disabled={row.original.role === 'owner' && role === 'admin'}
+                                onClick={() =>
+                                    removeMemeberConfirm(row.original._id, row.original.name)
+                                }
+                            >
+                                <IconTrash />
+                            </Button>
+                        </div>
+                    ),
             },
         ],
         [removeMemeberConfirm, canManage, role]
@@ -198,10 +195,12 @@ export default function Page() {
                     },
                 ]}
                 rightSection={
-                    <Button>
-                        <IconUserPlus />
-                        Invite Members
-                    </Button>
+                    canManage && (
+                        <Button>
+                            <IconUserPlus />
+                            Invite Members
+                        </Button>
+                    )
                 }
             />
             <div className="p-4 pt-0">

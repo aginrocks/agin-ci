@@ -1,12 +1,14 @@
 'use client';
 import { PageHeader } from '@components/page-header';
 import { Button } from '@components/ui/button';
-import { useOrg } from '@lib/hooks';
+import { useOrg, useOrgRole } from '@lib/hooks';
 import { IconPlus } from '@tabler/icons-react';
 import Link from 'next/link';
 
 export default function Page() {
     const { thisOrg } = useOrg();
+    const { role } = useOrgRole();
+
     return (
         <>
             <PageHeader
@@ -20,12 +22,14 @@ export default function Page() {
                     },
                 ]}
                 rightSection={
-                    <Button asChild>
-                        <Link href={`/app/orgs/${thisOrg?.slug}/projects/new`}>
-                            <IconPlus />
-                            Create Project
-                        </Link>
-                    </Button>
+                    role !== 'viewer' && (
+                        <Button asChild>
+                            <Link href={`/app/orgs/${thisOrg?.slug}/projects/new`}>
+                                <IconPlus />
+                                Create Project
+                            </Link>
+                        </Button>
+                    )
                 }
             />
             <div className="flex flex-1 flex-col gap-4 p-4 pt-0">

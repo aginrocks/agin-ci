@@ -63,6 +63,7 @@ pub struct Oidc {
     pub issuer: IssuerUrl,
     pub client_id: ClientId,
     pub client_secret: Option<ClientSecret>,
+    pub scopes: Vec<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -153,6 +154,12 @@ impl Settings {
                 issuer: IssuerUrl::new("https://example.com".to_string()).unwrap(),
                 client_id: ClientId::new("client_id".to_string()),
                 client_secret: Some(ClientSecret::new("client_secret".to_string())),
+                scopes: vec![
+                    "openid".to_string(),
+                    "profile".to_string(),
+                    "email".to_string(),
+                    "offline_access".to_string(),
+                ],
             },
             redis: Redis {
                 connection_string: "redis://localhost:6379".to_string(),

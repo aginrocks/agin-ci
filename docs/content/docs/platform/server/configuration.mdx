@@ -24,6 +24,7 @@ database_name = "agin-ci"
 issuer = "https://example.com"
 client_id = "client_id"
 client_secret = "client_secret"
+scopes = ["openid", "profile", "email", "offline_access"]
 
 [redis]
 connection_string = "redis://localhost:6379"
@@ -78,6 +79,10 @@ The client ID from your OIDC provider.
 #### `client_secret`
 
 The client secret from your OIDC provider.
+
+#### `scopes`
+
+Scopes to request from the OIDC provider. The default scopes are `["openid", "profile", "email", "offline_access"]`. You can add or remove scopes as needed. The `offline_access` scope is usally used for refresh tokens, which allows users to stay logged in for a longer period of time without needing to re-authenticate.
 
 ## `[redis]`
 

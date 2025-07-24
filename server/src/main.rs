@@ -4,6 +4,7 @@ mod middlewares;
 mod mongo_id;
 mod pulsar_client;
 mod routes;
+mod runner;
 mod settings;
 mod state;
 mod utils;
@@ -138,10 +139,11 @@ async fn init_axum(
     let mut oidc_client = OidcClient::<GroupClaims>::builder()
         .with_default_http_client()
         .with_redirect_url(app_url.parse()?)
-        .with_client_id(state.settings.oidc.client_id.as_str())
-        .add_scope("profile")
-        .add_scope("email")
-        .add_scope("offline_access");
+        .with_client_id(state.settings.oidc.client_id.as_str());
+
+    for scope in state.settings.oidc.scopes.iter() {
+        oidc_client = oidc_client.add_scope(scope.as_str());
+    }
 
     if let Some(client_secret) = state.settings.oidc.client_secret.as_ref() {
         oidc_client = oidc_client.with_client_secret(client_secret.secret().clone());

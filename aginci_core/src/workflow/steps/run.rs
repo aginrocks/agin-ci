@@ -11,7 +11,7 @@ use {
 
 use crate::define_step;
 
-#[derive(Serialize, Deserialize, JsonSchema, Clone)]
+#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug)]
 #[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub struct RunStepWith {
     /// The user ID or name to run the command as. Works only on Linux. Defaults to "1000"

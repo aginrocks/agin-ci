@@ -8,7 +8,7 @@ use {
     tokio::sync::broadcast::Sender,
 };
 
-#[derive(Serialize, Deserialize, JsonSchema, Clone)]
+#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug)]
 #[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub struct RestoreCacheStepWith {
     /// Paths of folders to cache.

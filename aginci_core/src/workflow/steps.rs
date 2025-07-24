@@ -17,7 +17,7 @@ use enum_dispatch::enum_dispatch;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, JsonSchema, Clone)]
+#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug)]
 #[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 #[serde(untagged)]
 #[enum_dispatch]
@@ -48,7 +48,7 @@ pub trait StepInfo {
 macro_rules! define_step {
     ($tag_value:literal, $struct_name:ident { $($field:tt)* }, $run:ident) => {
         paste::paste! {
-            #[derive(serde::Serialize, serde::Deserialize, schemars::JsonSchema, Clone)]
+            #[derive(serde::Serialize, serde::Deserialize, schemars::JsonSchema, Clone, Debug)]
             #[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
             pub struct $struct_name {
                 pub uses: [<Uses$struct_name>],

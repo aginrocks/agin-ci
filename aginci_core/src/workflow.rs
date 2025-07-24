@@ -10,6 +10,7 @@ use std::{collections::HashMap, path::PathBuf, sync::LazyLock};
 use crate::workflow::steps::Step;
 
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 #[serde(rename_all = "lowercase")]
 pub enum OS {
     Linux,
@@ -17,6 +18,7 @@ pub enum OS {
 }
 
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub struct Job {
     pub name: Option<String>,
 
@@ -31,6 +33,7 @@ pub struct Job {
 }
 
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub struct Workflow {
     /// The name of the workflow. It is shown in the UI.
     pub name: String,

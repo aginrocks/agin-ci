@@ -18,6 +18,7 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 #[serde(untagged)]
 #[enum_dispatch]
 pub enum Step {
@@ -48,6 +49,7 @@ macro_rules! define_step {
     ($tag_value:literal, $struct_name:ident { $($field:tt)* }, $run:ident) => {
         paste::paste! {
             #[derive(serde::Serialize, serde::Deserialize, schemars::JsonSchema, Clone)]
+            #[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
             pub struct $struct_name {
                 pub uses: [<Uses$struct_name>],
 
@@ -69,6 +71,7 @@ macro_rules! define_step {
             }
 
             #[derive(Debug, serde::Serialize, serde::Deserialize, schemars::JsonSchema, Clone)]
+            #[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
             pub enum [<Uses$struct_name>] {
                 #[serde(rename = $tag_value)]
                 Value,

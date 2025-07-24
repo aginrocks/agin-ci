@@ -5,9 +5,10 @@ edition = "2024"
 
 [features]
 default = ["step_executor", "reader"]
-step_executor = ["tokio", "tracing"]
+step_executor = ["tokio", "dep:tracing"]
 reader = ["tokio", "serde_yaml"]
 tokio = ["dep:tokio"]
+utoipa = ["dep:utoipa"]
 
 [dependencies]
 async-trait = "0.1.88"
@@ -20,4 +21,5 @@ serde_json = "1.0.140"
 serde_yaml = { version = "0.9.34", optional = true }
 tokio = { version = "1.46.1", features = ["full"], optional = true }
 tracing = { version = "0.1.41", optional = true }
+utoipa = { version = "5.4.0", optional = true }
 visible = "0.0.1"

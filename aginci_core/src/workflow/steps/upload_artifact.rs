@@ -11,6 +11,7 @@ use {
 };
 
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub struct UploadArtifactStepWith {
     /// Path to the artifact to upload.
     pub path: String,

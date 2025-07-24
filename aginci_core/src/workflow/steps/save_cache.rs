@@ -9,6 +9,7 @@ use {
 };
 
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub struct SaveCacheStepWith {
     /// Paths of folders to cache.
     pub paths: Vec<String>,

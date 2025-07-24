@@ -37,6 +37,7 @@ dependencies = [
  "serde_yaml",
  "tokio",
  "tracing",
+ "utoipa",
  "visible",
 ]
 
@@ -5135,6 +5136,7 @@ dependencies = [
  "axum-oidc",
  "axum-valid",
  "base64 0.22.1",
+ "chrono",
  "color-eyre",
  "config",
  "dotenvy",

@@ -30,6 +30,7 @@ openidconnect = { version = "4.0.0", default-features = false, features = [
 ] }
 partial_struct = "0.4.5"
 paste = "1.0.15"
+pulsar = { version = "6.3.1", features = ["tracing", "tokio-rustls"] }
 rand = { version = "0.9.1", features = ["thread_rng"] }
 regex = "1.11.1"
 reqwest = { version = "0.12.15", features = [

@@ -2,6 +2,7 @@ mod axum_error;
 mod database;
 mod middlewares;
 mod mongo_id;
+mod pulsar_client;
 mod routes;
 mod settings;
 mod state;
@@ -38,6 +39,7 @@ use utoipa_scalar::{Scalar, Servable as _};
 use crate::{
     database::{init_database, init_session_store},
     middlewares::require_auth::require_auth,
+    pulsar_client::init_pulsar,
     routes::RouteProtectionLevel,
     settings::Settings,
     state::AppState,
@@ -69,9 +71,12 @@ async fn main() -> Result<()> {
 
     let database = init_database(&settings).await?;
 
+    let pulsar = init_pulsar(&settings).await?;
+
     let app_state = AppState {
         database,
         settings: settings.clone(),
+        pulsar,
     };
 
     let session_layer = init_session_store(&settings).await?;

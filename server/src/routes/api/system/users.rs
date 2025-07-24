@@ -1,3 +1,5 @@
+mod user_id;
+
 use axum::{Json, extract::State};
 use futures::TryStreamExt;
 use mongodb::bson::doc;
@@ -19,10 +21,14 @@ use super::Route;
 const PATH: &str = "/api/system/users";
 
 pub fn routes() -> Vec<Route> {
-    vec![(
-        routes!(get_system_users),
-        RouteProtectionLevel::Authenticated,
-    )]
+    [
+        vec![(
+            routes!(get_system_users),
+            RouteProtectionLevel::Authenticated,
+        )],
+        user_id::routes(),
+    ]
+    .concat()
 }
 
 /// Get all users

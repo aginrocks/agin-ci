@@ -312,7 +312,6 @@ database_object!(Worker {
     #[schema(value_type = String)]
     id: ObjectId,
 
-    #[schema(value_type = String)]
     uuid: Uuid,
 
     display_name: String,
@@ -332,7 +331,6 @@ database_object!(WorkflowRun {
     #[schema(value_type = String)]
     id: ObjectId,
 
-    #[schema(value_type = String)]
     uuid: Uuid,
 
     #[schema(value_type = String)]
@@ -365,13 +363,10 @@ database_object!(JobRun {
     #[schema(value_type = String)]
     id: ObjectId,
 
-    #[schema(value_type = String)]
     uuid: Uuid,
 
-    #[schema(value_type = String)]
     started_at: DateTime<Utc>,
 
-    #[schema(value_type = String)]
     finished_at: DateTime<Utc>,
 
     status: RunStatus,

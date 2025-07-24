@@ -5,6 +5,8 @@ import { ConfirmDeletion } from '../ConfirmDeletion';
 import { OneTimeSecret } from '../OneTimeSecret';
 import { SelectRole } from '../SelectRole';
 import { ModalComponentBindings, ModalDefinition } from './types';
+import { SelectServerRole } from '../SelectServerRole';
+import { ServerRole } from '@/types/server-role';
 
 export type Modals = {
     ConfirmDeletion: ModalDefinition<{
@@ -40,6 +42,13 @@ export type Modals = {
         };
         returnValue: OrgRole;
     }>;
+    SelectServerRole: ModalDefinition<{
+        payload: {
+            selectedRole: ServerRole;
+            user: string;
+        };
+        returnValue: ServerRole;
+    }>;
 };
 
 export const ModalsBinding: ModalComponentBindings = {
@@ -47,4 +56,5 @@ export const ModalsBinding: ModalComponentBindings = {
     Confirm: Confirm,
     OneTimeSecret: OneTimeSecret,
     SelectRole: SelectRole,
+    SelectServerRole: SelectServerRole,
 };

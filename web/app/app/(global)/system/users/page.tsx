@@ -1,6 +1,7 @@
 'use client';
 import { paths } from '@/types/api';
 import { OrgRole } from '@/types/org-role';
+import { ServerRole } from '@/types/server-role';
 import { DataTable } from '@components/data-table';
 import { PageHeader } from '@components/page-header';
 import { Avatar, AvatarFallback, AvatarImage } from '@components/ui/avatar';
@@ -10,15 +11,15 @@ import { useAvatar, useOrg } from '@lib/hooks';
 import { useOrgRole } from '@lib/hooks/use-org-role';
 import { useModals } from '@lib/modals/ModalsManager';
 import { useChangeRoleMutation, useRemoveMemberMutation } from '@lib/mutations';
+import { useChangeSystemRoleMutation } from '@lib/mutations/system';
 import { $api } from '@lib/providers/api';
 import {
     Icon,
+    IconArrowRight,
     IconCrown,
     IconEye,
     IconPencil,
-    IconTrash,
     IconUser,
-    IconUserPlus,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
@@ -32,6 +33,31 @@ export default function Page() {
     const modals = useModals();
 
     const users = useQuery($api.queryOptions('get', '/api/system/users'));
+
+    const changeRole = useChangeSystemRoleMutation({});
+
+    const changeRoleAsk = useCallback(
+        async (userId: string, userName: string, currentRole: ServerRole) => {
+            const selectedRole = await modals.show('SelectServerRole', {
+                selectedRole: currentRole,
+                user: userName,
+            });
+
+            if (!selectedRole) return;
+
+            changeRole.mutate({
+                params: {
+                    path: {
+                        user_id: userId,
+                    },
+                },
+                body: {
+                    role: selectedRole,
+                },
+            });
+        },
+        []
+    );
 
     const columns: ColumnDef<User>[] = useMemo(
         () => [
@@ -81,6 +107,30 @@ export default function Page() {
                         </Badge>
                     );
                 },
+            },
+            {
+                id: 'actions',
+                size: 80,
+                cell: ({ row }) => (
+                    <div className="flex gap-1">
+                        <Button
+                            variant="ghost"
+                            size="xsIcon"
+                            onClick={() => {
+                                changeRoleAsk(
+                                    row.original._id,
+                                    row.original.name,
+                                    row.original.role
+                                );
+                            }}
+                        >
+                            <IconPencil />
+                        </Button>
+                        <Button variant="ghost" size="xsIcon">
+                            <IconArrowRight />
+                        </Button>
+                    </div>
+                ),
             },
         ],
         []

@@ -267,6 +267,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/system/users/{user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Edit user's role */
+        patch: operations["edit_system_user"];
+        trace?: never;
+    };
     "/api/tokens": {
         parameters: {
             query?: never;
@@ -381,6 +398,9 @@ export interface components {
         };
         EditRoleBody: {
             role: components["schemas"]["OrganizationRole"];
+        };
+        EditServerRoleBody: {
+            role: components["schemas"]["ServerRole"];
         };
         /** @example {
          *       "error": "You do not have sufficient permissions to perform this action"
@@ -1387,6 +1407,51 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["User"][];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedError"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForbiddenError"];
+                };
+            };
+        };
+    };
+    edit_system_user: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description User ID */
+                user_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EditServerRoleBody"];
+            };
+        };
         responses: {
             /** @description Success */
             200: {

@@ -14,6 +14,8 @@ import { OrgRole } from '@/types/org-role';
 import { useForm } from 'react-hook-form';
 import { RoleSelector } from '@components/role-selector';
 import { Form } from '@components/ui/form';
+import { Alert, AlertDescription, AlertTitle } from '@components/ui/alert';
+import { IconExclamationCircle } from '@tabler/icons-react';
 
 export type FormSchema = {
     role: OrgRole;
@@ -31,6 +33,8 @@ export function SelectRole({
         },
     });
 
+    const role = form.watch('role');
+
     return (
         <Dialog {...props}>
             <DialogContent className="w-md">
@@ -38,15 +42,27 @@ export function SelectRole({
                     <DialogTitle>Change role</DialogTitle>
                     <DialogDescription>Changing {payload?.user}'s role</DialogDescription>
                 </DialogHeader>
-                <Form {...form}>
-                    <RoleSelector formControl={form.control} name="role" />
-                </Form>
+                <div className="flex flex-col gap-2">
+                    {role === 'owner' && (
+                        <Alert variant="destructive">
+                            <IconExclamationCircle />
+                            <AlertTitle>This action is irreversible!</AlertTitle>
+                            <AlertDescription>
+                                If you grant ownership to another user, you will be demoted to an
+                                admin and lose some of your permissions.
+                            </AlertDescription>
+                        </Alert>
+                    )}
+                    <Form {...form}>
+                        <RoleSelector formControl={form.control} name="role" />
+                    </Form>
+                </div>
                 <div className="flex justify-end gap-2 mt-2">
                     <Button
                         onClick={() => modals.hide('SelectRole', form.getValues('role'))}
-                        variant="default"
+                        variant={role === 'owner' ? 'destructive' : 'default'}
                     >
-                        Done
+                        {role === 'owner' ? 'Transfer Ownership' : 'Chnage Role'}
                     </Button>
                 </div>
             </DialogContent>

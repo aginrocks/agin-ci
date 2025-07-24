@@ -11,7 +11,15 @@ import { useOrgRole } from '@lib/hooks/use-org-role';
 import { useModals } from '@lib/modals/ModalsManager';
 import { useChangeRoleMutation, useRemoveMemberMutation } from '@lib/mutations';
 import { $api } from '@lib/providers/api';
-import { Icon, IconCrown, IconEye, IconPencil, IconTrash, IconUser } from '@tabler/icons-react';
+import {
+    Icon,
+    IconCrown,
+    IconEye,
+    IconPencil,
+    IconTrash,
+    IconUser,
+    IconUserPlus,
+} from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
 import clsx from 'clsx';
@@ -189,6 +197,12 @@ export default function Page() {
                         label: 'Members & Permissions',
                     },
                 ]}
+                rightSection={
+                    <Button>
+                        <IconUserPlus />
+                        Invite Members
+                    </Button>
+                }
             />
             <div className="p-4 pt-0">
                 {members.data && <DataTable columns={columns} data={members.data} />}

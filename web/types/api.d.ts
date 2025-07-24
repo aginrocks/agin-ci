@@ -227,6 +227,64 @@ export interface paths {
         patch: operations["edit_organization_secret"];
         trace?: never;
     };
+    "/api/schema/workflow": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get workflow schema
+         * @description Returns the JSON schema for the workflow definition file.
+         */
+        get: operations["get_workflow_schema"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/system/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get all users
+         * @description Returns every user in the system.
+         */
+        get: operations["get_system_users"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tokens": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get tokens */
+        get: operations["get_tokens"];
+        put?: never;
+        /** Create token */
+        post: operations["create_token"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/user": {
         parameters: {
             query?: never;
@@ -244,7 +302,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/webhook-handler/github": {
+    "/api/webhooks/{project_id}/gitea": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Forgejo or Gitea Webhook handler
+         * @description Handles incoming Forgejo or Gitea webhooks
+         */
+        post: operations["gitea_webhook_handler"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/webhooks/{project_id}/github": {
         parameters: {
             query?: never;
             header?: never;
@@ -268,6 +346,14 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        AccessTokenCreateBody: {
+            display_name: string;
+            scopes: components["schemas"]["Scope"][];
+        };
+        AccessTokenCreateResponse: {
+            /** @description Store the token securely, as it will not be shown again */
+            token: string;
+        };
         CreateOrgSecretBody: {
             name: string;
             secret: string;
@@ -330,6 +416,8 @@ export interface components {
         /** @enum {string} */
         OrganizationRole: "viewer" | "member" | "admin" | "owner";
         /** @enum {string} */
+        Permission: "read" | "write" | "admin";
+        /** @enum {string} */
         ProjectRepositorySource: "github" | "gitea" | "genericgit";
         /** @description Project object that can be safely sent to the client */
         PublicProject: {
@@ -357,8 +445,26 @@ export interface components {
         RegenerateSecretResponse: {
             webhook_secret: string;
         };
+        Scope: {
+            permission: components["schemas"]["Permission"];
+            scope: components["schemas"]["ScopeType"];
+        };
+        ScopeType: {
+            /** @enum {string} */
+            type: "user";
+        } | {
+            /** @enum {string} */
+            type: "global";
+        } | {
+            /** @description Allows access to an organization */
+            slug: string;
+            /** @enum {string} */
+            type: "org";
+        };
         /** @enum {string} */
         SecretScope: "organization" | "project";
+        /** @enum {string} */
+        ServerRole: "readonly" | "user" | "admin";
         /** @example {
          *       "error": "Unauthorized"
          *     } */
@@ -369,6 +475,7 @@ export interface components {
             _id: string;
             email: string;
             name: string;
+            role: components["schemas"]["ServerRole"];
             subject: string;
         };
         /** @example {
@@ -1252,6 +1359,126 @@ export interface operations {
             };
         };
     };
+    get_workflow_schema: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+        };
+    };
+    get_system_users: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["User"][];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedError"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForbiddenError"];
+                };
+            };
+        };
+    };
+    get_tokens: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["User"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedError"];
+                };
+            };
+        };
+    };
+    create_token: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AccessTokenCreateBody"];
+            };
+        };
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccessTokenCreateResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedError"];
+                };
+            };
+        };
+    };
     get_user: {
         parameters: {
             query?: never;
@@ -1281,11 +1508,41 @@ export interface operations {
             };
         };
     };
+    gitea_webhook_handler: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Project ID */
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "text/plain": string;
+            };
+        };
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WebhookHandlerSuccess"];
+                };
+            };
+        };
+    };
     github_webhook_handler: {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                /** @description Project ID */
+                project_id: string;
+            };
             cookie?: never;
         };
         requestBody: {

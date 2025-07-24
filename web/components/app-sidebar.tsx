@@ -8,6 +8,7 @@ import {
     IconHome,
     IconServer,
     IconSettings,
+    IconUsers,
 } from '@tabler/icons-react';
 import { NavMain, NavMainSubItem } from '@/components/nav-main';
 import { NavSecondary } from '@/components/nav-secondary';
@@ -79,6 +80,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                             icon: IconServer,
                             title: 'Runners',
                             url: '/app/system/runners',
+                        },
+                        {
+                            icon: IconUsers,
+                            title: 'Users',
+                            url: '/app/system/users',
                         },
                         {
                             icon: IconHistory,

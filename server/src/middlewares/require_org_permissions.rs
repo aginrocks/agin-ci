@@ -121,5 +121,5 @@ impl_org_data_extractor!(OrgDataOwner, OrganizationRole::Owner);
 #[derive(Serialize, ToSchema)]
 #[schema(example = json!({"error": "You do not have sufficient permissions to perform this action"}))]
 pub struct ForbiddenError {
-    error: String,
+    pub error: String,
 }

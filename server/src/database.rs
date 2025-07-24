@@ -60,6 +60,20 @@ pub async fn init_session_store(
     Ok(session_layer)
 }
 
+#[derive(Serialize, Deserialize, ToSchema, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[serde(rename_all = "lowercase")]
+pub enum ServerRole {
+    ReadOnly = 0,
+    User = 1,
+    Admin = 2,
+}
+
+impl From<ServerRole> for mongodb::bson::Bson {
+    fn from(scope: ServerRole) -> Self {
+        mongodb::bson::to_bson(&scope).expect("Failed to convert to BSON")
+    }
+}
+
 database_object!(User {
     #[serde(rename = "_id", with = "object_id_as_string_required")]
     #[schema(value_type = String)]
@@ -67,6 +81,7 @@ database_object!(User {
     subject: String,
     name: String,
     email: String,
+    role: ServerRole,
 });
 
 #[derive(Serialize, Deserialize, ToSchema, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]

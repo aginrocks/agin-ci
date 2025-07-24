@@ -9,7 +9,10 @@ use utoipa_axum::routes;
 use crate::{
     axum_error::{AxumError, AxumResult},
     database::{MutableOrganization, Organization, PartialOrganization},
-    middlewares::require_auth::{UnauthorizedError, UserData, UserId},
+    middlewares::{
+        require_auth::{UnauthorizedError, UserData, UserId},
+        require_server_permissions::ServerWrite,
+    },
     routes::{RouteProtectionLevel, api::CreateSuccess},
     state::AppState,
 };
@@ -70,6 +73,7 @@ async fn get_organizations(
 )]
 async fn create_organization(
     Extension(user_id): Extension<UserId>,
+    _: ServerWrite,
     State(state): State<AppState>,
     Valid(body): Valid<Json<MutableOrganization>>,
 ) -> AxumResult<Json<CreateSuccess>> {

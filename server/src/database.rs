@@ -1,8 +1,9 @@
 use crate::validators::slug_validator;
+use chrono::{DateTime, Utc};
 use color_eyre::eyre::Result;
 use mongodb::{
     Client, Database,
-    bson::{doc, oid::ObjectId},
+    bson::{Uuid, doc, oid::ObjectId},
 };
 use partial_struct::Partial;
 use serde::{Deserialize, Serialize};
@@ -19,7 +20,7 @@ use utoipa::ToSchema;
 use validator::Validate;
 use visible::StructFields;
 
-use crate::mongo_id::{object_id_as_string, object_id_as_string_required};
+use crate::mongo_id::{object_id_as_string, object_id_as_string_required, vec_oid_to_vec_string};
 use crate::settings::Settings;
 
 macro_rules! database_object {
@@ -295,7 +296,93 @@ database_object!(Worker {
     #[serde(rename = "_id", with = "object_id_as_string_required")]
     #[schema(value_type = String)]
     id: ObjectId,
-    hashed_token: String,
+
+    #[schema(value_type = String)]
+    uuid: Uuid,
+
+    display_name: String,
+});
+
+#[derive(Serialize, Deserialize, ToSchema, Clone, Debug)]
+#[serde(rename_all = "lowercase")]
+pub enum RunStatus {
+    Queued,
+    Running,
+    Finished,
+    Failed,
+}
+
+database_object!(WorkflowRun {
+    #[serde(rename = "_id", with = "object_id_as_string_required")]
+    #[schema(value_type = String)]
+    id: ObjectId,
+
+    #[schema(value_type = String)]
+    uuid: Uuid,
+
+    #[schema(value_type = String)]
+    #[serde(with = "object_id_as_string_required")]
+    workflow: ObjectId,
+
+    #[schema(value_type = String)]
+    #[serde(with = "object_id_as_string_required")]
+    organization: ObjectId,
+
+    #[schema(value_type = String)]
+    #[serde(with = "object_id_as_string_required")]
+    project: ObjectId,
+
+    #[schema(value_type = String)]
+    started_at: DateTime<Utc>,
+
+    #[schema(value_type = String)]
+    finished_at: DateTime<Utc>,
+
+    status: RunStatus,
+
+    #[serde(with = "vec_oid_to_vec_string")]
+    #[schema(value_type = Vec<String>)]
+    jobs: Vec<ObjectId>
+});
+
+database_object!(JobRun {
+    #[serde(rename = "_id", with = "object_id_as_string_required")]
+    #[schema(value_type = String)]
+    id: ObjectId,
+
+    #[schema(value_type = String)]
+    uuid: Uuid,
+
+    #[schema(value_type = String)]
+    started_at: DateTime<Utc>,
+
+    #[schema(value_type = String)]
+    finished_at: DateTime<Utc>,
+
+    status: RunStatus,
+
+    #[schema(value_type = String)]
+    #[serde(with = "object_id_as_string_required")]
+    worker: ObjectId,
+
+    #[schema(value_type = String)]
+    worker_uuid: ObjectId,
+});
+
+database_object!(Workflow {
+    #[serde(rename = "_id", with = "object_id_as_string_required")]
+    #[schema(value_type = String)]
+    id: ObjectId,
+
+    /// Filename in the repository (without extension)
+    slug: String,
+
+    #[schema(value_type = String)]
+    created_at: DateTime<Utc>,
+
+    commit_hash: String,
+
+    definition: aginci_core::workflow::Workflow,
 });
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, ToSchema)]

@@ -4,12 +4,15 @@ version = "1.0.0"
 edition = "2024"
 
 [dependencies]
-aginci_core = { version = "0.1.0", path = "../aginci_core" }
+aginci_core = { version = "0.1.0", path = "../aginci_core", features = [
+    "utoipa",
+] }
 async-trait = "0.1.88"
 axum = { version = "0.8.4", features = ["macros"] }
 axum-oidc = { git = "https://github.com/pfzetto/axum-oidc.git", branch = "pfzetto" }
 axum-valid = "0.24.0"
 base64 = "0.22.1"
+chrono = "0.4.41"
 color-eyre = "0.6.4"
 config = "0.15.11"
 dotenvy = "0.15.7"

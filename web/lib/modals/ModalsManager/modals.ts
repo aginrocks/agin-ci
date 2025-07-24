@@ -1,7 +1,9 @@
 'use client';
+import { OrgRole } from '@/types/org-role';
 import { Confirm } from '../Confirm';
 import { ConfirmDeletion } from '../ConfirmDeletion';
 import { OneTimeSecret } from '../OneTimeSecret';
+import { SelectRole } from '../SelectRole';
 import { ModalComponentBindings, ModalDefinition } from './types';
 
 export type Modals = {
@@ -31,10 +33,18 @@ export type Modals = {
         };
         returnValue: void;
     }>;
+    SelectRole: ModalDefinition<{
+        payload: {
+            selectedRole: OrgRole;
+            user: string;
+        };
+        returnValue: OrgRole;
+    }>;
 };
 
 export const ModalsBinding: ModalComponentBindings = {
     ConfirmDeletion: ConfirmDeletion,
     Confirm: Confirm,
     OneTimeSecret: OneTimeSecret,
+    SelectRole: SelectRole,
 };

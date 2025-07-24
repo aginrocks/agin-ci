@@ -78,3 +78,40 @@ export function useRemoveMemberMutation(params: AdditionalParams) {
 
     return mutation;
 }
+
+export function useChangeRoleMutation(params: AdditionalParams) {
+    const queryClient = useQueryClient();
+
+    const mutation = $api.useMutation(
+        'patch',
+        '/api/organizations/{org_slug}/members/{member_id}',
+        {
+            onSuccess: (data, options) => {
+                toast.success("User's role changed successfully");
+                invalidateOrg(queryClient, options.params.path.org_slug);
+                queryClient.invalidateQueries({
+                    queryKey: [
+                        'get',
+                        '/api/organizations/{org_slug}/members',
+                        {
+                            params: {
+                                path: {
+                                    org_slug: options.params.path.org_slug,
+                                },
+                            },
+                        },
+                    ],
+                });
+                params?.onSuccess?.();
+            },
+            onError: (error) => {
+                toast.error("Failed to change user's role", {
+                    description: error.error,
+                });
+                params?.onError?.();
+            },
+        }
+    );
+
+    return mutation;
+}

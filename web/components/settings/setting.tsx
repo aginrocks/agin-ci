@@ -26,7 +26,7 @@ export type SettingProps<
     TFieldValues extends FieldValues = FieldValues,
     TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 > = {
-    title: string;
+    title?: string;
     icon?: Icon;
     description?: ReactNode;
     formControl: Control<TFieldValues>;
@@ -75,20 +75,23 @@ export function Setting<
     defaultValue,
     type = 'text',
     placeholder,
+    className,
     ...props
-}: SettingProps<TFieldValues, TName>) {
+}: SettingProps<TFieldValues, TName> & React.ComponentProps<'div'>) {
     return (
-        <div className="mt-4">
+        <div className={cn('mt-4', className)} {...props}>
             <FormField
                 control={formControl}
                 name={name}
                 defaultValue={defaultValue}
                 render={({ field }) => (
                     <FormItem>
-                        <div className="flex items-center gap-1">
-                            {Icon && <Icon className="text-muted-foreground size-4" />}
-                            <FormLabel>{title}</FormLabel>
-                        </div>
+                        {title && (
+                            <div className="flex items-center gap-1">
+                                {Icon && <Icon className="text-muted-foreground size-4" />}
+                                <FormLabel>{title}</FormLabel>
+                            </div>
+                        )}
                         <FormControl>
                             <div className="max-w-xl">
                                 {type === 'textarea' ? (

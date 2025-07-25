@@ -21,12 +21,25 @@ import {
 import { useAvatar } from '@lib/hooks';
 import { useQuery } from '@tanstack/react-query';
 import { $api } from '@lib/providers/api';
-import { IconKey, IconSettings } from '@tabler/icons-react';
+import { IconCheck, IconCrown, IconKey, IconSettings } from '@tabler/icons-react';
+import clsx from 'clsx';
+import { useGodModeMutation } from '@lib/mutations';
+import { useCallback } from 'react';
 
 export function NavUser() {
     const { isMobile } = useSidebar();
 
     const { data } = useQuery($api.queryOptions('get', '/api/user'));
+
+    const godMode = useQuery($api.queryOptions('get', '/api/god'));
+    const godModeMutation = useGodModeMutation({});
+    const toggleGodMode = useCallback(() => {
+        godModeMutation.mutate({
+            body: {
+                enable: !godMode.data?.enabled,
+            },
+        });
+    }, [godMode.data?.enabled]);
 
     const avatar = useAvatar(data?.email);
 
@@ -84,6 +97,24 @@ export function NavUser() {
                                 <IconKey />
                                 API Keys
                             </DropdownMenuItem>
+                            {data?.role === 'admin' && (
+                                <DropdownMenuItem onClick={toggleGodMode}>
+                                    <IconCrown
+                                        className={clsx({
+                                            'text-amber-600': godMode.data?.enabled,
+                                        })}
+                                    />
+                                    <span
+                                        className={clsx({
+                                            'text-amber-600': godMode.data?.enabled,
+                                        })}
+                                    >
+                                        God Mode
+                                    </span>
+                                    <div className="flex-1" />
+                                    {godMode.data?.enabled && <IconCheck />}
+                                </DropdownMenuItem>
+                            )}
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem>

@@ -4,6 +4,33 @@
  */
 
 export interface paths {
+    "/api/god": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get God Mode status
+         * @description God Mode is a special mode that allows the user to bypass every permission check.
+         *     It can only be anabled by system admins.
+         *
+         *     You'll receive a 403 Forbidden error if you are not allowed to use God Mode.
+         */
+        get: operations["get_god_mode"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Change God Mode status
+         * @description Enable or disable God Mode.
+         */
+        patch: operations["change_god_mode"];
+        trace?: never;
+    };
     "/api/health": {
         parameters: {
             query?: never;
@@ -408,6 +435,12 @@ export interface components {
         ForbiddenError: {
             error: string;
         };
+        GodModeBody: {
+            enable: boolean;
+        };
+        GodModeStatus: {
+            enabled: boolean;
+        };
         Member: {
             _id: string;
             email: string;
@@ -513,6 +546,86 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    get_god_mode: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GodModeStatus"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedError"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForbiddenError"];
+                };
+            };
+        };
+    };
+    change_god_mode: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GodModeBody"];
+            };
+        };
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GodModeStatus"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedError"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForbiddenError"];
+                };
+            };
+        };
+    };
     get_health: {
         parameters: {
             query?: never;

@@ -1,3 +1,4 @@
+mod god;
 mod health;
 mod login;
 mod organizations;
@@ -22,6 +23,7 @@ pub fn routes() -> Vec<Route> {
         tokens::routes(),
         schema::routes(),
         system::routes(),
+        god::routes(),
     ]
     .concat()
 }

@@ -12,12 +12,13 @@ use mongodb::{
     options::ReturnDocument,
 };
 use serde::{Deserialize, Serialize};
+use tower_sessions::Session;
 use utoipa::ToSchema;
 
 use crate::{
     GroupClaims,
     axum_error::{AxumError, AxumResult},
-    database::{AccessToken, User},
+    database::{AccessToken, ServerRole, User},
     state::AppState,
     utils::hash_pat,
 };
@@ -29,8 +30,18 @@ pub struct UserData(pub User);
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct UserId(pub ObjectId);
 
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct GodMode(pub bool);
+
 impl Deref for UserId {
     type Target = ObjectId;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+impl Deref for GodMode {
+    type Target = bool;
 
     fn deref(&self) -> &Self::Target {
         &self.0
@@ -41,6 +52,7 @@ impl Deref for UserId {
 pub async fn require_auth(
     claims: Option<OidcClaims<GroupClaims>>,
     State(state): State<AppState>,
+    session: Session,
     mut request: Request,
     next: Next,
 ) -> AxumResult<Response> {
@@ -104,8 +116,12 @@ pub async fn require_auth(
         .await?
         .wrap_err("User not found (wtf?)")?;
 
+    let god_mode_enabled =
+        session.get::<bool>("god_mode").await?.unwrap_or(false) && user.role == ServerRole::Admin;
+
     request.extensions_mut().insert(UserData(user.clone()));
     request.extensions_mut().insert(UserId(user.id));
+    request.extensions_mut().insert(GodMode(god_mode_enabled));
 
     Ok(next.run(request).await)
 }

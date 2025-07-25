@@ -9,7 +9,7 @@ use utoipa::ToSchema;
 use crate::{
     axum_error::AxumError,
     database::{Organization, OrganizationRole},
-    middlewares::require_auth::UserId,
+    middlewares::require_auth::{GodMode, UserId},
     state::AppState,
 };
 
@@ -81,6 +81,12 @@ macro_rules! impl_org_data_extractor {
                 }
 
                 let org = org.unwrap();
+
+                let god_mode = parts.extensions.get::<GodMode>().unwrap_or(&GodMode(false));
+                if god_mode.0 {
+                    // If God Mode is enabled, skip permission checks
+                    return Ok(Self(org));
+                }
 
                 let membership = org.members.iter().find(|m| &m.user_id == user_id.deref());
 

@@ -8,6 +8,7 @@ export function useOrgRole() {
     const { org_slug } = useParams<{ org_slug: string }>();
 
     const userData = useQuery($api.queryOptions('get', '/api/user'));
+    const godMode = useQuery($api.queryOptions('get', '/api/god'));
 
     const orgs = useQuery(
         $api.queryOptions('get', '/api/organizations/{org_slug}/members', {
@@ -24,5 +25,5 @@ export function useOrgRole() {
         [org_slug, orgs.data, userData.data?._id]
     );
 
-    return { thisMember: thisMember, role: thisMember?.role };
+    return { thisMember: thisMember, role: godMode.data?.enabled ? 'owner' : thisMember?.role };
 }

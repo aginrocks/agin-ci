@@ -10,7 +10,7 @@ use crate::{
     axum_error::{AxumError, AxumResult},
     database::{MutableOrganization, Organization, PartialOrganization},
     middlewares::{
-        require_auth::{UnauthorizedError, UserData, UserId},
+        require_auth::{GodMode, UnauthorizedError, UserData, UserId},
         require_server_permissions::ServerWrite,
     },
     routes::{RouteProtectionLevel, api::CreateSuccess},
@@ -45,13 +45,16 @@ pub fn routes() -> Vec<Route> {
 )]
 async fn get_organizations(
     Extension(user): Extension<UserData>,
+    Extension(GodMode(god_mode)): Extension<GodMode>,
     State(state): State<AppState>,
 ) -> AxumResult<Json<Vec<Organization>>> {
     let cursor = state
         .database
         .collection::<Organization>("organizations")
-        .find(doc! {
-            "members.user_id": user.0.id
+        .find(if god_mode {
+            doc! {}
+        } else {
+            doc! { "members.user_id": user.0.id }
         })
         .await?;
 

@@ -1,9 +1,13 @@
+'use client';
 import { PageHeader } from '@components/page-header';
 import { Button } from '@components/ui/button';
+import { useServerRole } from '@lib/hooks';
 import { IconPlus } from '@tabler/icons-react';
 import Link from 'next/link';
 
 export default function Page() {
+    const role = useServerRole();
+
     return (
         <>
             <PageHeader
@@ -13,12 +17,14 @@ export default function Page() {
                     },
                 ]}
                 rightSection={
-                    <Button asChild>
-                        <Link href="/app/orgs/new">
-                            <IconPlus />
-                            Create Organization
-                        </Link>
-                    </Button>
+                    role !== 'readonly' && (
+                        <Button asChild>
+                            <Link href="/app/orgs/new">
+                                <IconPlus />
+                                Create Organization
+                            </Link>
+                        </Button>
+                    )
                 }
             />
             <div className="flex flex-1 flex-col gap-4 p-4 pt-0">

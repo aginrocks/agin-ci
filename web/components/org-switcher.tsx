@@ -21,7 +21,7 @@ import {
 import { IconCheck } from '@tabler/icons-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useAvatar } from '@lib/hooks';
+import { useAvatar, useOrgRole, useServerRole } from '@lib/hooks';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 
 export type Org = {
@@ -46,6 +46,9 @@ export function OrgSwitcher({ data, activeOrg, onActiveChange, context }: OrgSwi
     const memberCount = activeOrg?.members?.length;
 
     const { org_slug } = useParams<{ org_slug: string }>();
+
+    const role = useServerRole();
+    const orgRole = useOrgRole();
 
     const avatar = useAvatar(activeOrg?.avatar_email);
 
@@ -99,23 +102,28 @@ export function OrgSwitcher({ data, activeOrg, onActiveChange, context }: OrgSwi
                                 {org.slug === activeOrg?.slug && <IconCheck className="ml-auto" />}
                             </DropdownMenuItem>
                         ))}
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="gap-2 p-2" asChild>
-                            <Link
-                                href={
-                                    context === 'org'
-                                        ? '/app/orgs/new'
-                                        : `/app/orgs/${org_slug}/projects/new`
-                                }
-                            >
-                                <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
-                                    <Plus className="size-4" />
-                                </div>
-                                <div className="text-muted-foreground font-medium">
-                                    Create {context === 'org' ? 'Organization' : 'Project'}
-                                </div>
-                            </Link>
-                        </DropdownMenuItem>
+                        {((context === 'org' && role !== 'readonly') ||
+                            (context === 'project' && orgRole.role !== 'viewer')) && (
+                            <>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem className="gap-2 p-2" asChild>
+                                    <Link
+                                        href={
+                                            context === 'org'
+                                                ? '/app/orgs/new'
+                                                : `/app/orgs/${org_slug}/projects/new`
+                                        }
+                                    >
+                                        <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
+                                            <Plus className="size-4" />
+                                        </div>
+                                        <div className="text-muted-foreground font-medium">
+                                            Create {context === 'org' ? 'Organization' : 'Project'}
+                                        </div>
+                                    </Link>
+                                </DropdownMenuItem>
+                            </>
+                        )}
                     </DropdownMenuContent>
                 </DropdownMenu>
             </SidebarMenuItem>

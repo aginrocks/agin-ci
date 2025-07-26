@@ -16,7 +16,7 @@ export interface paths {
          * @description God Mode is a special mode that allows the user to bypass every permission check.
          *     It can only be anabled by system admins.
          *
-         *     You'll receive a 403 Forbidden error if you are not allowed to use God Mode.
+         *     This endpoint won't return a 403 Forbidden error even if you don't have the required permissions to enable God Mode.
          */
         get: operations["get_god_mode"];
         put?: never;
@@ -274,6 +274,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/system/runners": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get runners
+         * @description This endpoint returns all runners that are registered in the system.
+         */
+        get: operations["get_runners"];
+        put?: never;
+        /**
+         * Register runner
+         * @description Registers a new runner in the system. Returns the token that the runner can use to authenticate itself.
+         */
+        post: operations["register_runner"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/system/users": {
         parameters: {
             query?: never;
@@ -441,6 +465,8 @@ export interface components {
         GodModeStatus: {
             enabled: boolean;
         };
+        /** @enum {string} */
+        HostOS: "linux" | "macos" | "windows" | "unknown";
         Member: {
             _id: string;
             email: string;
@@ -497,6 +523,28 @@ export interface components {
         };
         RegenerateSecretResponse: {
             webhook_secret: string;
+        };
+        RegisterRunnerBody: {
+            display_name: string;
+        };
+        RegisterRunnerResponse: {
+            id: string;
+            success: boolean;
+            token: string;
+            uuid: string;
+        };
+        Runner: {
+            _id: string;
+            display_name: string;
+            host_arch?: string | null;
+            host_os?: string | null;
+            host_os_type?: null | components["schemas"]["HostOS"];
+            host_os_version?: string | null;
+            /** Format: date-time */
+            last_ping?: string | null;
+            runner_version?: string | null;
+            /** Format: uuid */
+            uuid: string;
         };
         Scope: {
             permission: components["schemas"]["Permission"];
@@ -571,15 +619,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UnauthorizedError"];
-                };
-            };
-            /** @description Forbidden */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ForbiddenError"];
                 };
             };
         };
@@ -1508,6 +1547,86 @@ export interface operations {
                 };
                 content: {
                     "application/json": string;
+                };
+            };
+        };
+    };
+    get_runners: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Runner"][];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedError"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForbiddenError"];
+                };
+            };
+        };
+    };
+    register_runner: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RegisterRunnerBody"];
+            };
+        };
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RegisterRunnerResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedError"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForbiddenError"];
                 };
             };
         };

@@ -526,6 +526,7 @@ export interface components {
         };
         RegisterRunnerBody: {
             display_name: string;
+            host_os_type: components["schemas"]["HostOS"];
         };
         RegisterRunnerResponse: {
             id: string;

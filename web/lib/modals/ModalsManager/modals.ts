@@ -7,6 +7,7 @@ import { SelectRole } from '../SelectRole';
 import { ModalComponentBindings, ModalDefinition } from './types';
 import { SelectServerRole } from '../SelectServerRole';
 import { ServerRole } from '@/types/server-role';
+import { EditRunner } from '../EditRunner';
 
 export type Modals = {
     ConfirmDeletion: ModalDefinition<{
@@ -49,6 +50,12 @@ export type Modals = {
         };
         returnValue: ServerRole;
     }>;
+    EditRunner: ModalDefinition<{
+        payload: {
+            editId?: string;
+        };
+        returnValue: void;
+    }>;
 };
 
 export const ModalsBinding: ModalComponentBindings = {
@@ -57,4 +64,5 @@ export const ModalsBinding: ModalComponentBindings = {
     OneTimeSecret: OneTimeSecret,
     SelectRole: SelectRole,
     SelectServerRole: SelectServerRole,
+    EditRunner: EditRunner,
 };

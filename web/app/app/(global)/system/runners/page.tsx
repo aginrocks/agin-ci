@@ -11,12 +11,14 @@ import {
     IconBrandApple,
     IconBrandUbuntu,
     IconBrandWindows,
+    IconPlus,
     IconQuestionMark,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
 import { useMemo } from 'react';
 import moment from 'moment';
+import { Button } from '@components/ui/button';
 
 type Runner =
     paths['/api/system/runners']['get']['responses']['200']['content']['application/json'][number];
@@ -116,6 +118,12 @@ export default function Page() {
                         label: 'Runners',
                     },
                 ]}
+                rightSection={
+                    <Button onClick={() => modals.show('EditRunner')}>
+                        <IconPlus />
+                        New Runner
+                    </Button>
+                }
             />
             <div className="p-4 pt-0">
                 {runners.data && <DataTable columns={columns} data={runners.data} />}

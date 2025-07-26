@@ -16,9 +16,10 @@ import {
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import moment from 'moment';
 import { Button } from '@components/ui/button';
+import { useCreateRunnerMutation } from '@lib/mutations';
 
 type Runner =
     paths['/api/system/runners']['get']['responses']['200']['content']['application/json'][number];
@@ -27,6 +28,22 @@ export default function Page() {
     const modals = useModals();
 
     const runners = useQuery($api.queryOptions('get', '/api/system/runners'));
+
+    const createRunner = useCreateRunnerMutation({});
+    const createRunnerAsk = useCallback(async () => {
+        const data = await modals.show('EditRunner');
+        if (!data) return;
+
+        const runnnerData = await createRunner.mutateAsync({
+            body: data,
+        });
+
+        await modals.show('OneTimeSecret', {
+            title: 'Runner Token',
+            description: 'Copy this token and use it to register your runner.',
+            secret: runnnerData.token,
+        });
+    }, []);
 
     const columns: ColumnDef<Runner>[] = useMemo(
         () => [
@@ -119,7 +136,7 @@ export default function Page() {
                     },
                 ]}
                 rightSection={
-                    <Button onClick={() => modals.show('EditRunner')}>
+                    <Button onClick={createRunnerAsk}>
                         <IconPlus />
                         New Runner
                     </Button>

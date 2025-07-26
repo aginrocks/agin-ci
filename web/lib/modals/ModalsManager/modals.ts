@@ -7,7 +7,7 @@ import { SelectRole } from '../SelectRole';
 import { ModalComponentBindings, ModalDefinition } from './types';
 import { SelectServerRole } from '../SelectServerRole';
 import { ServerRole } from '@/types/server-role';
-import { EditRunner } from '../EditRunner';
+import { EditRunner, RunnerEditBody } from '../EditRunner';
 
 export type Modals = {
     ConfirmDeletion: ModalDefinition<{
@@ -52,9 +52,9 @@ export type Modals = {
     }>;
     EditRunner: ModalDefinition<{
         payload: {
-            editId?: string;
+            editData?: RunnerEditBody;
         };
-        returnValue: void;
+        returnValue: RunnerEditBody;
     }>;
 };
 

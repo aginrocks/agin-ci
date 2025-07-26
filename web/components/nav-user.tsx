@@ -112,7 +112,9 @@ export function NavUser() {
                                         God Mode
                                     </span>
                                     <div className="flex-1" />
-                                    {godMode.data?.enabled && <IconCheck />}
+                                    {godMode.data?.enabled && (
+                                        <IconCheck className="text-amber-600" />
+                                    )}
                                 </DropdownMenuItem>
                             )}
                         </DropdownMenuGroup>

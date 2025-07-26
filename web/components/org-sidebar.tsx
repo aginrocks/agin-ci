@@ -70,7 +70,7 @@ export function OrgSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         path[3] = org.slug;
 
                         // If a project is selected, go back to the project list when switching organizations
-                        if (path[4] === 'projects') {
+                        if (path[4] === 'projects' && path[5] !== 'new') {
                             path.splice(5);
                         }
 

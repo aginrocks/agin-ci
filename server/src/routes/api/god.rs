@@ -35,19 +35,17 @@ pub struct GodModeStatus {
 /// God Mode is a special mode that allows the user to bypass every permission check.
 /// It can only be anabled by system admins.
 ///
-/// You'll receive a 403 Forbidden error if you are not allowed to use God Mode.
+/// This endpoint won't return a 403 Forbidden error even if you don't have the required permissions to enable God Mode.
 #[utoipa::path(
     method(get),
     path = PATH,
     responses(
         (status = OK, description = "Success", body = GodModeStatus, content_type = "application/json"),
         (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError, content_type = "application/json"),
-        (status = FORBIDDEN, description = "Forbidden", body = ForbiddenError, content_type = "application/json")
     ),
     tag = "God Mode"
 )]
 async fn get_god_mode(
-    _: ServerAdmin,
     Extension(GodMode(enabled)): Extension<GodMode>,
 ) -> AxumResult<Json<GodModeStatus>> {
     Ok(Json(GodModeStatus { enabled }))

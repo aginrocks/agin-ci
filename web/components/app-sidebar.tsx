@@ -13,7 +13,6 @@ import {
 import { NavMain, NavMainSubItem } from '@/components/nav-main';
 import { NavSecondary } from '@/components/nav-secondary';
 import { NavUser } from '@/components/nav-user';
-import Image from 'next/image';
 import {
     Sidebar,
     SidebarContent,
@@ -22,14 +21,15 @@ import {
     SidebarMenu,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import { $api } from '@lib/providers/api';
 import { navSecondary } from './sidebar-common';
 import { Logo } from './logo';
+import { useServerRole } from '@lib/hooks';
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const organizations = useQuery($api.queryOptions('get', '/api/organizations'));
+    const role = useServerRole();
 
     const sidebarOrgs = React.useMemo(
         () =>
@@ -74,31 +74,33 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     ]}
                     title="General"
                 />
-                <NavMain
-                    items={[
-                        {
-                            icon: IconServer,
-                            title: 'Runners',
-                            url: '/app/system/runners',
-                        },
-                        {
-                            icon: IconUsers,
-                            title: 'Users',
-                            url: '/app/system/users',
-                        },
-                        {
-                            icon: IconHistory,
-                            title: 'Logs',
-                            url: '/app/system/logs',
-                        },
-                        {
-                            icon: IconSettings,
-                            title: 'Settings',
-                            url: '/app/system/settings',
-                        },
-                    ]}
-                    title="System"
-                />
+                {role === 'admin' && (
+                    <NavMain
+                        items={[
+                            {
+                                icon: IconServer,
+                                title: 'Runners',
+                                url: '/app/system/runners',
+                            },
+                            {
+                                icon: IconUsers,
+                                title: 'Users',
+                                url: '/app/system/users',
+                            },
+                            {
+                                icon: IconHistory,
+                                title: 'Logs',
+                                url: '/app/system/logs',
+                            },
+                            {
+                                icon: IconSettings,
+                                title: 'Settings',
+                                url: '/app/system/settings',
+                            },
+                        ]}
+                        title="System"
+                    />
+                )}
                 <NavSecondary items={navSecondary} className="mt-auto" />
             </SidebarContent>
             <SidebarFooter>

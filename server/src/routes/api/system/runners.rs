@@ -11,7 +11,7 @@ use validator::Validate;
 
 use crate::{
     axum_error::AxumResult,
-    database::{PartialRunner, Runner},
+    database::{HostOS, PartialRunner, Runner},
     middlewares::{
         require_auth::UnauthorizedError, require_org_permissions::ForbiddenError,
         require_server_permissions::ServerAdmin,
@@ -67,6 +67,8 @@ async fn get_runners(
 pub struct RegisterRunnerBody {
     #[validate(length(min = 1, max = 32))]
     pub display_name: String,
+
+    pub host_os_type: HostOS,
 }
 
 #[derive(Serialize, ToSchema)]
@@ -101,7 +103,7 @@ async fn register_runner(
     let runner = PartialRunner {
         display_name: body.display_name,
         uuid,
-        host_os_type: None,
+        host_os_type: Some(body.host_os_type),
         host_os: None,
         host_os_version: None,
         host_arch: None,

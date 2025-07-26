@@ -1,34 +1,22 @@
 'use client';
 import { paths } from '@/types/api';
-import { OrgRole } from '@/types/org-role';
-import { ServerRole } from '@/types/server-role';
 import { DataTable } from '@components/data-table';
 import { PageHeader } from '@components/page-header';
-import { Avatar, AvatarFallback, AvatarImage } from '@components/ui/avatar';
 import { Badge } from '@components/ui/badge';
-import { Button } from '@components/ui/button';
-import { useAvatar, useOrg } from '@lib/hooks';
-import { useOrgRole } from '@lib/hooks/use-org-role';
+import { StatusBadge } from '@components/ui/status-badge';
 import { useModals } from '@lib/modals/ModalsManager';
-import { useChangeRoleMutation, useRemoveMemberMutation } from '@lib/mutations';
-import { useChangeSystemRoleMutation } from '@lib/mutations/system';
 import { $api } from '@lib/providers/api';
 import {
     Icon,
-    IconArrowRight,
     IconBrandApple,
     IconBrandUbuntu,
     IconBrandWindows,
-    IconCrown,
-    IconEye,
-    IconPencil,
     IconQuestionMark,
-    IconUser,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
-import clsx from 'clsx';
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
+import moment from 'moment';
 
 type Runner =
     paths['/api/system/runners']['get']['responses']['200']['content']['application/json'][number];
@@ -50,11 +38,11 @@ export default function Page() {
                 minSize: 300,
                 cell: ({ row }) => {
                     const host_os_type = row.original.host_os_type || 'unknown';
-                    const icons: Record<typeof host_os_type, Icon> = {
+                    const icons: Record<typeof host_os_type, Icon | null> = {
                         linux: IconBrandUbuntu,
                         macos: IconBrandApple,
                         windows: IconBrandWindows,
-                        unknown: IconQuestionMark,
+                        unknown: null,
                     };
                     const osLabels: Record<typeof host_os_type, string> = {
                         linux: 'Linux',
@@ -67,7 +55,7 @@ export default function Page() {
                     return (
                         <div className="flex gap-1.5">
                             <Badge variant="secondary">
-                                <Icon />
+                                {Icon && <Icon />}
                                 {osLabels[host_os_type]}
                             </Badge>
                             {row.original.host_os && (
@@ -91,8 +79,26 @@ export default function Page() {
             {
                 minSize: 180,
                 maxSize: 180,
-                accessorKey: 'last_ping',
                 header: 'Status',
+                cell: ({ row }) => {
+                    const active = row.original.last_ping
+                        ? new Date(row.original.last_ping) > new Date(Date.now() - 60 * 1000)
+                        : false;
+
+                    return (
+                        <StatusBadge
+                            variant={
+                                row.original.last_ping ? (active ? 'success' : 'disabled') : 'error'
+                            }
+                        >
+                            {row.original.last_ping
+                                ? active
+                                    ? 'Online'
+                                    : `Last seen ${moment(row.original.last_ping).fromNow()}`
+                                : 'Never Connected'}
+                        </StatusBadge>
+                    );
+                },
             },
         ],
         []

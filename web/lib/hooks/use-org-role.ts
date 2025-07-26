@@ -25,5 +25,12 @@ export function useOrgRole() {
         [org_slug, orgs.data, userData.data?._id]
     );
 
-    return { thisMember: thisMember, role: godMode.data?.enabled ? 'owner' : thisMember?.role };
+    return {
+        thisMember: thisMember,
+        role: godMode.data?.enabled
+            ? 'owner'
+            : userData.data?.role === 'readonly'
+              ? 'viewer'
+              : thisMember?.role,
+    };
 }

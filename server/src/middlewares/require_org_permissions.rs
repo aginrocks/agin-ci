@@ -8,8 +8,8 @@ use utoipa::ToSchema;
 
 use crate::{
     axum_error::AxumError,
-    database::{Organization, OrganizationRole},
-    middlewares::require_auth::{GodMode, UserId},
+    database::{Organization, OrganizationRole, ServerRole},
+    middlewares::require_auth::{GodMode, UserData, UserId},
     state::AppState,
 };
 
@@ -53,6 +53,19 @@ macro_rules! impl_org_data_extractor {
                     .extensions
                     .get::<UserId>()
                     .ok_or(AxumError::unauthorized(eyre::eyre!("Unauthorized")))?;
+
+                let user_data = parts
+                    .extensions
+                    .get::<UserData>()
+                    .ok_or(AxumError::unauthorized(eyre::eyre!("Unauthorized")))?;
+
+                if user_data.0.role == ServerRole::ReadOnly
+                    && $required_role != OrganizationRole::Viewer
+                {
+                    return Err(AxumError::forbidden(eyre::eyre!(
+                        "You do not have sufficient permissions to perform this action"
+                    )));
+                }
 
                 // Extract org_slug from the request path
                 let org_slug = params

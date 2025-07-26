@@ -3,7 +3,7 @@ use chrono::{DateTime, Utc};
 use color_eyre::eyre::Result;
 use mongodb::{
     Client, Database,
-    bson::{Uuid, doc, oid::ObjectId},
+    bson::{doc, oid::ObjectId},
 };
 use partial_struct::Partial;
 use serde::{Deserialize, Serialize};
@@ -17,6 +17,7 @@ use tower_sessions_redis_store::{
     fred::prelude::{ClientLike, Config, Pool},
 };
 use utoipa::ToSchema;
+use uuid::Uuid;
 use validator::Validate;
 use visible::StructFields;
 
@@ -307,7 +308,7 @@ pub struct PublicProject {
     pub repository: PublicProjectRepository,
 }
 
-database_object!(Worker {
+database_object!(Runner {
     #[serde(rename = "_id", with = "object_id_as_string_required")]
     #[schema(value_type = String)]
     id: ObjectId,
@@ -373,10 +374,10 @@ database_object!(JobRun {
 
     #[schema(value_type = String)]
     #[serde(with = "object_id_as_string_required")]
-    worker: ObjectId,
+    runner: ObjectId,
 
     #[schema(value_type = String)]
-    worker_uuid: ObjectId,
+    runner_uuid: ObjectId,
 });
 
 database_object!(Workflow {

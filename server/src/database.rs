@@ -308,14 +308,28 @@ pub struct PublicProject {
     pub repository: PublicProjectRepository,
 }
 
+#[derive(Serialize, Deserialize, ToSchema, Clone, Debug)]
+#[serde(rename_all = "lowercase")]
+pub enum HostOS {
+    Linux,
+    MacOS,
+    Windows,
+    Unknown,
+}
+
 database_object!(Runner {
     #[serde(rename = "_id", with = "object_id_as_string_required")]
     #[schema(value_type = String)]
     id: ObjectId,
 
     uuid: Uuid,
-
     display_name: String,
+    host_os_type: Option<HostOS>,
+    host_os: Option<String>,
+    host_os_version: Option<String>,
+    host_arch: Option<String>,
+    runner_version: Option<String>,
+    last_ping: Option<DateTime<Utc>>,
 });
 
 #[derive(Serialize, Deserialize, ToSchema, Clone, Debug)]

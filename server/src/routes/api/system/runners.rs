@@ -101,6 +101,12 @@ async fn register_runner(
     let runner = PartialRunner {
         display_name: body.display_name,
         uuid,
+        host_os_type: None,
+        host_os: None,
+        host_os_version: None,
+        host_arch: None,
+        last_ping: None,
+        runner_version: None,
     };
 
     let inserted = state

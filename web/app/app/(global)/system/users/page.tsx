@@ -1,16 +1,13 @@
 'use client';
 import { paths } from '@/types/api';
-import { OrgRole } from '@/types/org-role';
 import { ServerRole } from '@/types/server-role';
 import { DataTable } from '@components/data-table';
 import { PageHeader } from '@components/page-header';
 import { Avatar, AvatarFallback, AvatarImage } from '@components/ui/avatar';
 import { Badge } from '@components/ui/badge';
 import { Button } from '@components/ui/button';
-import { useAvatar, useOrg } from '@lib/hooks';
-import { useOrgRole } from '@lib/hooks/use-org-role';
+import { useAvatar } from '@lib/hooks';
 import { useModals } from '@lib/modals/ModalsManager';
-import { useChangeRoleMutation, useRemoveMemberMutation } from '@lib/mutations';
 import { useChangeSystemRoleMutation } from '@lib/mutations/system';
 import { $api } from '@lib/providers/api';
 import {

@@ -1,4 +1,6 @@
-use axum::{Extension, Json, extract::State};
+mod runner_id;
+
+use axum::{Json, extract::State};
 use axum_valid::Valid;
 use color_eyre::eyre::{Context, ContextCompat};
 use futures::TryStreamExt;
@@ -25,10 +27,14 @@ use super::Route;
 const PATH: &str = "/api/system/runners";
 
 pub fn routes() -> Vec<Route> {
-    vec![(
-        routes!(get_runners, register_runner),
-        RouteProtectionLevel::Authenticated,
-    )]
+    [
+        vec![(
+            routes!(get_runners, register_runner),
+            RouteProtectionLevel::Authenticated,
+        )],
+        runner_id::routes(),
+    ]
+    .concat()
 }
 
 /// Get runners

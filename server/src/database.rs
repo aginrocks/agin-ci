@@ -317,6 +317,12 @@ pub enum HostOS {
     Unknown,
 }
 
+impl From<HostOS> for mongodb::bson::Bson {
+    fn from(scope: HostOS) -> Self {
+        mongodb::bson::to_bson(&scope).expect("Failed to convert to BSON")
+    }
+}
+
 database_object!(Runner {
     #[serde(rename = "_id", with = "object_id_as_string_required")]
     #[schema(value_type = String)]

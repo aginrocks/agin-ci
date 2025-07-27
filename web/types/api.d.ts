@@ -298,6 +298,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/system/runners/{runner_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Edit runner
+         * @description Edit runner's details.
+         */
+        patch: operations["edit_runner"];
+        trace?: never;
+    };
     "/api/system/users": {
         parameters: {
             query?: never;
@@ -1029,11 +1049,13 @@ export interface operations {
         };
         responses: {
             /** @description Success */
-            204: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["CreateSuccess"];
+                };
             };
             /** @description Unauthorized */
             401: {
@@ -1610,6 +1632,51 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RegisterRunnerResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedError"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForbiddenError"];
+                };
+            };
+        };
+    };
+    edit_runner: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Runner ID */
+                runner_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RegisterRunnerBody"];
+            };
+        };
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreateSuccess"];
                 };
             };
             /** @description Unauthorized */

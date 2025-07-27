@@ -24,3 +24,24 @@ export function useCreateRunnerMutation(params: AdditionalParams) {
 
     return mutation;
 }
+
+export function useEditRunnerMutation(params: AdditionalParams) {
+    const queryClient = useQueryClient();
+
+    const mutation = $api.useMutation('patch', '/api/system/runners/{runner_id}', {
+        onSuccess: (data, options) => {
+            queryClient.invalidateQueries({
+                queryKey: ['get', '/api/system/runners'],
+            });
+            params?.onSuccess?.();
+        },
+        onError: (error, options) => {
+            toast.error('Failed to edit runner', {
+                description: error.error,
+            });
+            params?.onError?.();
+        },
+    });
+
+    return mutation;
+}

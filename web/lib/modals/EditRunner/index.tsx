@@ -49,13 +49,16 @@ export function EditRunner({
             host_os_type: 'linux',
             display_name: '',
         },
+        values: payload?.editData,
     });
+
+    const isEditing = !!payload?.editData;
 
     return (
         <Dialog {...props}>
             <DialogContent className="w-md">
                 <DialogHeader>
-                    <DialogTitle>Add a Runner</DialogTitle>
+                    <DialogTitle>{isEditing ? 'Edit' : 'Add'} a Runner</DialogTitle>
                     <DialogDescription>Choose runner's host OS and enter a name.</DialogDescription>
                 </DialogHeader>
                 <Form {...form}>
@@ -103,7 +106,7 @@ export function EditRunner({
                         </div>
                         <div className="flex justify-end gap-2 mt-2">
                             <Button type="submit" variant="default">
-                                Add Runner
+                                {isEditing ? 'Update' : 'Add'} Runner
                             </Button>
                         </div>
                     </form>

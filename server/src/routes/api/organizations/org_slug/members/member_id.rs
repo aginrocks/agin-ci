@@ -103,7 +103,7 @@ struct EditRoleBody {
     ),
     request_body = EditRoleBody,
     responses(
-        (status = NO_CONTENT, description = "Success"),
+        (status = OK, description = "Success", body = CreateSuccess, content_type = "application/json"),
         (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError, content_type = "application/json"),
         (status = FORBIDDEN, description = "Forbidden", body = ForbiddenError, content_type = "application/json")
     ),

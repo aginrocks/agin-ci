@@ -10,7 +10,7 @@ export function useChangeSystemRoleMutation(params: AdditionalParams) {
 
     const mutation = $api.useMutation('patch', '/api/system/users/{user_id}', {
         onSuccess: (data, options) => {
-            toast.success('Project settings updated successfully');
+            toast.success('User updated successfully');
             if (options.params.path.user_id === currentUser.data?._id) {
                 queryClient.invalidateQueries({
                     queryKey: ['get', '/api/user'],
@@ -28,7 +28,7 @@ export function useChangeSystemRoleMutation(params: AdditionalParams) {
             params?.onSuccess?.();
         },
         onError: (error) => {
-            toast.error('Failed to update project settings', {
+            toast.error('Failed to update user', {
                 description: error.error,
             });
             params?.onError?.();

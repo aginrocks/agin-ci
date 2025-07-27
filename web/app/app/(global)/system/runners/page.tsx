@@ -11,18 +11,21 @@ import {
     IconBrandApple,
     IconBrandUbuntu,
     IconBrandWindows,
+    IconPencil,
     IconPlus,
-    IconQuestionMark,
+    IconTrash,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
 import { useCallback, useMemo } from 'react';
 import moment from 'moment';
 import { Button } from '@components/ui/button';
-import { useCreateRunnerMutation } from '@lib/mutations';
+import { useCreateRunnerMutation, useEditRunnerMutation } from '@lib/mutations';
 
 type Runner =
     paths['/api/system/runners']['get']['responses']['200']['content']['application/json'][number];
+
+// TODO: Fix the tables
 
 export default function Page() {
     const modals = useModals();
@@ -45,10 +48,31 @@ export default function Page() {
         });
     }, []);
 
+    const editRunner = useEditRunnerMutation({});
+    const editRunnerAsk = useCallback(async (runnerData: Runner) => {
+        const data = await modals.show('EditRunner', {
+            editData: {
+                display_name: runnerData.display_name,
+                host_os_type: runnerData.host_os_type || 'unknown',
+            },
+        });
+        if (!data) return;
+
+        editRunner.mutate({
+            body: data,
+            params: {
+                path: {
+                    runner_id: runnerData._id,
+                },
+            },
+        });
+    }, []);
+
     const columns: ColumnDef<Runner>[] = useMemo(
         () => [
             {
-                minSize: 200,
+                // minSize: 150,
+                size: 150,
                 accessorKey: 'display_name',
                 header: 'Name',
             },
@@ -118,6 +142,27 @@ export default function Page() {
                         </StatusBadge>
                     );
                 },
+            },
+            {
+                id: 'actions',
+                maxSize: 80,
+                size: 80,
+                cell: ({ row }) => (
+                    <div className="flex gap-1">
+                        <Button
+                            variant="ghost"
+                            size="xsIcon"
+                            onClick={() => {
+                                editRunnerAsk(row.original);
+                            }}
+                        >
+                            <IconPencil />
+                        </Button>
+                        <Button variant="ghostDestructive" size="xsIcon" onClick={() => {}}>
+                            <IconTrash />
+                        </Button>
+                    </div>
+                ),
             },
         ],
         []

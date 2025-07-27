@@ -2,7 +2,7 @@ use aginci_core::{
     runner_messages::report_progress::{OrderedReport, ProgressReport, ProgressReportStep},
     workflow::{Job, step_executor::StepExecutor, steps::StepInfo},
 };
-use color_eyre::eyre::{Result, bail, eyre};
+use color_eyre::eyre::{Result, bail};
 use tracing::info;
 
 use crate::socket;

@@ -45,3 +45,25 @@ export function useEditRunnerMutation(params: AdditionalParams) {
 
     return mutation;
 }
+
+export function useDeleteRunnerMutation(params: AdditionalParams) {
+    const queryClient = useQueryClient();
+
+    const mutation = $api.useMutation('delete', '/api/system/runners/{runner_id}', {
+        onSuccess: (data, options) => {
+            toast.success('Runner deleted successfully');
+            queryClient.invalidateQueries({
+                queryKey: ['get', '/api/system/runners'],
+            });
+            params?.onSuccess?.();
+        },
+        onError: (error, options) => {
+            toast.error('Failed to delete runner', {
+                description: error.error,
+            });
+            params?.onError?.();
+        },
+    });
+
+    return mutation;
+}

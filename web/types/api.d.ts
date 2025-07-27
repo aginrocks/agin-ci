@@ -308,7 +308,11 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete?: never;
+        /**
+         * Delete runner
+         * @description Permanently delete a runner without deleting the job runs associated with it.
+         */
+        delete: operations["delete_runner"];
         options?: never;
         head?: never;
         /**
@@ -1633,6 +1637,45 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["RegisterRunnerResponse"];
                 };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedError"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForbiddenError"];
+                };
+            };
+        };
+    };
+    delete_runner: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Runner ID */
+                runner_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Unauthorized */
             401: {

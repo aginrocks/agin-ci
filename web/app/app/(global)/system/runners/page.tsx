@@ -20,7 +20,11 @@ import { ColumnDef } from '@tanstack/react-table';
 import { useCallback, useMemo } from 'react';
 import moment from 'moment';
 import { Button } from '@components/ui/button';
-import { useCreateRunnerMutation, useEditRunnerMutation } from '@lib/mutations';
+import {
+    useCreateRunnerMutation,
+    useDeleteRunnerMutation,
+    useEditRunnerMutation,
+} from '@lib/mutations';
 
 type Runner =
     paths['/api/system/runners']['get']['responses']['200']['content']['application/json'][number];
@@ -60,6 +64,26 @@ export default function Page() {
 
         editRunner.mutate({
             body: data,
+            params: {
+                path: {
+                    runner_id: runnerData._id,
+                },
+            },
+        });
+    }, []);
+
+    const deleteRunner = useDeleteRunnerMutation({});
+    const deleteRunnerConfirm = useCallback(async (runnerData: Runner) => {
+        const confirmed = await modals.show('Confirm', {
+            title: 'Delete Runner',
+            description: `Are you sure you want to delete the runner "${runnerData.display_name}"? This action cannot be undone. Job runs associated with this runner will not be affected.`,
+            confirmText: 'Delete',
+            cancelText: 'Cancel',
+            destructive: true,
+        });
+        if (!confirmed) return;
+
+        deleteRunner.mutate({
             params: {
                 path: {
                     runner_id: runnerData._id,
@@ -158,7 +182,13 @@ export default function Page() {
                         >
                             <IconPencil />
                         </Button>
-                        <Button variant="ghostDestructive" size="xsIcon" onClick={() => {}}>
+                        <Button
+                            variant="ghostDestructive"
+                            size="xsIcon"
+                            onClick={() => {
+                                deleteRunnerConfirm(row.original);
+                            }}
+                        >
                             <IconTrash />
                         </Button>
                     </div>

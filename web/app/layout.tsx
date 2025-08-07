@@ -49,6 +49,14 @@ export default function RootLayout({
                         defaultTheme="system"
                         enableSystem
                         disableTransitionOnChange
+                        themes={[
+                            'light',
+                            'dark',
+                            'mocha-mauve',
+                            'frappe-mauve',
+                            'latte-mauve',
+                            'macchiato-mauve',
+                        ]}
                     >
                         <ModalsManagerProvider>
                             {children}

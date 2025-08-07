@@ -9,7 +9,11 @@ import {
     DropdownMenuGroup,
     DropdownMenuItem,
     DropdownMenuLabel,
+    DropdownMenuPortal,
     DropdownMenuSeparator,
+    DropdownMenuSub,
+    DropdownMenuSubContent,
+    DropdownMenuSubTrigger,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
@@ -21,13 +25,25 @@ import {
 import { useAvatar } from '@lib/hooks';
 import { useQuery } from '@tanstack/react-query';
 import { $api } from '@lib/providers/api';
-import { IconCheck, IconCrown, IconKey, IconSettings } from '@tabler/icons-react';
+import {
+    IconBrush,
+    IconCheck,
+    IconCrown,
+    IconKey,
+    IconMoon,
+    IconSettings,
+    IconSun,
+    IconSunMoon,
+} from '@tabler/icons-react';
 import clsx from 'clsx';
 import { useGodModeMutation } from '@lib/mutations';
-import { useCallback } from 'react';
+import { Fragment, useCallback } from 'react';
+import { THEMES } from '@lib/themes';
+import { useTheme } from 'next-themes';
 
 export function NavUser() {
     const { isMobile } = useSidebar();
+    const { theme, setTheme } = useTheme();
 
     const { data } = useQuery($api.queryOptions('get', '/api/user'));
 
@@ -97,6 +113,37 @@ export function NavUser() {
                                 <IconKey />
                                 API Keys
                             </DropdownMenuItem>
+                            <DropdownMenuSub>
+                                <DropdownMenuSubTrigger className="flex items-center">
+                                    <IconBrush className="mr-2 size-4 text-muted-foreground" />
+                                    Theme
+                                </DropdownMenuSubTrigger>
+                                <DropdownMenuPortal>
+                                    <DropdownMenuSubContent className="w-48">
+                                        {THEMES.map((t, i) =>
+                                            t.type === 'separator' ? (
+                                                <Fragment key={i}>
+                                                    <DropdownMenuSeparator />
+                                                    <div className="text-xs text-muted-foreground font-medium px-2 py-1">
+                                                        Catppuccin
+                                                    </div>
+                                                </Fragment>
+                                            ) : (
+                                                <DropdownMenuItem
+                                                    key={t.className}
+                                                    onClick={() => setTheme(t.className)}
+                                                    className="justify-between items-center"
+                                                >
+                                                    <div className="flex items-center gap-2">
+                                                        {t.icon && <t.icon />} {t.label}
+                                                    </div>
+                                                    {theme === t.className && <IconCheck />}
+                                                </DropdownMenuItem>
+                                            )
+                                        )}
+                                    </DropdownMenuSubContent>
+                                </DropdownMenuPortal>
+                            </DropdownMenuSub>
                             {data?.role === 'admin' && (
                                 <DropdownMenuItem onClick={toggleGodMode}>
                                     <IconCrown

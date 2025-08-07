@@ -29,3 +29,8 @@ export function formatDuration(seconds: number): string {
 
     return result.trim();
 }
+
+export function prependClassName<T extends HTMLElement>(element: T, newClassName: string): void {
+    const classes: string[] = element.className.trim().split(/\s+/).filter(Boolean);
+    element.className = [newClassName, ...classes.filter((cls) => cls !== newClassName)].join(' ');
+}

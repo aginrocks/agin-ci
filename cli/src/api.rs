@@ -10,11 +10,10 @@ use crate::config::init_config;
 static API_CONFIG: OnceCell<Arc<Configuration>> = OnceCell::const_new();
 
 pub fn create_api_config(base_url: &str, token: &str) -> Result<Configuration> {
-    let mut headers = HeaderMap::new();
-    headers.insert(
+    let headers = HeaderMap::from_iter([(
         AUTHORIZATION,
         format!("Bearer {token}").parse().into_diagnostic()?,
-    );
+    )]);
 
     let client = reqwest::Client::builder()
         .default_headers(headers)

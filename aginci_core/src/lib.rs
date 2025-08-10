@@ -1,5 +1,5 @@
 use base64::{Engine, engine::general_purpose};
-use color_eyre::eyre::Result;
+use color_eyre::eyre::{Result, bail};
 use rand::{Rng, distr::Alphanumeric};
 use serde::{Deserialize, Serialize};
 use serde_json::Error;
@@ -28,6 +28,12 @@ impl RunnerRegistrationMetadata {
         let stringified = serde_json::to_string(self)?;
         let encoded = general_purpose::STANDARD.encode(stringified);
         Ok(encoded)
+    }
+
+    pub fn decode(encoded: &str) -> Result<Self> {
+        let decoded = general_purpose::STANDARD.decode(encoded)?;
+        let metadata: Self = serde_json::from_slice(&decoded)?;
+        Ok(metadata)
     }
 }
 
@@ -59,5 +65,19 @@ impl RunnerRegistration {
             "aginci.runnerreg.{token}.{metadata_encoded}",
             token = self.token
         ))
+    }
+
+    pub fn decode(encoded: &str) -> Result<Self> {
+        let parts = encoded.splitn(4, '.').collect::<Vec<_>>();
+        if parts.len() != 4 || parts[0] != "aginci" || parts[1] != "runnerreg" {
+            bail!("Invalid registration token format");
+        }
+
+        let token = parts[2].to_string();
+        let metadata_encoded = parts[3];
+
+        let metadata = RunnerRegistrationMetadata::decode(metadata_encoded)?;
+
+        Ok(RunnerRegistration::new(metadata, token))
     }
 }

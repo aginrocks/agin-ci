@@ -72,12 +72,13 @@ async fn main() -> Result<()> {
 
     let database = init_database(&settings).await?;
 
-    let pulsar = init_pulsar(&settings).await?;
+    let (pulsar, pulsar_admin) = init_pulsar(&settings).await?;
 
     let app_state = AppState {
         database,
         settings: settings.clone(),
         pulsar,
+        pulsar_admin,
     };
 
     let session_layer = init_session_store(&settings).await?;

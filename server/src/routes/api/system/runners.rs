@@ -1,3 +1,4 @@
+mod register;
 mod runner_id;
 
 use aginci_core::{RunnerRegistration, RunnerRegistrationMetadata};
@@ -31,10 +32,11 @@ const PATH: &str = "/api/system/runners";
 pub fn routes() -> Vec<Route> {
     [
         vec![(
-            routes!(get_runners, register_runner),
+            routes!(get_runners, create_runner),
             RouteProtectionLevel::Authenticated,
         )],
         runner_id::routes(),
+        register::routes(),
     ]
     .concat()
 }
@@ -87,9 +89,9 @@ pub struct RegisterRunnerResponse {
     pub token: String,
 }
 
-/// Register runner
+/// Create runner
 ///
-/// Registers a new runner in the system. Returns the token that the runner can use to authenticate itself.
+/// Creates a new runner in the system. Returns a token that the runner can use to register itself.
 #[utoipa::path(
     method(post),
     path = PATH,
@@ -101,7 +103,7 @@ pub struct RegisterRunnerResponse {
     request_body = RegisterRunnerBody,
     tag = "System"
 )]
-async fn register_runner(
+async fn create_runner(
     State(state): State<AppState>,
     _: ServerAdmin,
     Valid(Json(body)): Valid<Json<RegisterRunnerBody>>,

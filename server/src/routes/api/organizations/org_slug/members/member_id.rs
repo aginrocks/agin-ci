@@ -63,7 +63,7 @@ async fn delete_organization_member(
 ) -> AxumResult<impl IntoResponse> {
     let member_id = ObjectId::parse_str(&member_id)?;
 
-    if user_id.0 == member_id {
+    if *user_id == member_id {
         return Err(AxumError::forbidden(eyre::eyre!(
             "Cannot remove yourself from the organization. Use the leave organization endpoint instead."
         )));

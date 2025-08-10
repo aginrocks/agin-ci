@@ -1,11 +1,13 @@
 mod runner_id;
 
+use aginci_core::{RunnerRegistration, RunnerRegistrationMetadata};
 use axum::{Json, extract::State};
 use axum_valid::Valid;
 use color_eyre::eyre::{Context, ContextCompat};
 use futures::TryStreamExt;
 use mongodb::bson::doc;
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 use utoipa::ToSchema;
 use utoipa_axum::routes;
 use uuid::Uuid;
@@ -106,6 +108,14 @@ async fn register_runner(
 ) -> AxumResult<Json<RegisterRunnerResponse>> {
     let uuid = Uuid::new_v4();
 
+    let registration = RunnerRegistration::new_random(RunnerRegistrationMetadata::new(
+        state.settings.general.public_url.to_string(),
+    ));
+
+    let token = registration
+        .encode()
+        .wrap_err("Failed to encode runner registration")?;
+
     let runner = PartialRunner {
         display_name: body.display_name,
         uuid,
@@ -115,6 +125,7 @@ async fn register_runner(
         host_arch: None,
         last_ping: None,
         runner_version: None,
+        token_hash: Some(format!("{:x}", Sha256::digest(registration.token))),
     };
 
     let inserted = state
@@ -129,12 +140,10 @@ async fn register_runner(
         .as_object_id()
         .wrap_err("Failed to fetch runner ID")?;
 
-    // TODO: Sign a Pulsar token and create a Pulsar namespace for the runner
-
     Ok(Json(RegisterRunnerResponse {
         success: true,
         id: id.to_string(),
         uuid: uuid.to_string(),
-        token: "".to_string(),
+        token,
     }))
 }

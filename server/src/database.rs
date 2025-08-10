@@ -336,6 +336,7 @@ database_object!(Runner {
     host_arch: Option<String>,
     runner_version: Option<String>,
     last_ping: Option<DateTime<Utc>>,
+    token_hash: Option<String>,
 });
 
 #[derive(Serialize, Deserialize, ToSchema, Clone, Debug)]

@@ -9,11 +9,12 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { Icon, IconCrown } from '@tabler/icons-react';
+import { Icon, IconCrown, IconSkull } from '@tabler/icons-react';
 import Link from 'next/link';
 import { Badge } from './ui/badge';
 import { useQuery } from '@tanstack/react-query';
 import { $api } from '@lib/providers/api';
+import { useSkipConfirm } from '@lib/hooks';
 
 export function NavSecondary({
     items,
@@ -26,13 +27,20 @@ export function NavSecondary({
     }[];
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
     const godMode = useQuery($api.queryOptions('get', '/api/god'));
+    const skipConfirm = useSkipConfirm();
 
     return (
         <SidebarGroup {...props}>
             <SidebarGroupContent>
                 <SidebarMenu>
+                    {skipConfirm && (
+                        <Badge variant="secondary" className="bg-red-400/20 text-red-400 mb-1 ml-2">
+                            <IconSkull />
+                            Deleting Without Confirmation
+                        </Badge>
+                    )}
                     {godMode.data?.enabled && (
-                        <Badge variant="secondary" className="bg-amber-600 mb-1 ml-2">
+                        <Badge variant="secondary" className="bg-amber-600 text-white mb-1 ml-2">
                             <IconCrown />
                             God Mode Enabled
                         </Badge>

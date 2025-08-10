@@ -25,6 +25,7 @@ import {
     useDeleteRunnerMutation,
     useEditRunnerMutation,
 } from '@lib/mutations';
+import { useSkipConfirm } from '@lib/hooks';
 
 type Runner =
     paths['/api/system/runners']['get']['responses']['200']['content']['application/json'][number];
@@ -33,6 +34,7 @@ type Runner =
 
 export default function Page() {
     const modals = useModals();
+    const skipConfirm = useSkipConfirm();
 
     const runners = useQuery($api.queryOptions('get', '/api/system/runners'));
 
@@ -73,24 +75,30 @@ export default function Page() {
     }, []);
 
     const deleteRunner = useDeleteRunnerMutation({});
-    const deleteRunnerConfirm = useCallback(async (runnerData: Runner) => {
-        const confirmed = await modals.show('Confirm', {
-            title: 'Delete Runner',
-            description: `Are you sure you want to delete the runner "${runnerData.display_name}"? This action cannot be undone. Job runs associated with this runner will not be affected.`,
-            confirmText: 'Delete',
-            cancelText: 'Cancel',
-            destructive: true,
-        });
-        if (!confirmed) return;
+    const deleteRunnerConfirm = useCallback(
+        async (runnerData: Runner) => {
+            console.log({ skipConfirm });
+            if (!skipConfirm) {
+                const confirmed = await modals.show('Confirm', {
+                    title: 'Delete Runner',
+                    description: `Are you sure you want to delete the runner "${runnerData.display_name}"? This action cannot be undone. Job runs associated with this runner will not be affected.`,
+                    confirmText: 'Delete',
+                    cancelText: 'Cancel',
+                    destructive: true,
+                });
+                if (!confirmed) return;
+            }
 
-        deleteRunner.mutate({
-            params: {
-                path: {
-                    runner_id: runnerData._id,
+            deleteRunner.mutate({
+                params: {
+                    path: {
+                        runner_id: runnerData._id,
+                    },
                 },
-            },
-        });
-    }, []);
+            });
+        },
+        [skipConfirm]
+    );
 
     const columns: ColumnDef<Runner>[] = useMemo(
         () => [
@@ -195,7 +203,7 @@ export default function Page() {
                 ),
             },
         ],
-        []
+        [deleteRunnerConfirm, editRunnerAsk]
     );
 
     return (

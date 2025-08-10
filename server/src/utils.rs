@@ -1,6 +1,5 @@
-use aginci_core::RunnerRegistrationMetadata;
 use base64::{Engine, engine::general_purpose};
-use color_eyre::eyre::{Context, ContextCompat, Result};
+use color_eyre::eyre::{ContextCompat, Result};
 use git_url_parse::GitUrl;
 use rand::{Rng, RngCore, distr::Alphanumeric};
 use sha2::{Digest, Sha256};

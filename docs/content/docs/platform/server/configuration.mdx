@@ -31,6 +31,7 @@ connection_string = "redis://localhost:6379"
 
 [pulsar]
 connection_string = "pulsar://localhost:6650"
+admin_url = "http://localhost:8080"
 tenant = "aginci"
 token = ""
 ```
@@ -103,6 +104,10 @@ Agin CI relise on Apache Pulsar for event streaming. This section contains setti
 #### `connection_string`
 
 The connection string for the Pulsar cluster. This should be a valid Pulsar connection string, such as `pulsar://localhost:6650`.
+
+#### `admin_url`
+
+The URL of the Pulsar Admin API. This is used to manage Pulsar resources such as namespaces and topics. It should be a valid HTTP or HTTPS URL, such as `http://localhost:8080`.
 
 #### `tenant`
 

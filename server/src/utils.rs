@@ -1,8 +1,15 @@
+use std::sync::Arc;
+
 use base64::{Engine, engine::general_purpose};
 use color_eyre::eyre::{ContextCompat, Result};
 use git_url_parse::GitUrl;
+use pulsar_admin_sdk::apis::{
+    configuration::Configuration, namespaces_api::namespaces_create_namespace,
+};
 use rand::{Rng, RngCore, distr::Alphanumeric};
 use sha2::{Digest, Sha256};
+
+use crate::pulsar_client::PulsarAdmin;
 
 pub fn normalize_git_url(url: &str) -> Result<String> {
     if url.is_empty() {
@@ -49,4 +56,18 @@ pub fn generate_pat() -> String {
 
 pub fn hash_pat(pat: &str) -> String {
     format!("{:x}", Sha256::digest(pat))
+}
+
+pub async fn sign_worker_token(admin: Arc<PulsarAdmin>, worker_id: &str) -> Result<()> {
+    let role = format!("worker_{worker_id}");
+
+    let permissions = vec!["produce".to_string(), "consume".to_string()];
+
+    admin.create_namespace(worker_id, None).await?;
+
+    admin
+        .grant_permissions_on_namespace(worker_id, &role, Some(permissions))
+        .await?;
+
+    Ok(())
 }

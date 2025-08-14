@@ -71,7 +71,7 @@ pub struct Pulsar {
     pub connection_string: String,
     pub admin_url: String,
     pub tenant: String,
-    pub token: String,
+    pub secret_key: String,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -169,7 +169,7 @@ impl Settings {
                 connection_string: "pulsar://localhost:6650".to_string(),
                 admin_url: "http://localhost:8080".to_string(),
                 tenant: "aginci".to_string(),
-                token: "".to_string(),
+                secret_key: "./token-secret.key".to_string(),
             },
         }
     }

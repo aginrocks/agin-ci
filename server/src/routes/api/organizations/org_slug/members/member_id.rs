@@ -14,7 +14,7 @@ use crate::{
     axum_error::{AxumError, AxumResult},
     database::{Membership, Organization, OrganizationRole, PartialNotification},
     middlewares::{
-        require_auth::{UnauthorizedError, UserData, UserId},
+        require_auth::{UnauthorizedError, UserId},
         require_org_permissions::{ForbiddenError, OrgDataAdmin},
     },
     routes::{RouteProtectionLevel, api::CreateSuccess},

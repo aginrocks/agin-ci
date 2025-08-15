@@ -3,9 +3,6 @@ use std::sync::Arc;
 use base64::{Engine, engine::general_purpose};
 use color_eyre::eyre::{ContextCompat, Result};
 use git_url_parse::GitUrl;
-use pulsar_admin_sdk::apis::{
-    configuration::Configuration, namespaces_api::namespaces_create_namespace,
-};
 use rand::{Rng, RngCore, distr::Alphanumeric};
 use sha2::{Digest, Sha256};
 

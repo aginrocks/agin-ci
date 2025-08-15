@@ -65,6 +65,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get notifications */
+        get: operations["get_notifications"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/organizations": {
         parameters: {
             query?: never;
@@ -288,10 +305,33 @@ export interface paths {
         get: operations["get_runners"];
         put?: never;
         /**
-         * Register runner
-         * @description Registers a new runner in the system. Returns the token that the runner can use to authenticate itself.
+         * Create runner
+         * @description Creates a new runner in the system. Returns a token that the runner can use to register itself.
          */
-        post: operations["register_runner"];
+        post: operations["create_runner"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/system/runners/register/finish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Finish runner registration
+         * @description This endpoint allows to exchange the registration token for a long-lived access token.
+         *     The token can be used to authenticate directly to Apache Pulsar.
+         *
+         *     No normal authentication is required, but the registration token must be valid.
+         */
+        post: operations["finish_runner_registration"];
         delete?: never;
         options?: never;
         head?: never;
@@ -477,6 +517,14 @@ export interface components {
         EditServerRoleBody: {
             role: components["schemas"]["ServerRole"];
         };
+        FinishRegistrationBody: {
+            /** @description Token that the user generated using `POST /api/system/runners` */
+            token: string;
+        };
+        FinishRegistrationResponse: {
+            /** @description Access token that can be used to authenticate directly to Apache Pulsar */
+            access_token: string;
+        };
         /** @example {
          *       "error": "You do not have sufficient permissions to perform this action"
          *     } */
@@ -491,6 +539,12 @@ export interface components {
         };
         /** @enum {string} */
         HostOS: "linux" | "macos" | "windows" | "unknown";
+        InvitationEvent: {
+            invitation: string;
+        };
+        JobFail: {
+            job: string;
+        };
         Member: {
             _id: string;
             email: string;
@@ -507,6 +561,45 @@ export interface components {
             description: string;
             name: string;
             slug: string;
+        };
+        Notification: components["schemas"]["NotificationBody"] & {
+            _id: string;
+            /** Format: date-time */
+            created_at: string;
+            message: string;
+            recipients: components["schemas"]["NotificationRecipient"][];
+            title: string;
+        };
+        NotificationBody: {
+            body: components["schemas"]["JobFail"];
+            /** @enum {string} */
+            type: "job-failed";
+        } | {
+            body: components["schemas"]["InvitationEvent"];
+            /** @enum {string} */
+            type: "received-invitation";
+        } | {
+            body: components["schemas"]["RoleChange"];
+            /** @enum {string} */
+            type: "role-changed";
+        } | {
+            body: components["schemas"]["OfflineWorker"];
+            /** @enum {string} */
+            type: "offline-worker";
+        } | {
+            /** @enum {string} */
+            type: "other";
+        };
+        NotificationRecipient: {
+            /** Format: date-time */
+            read_at?: string | null;
+            status: components["schemas"]["NotificationStatus"];
+            user: string;
+        };
+        /** @enum {string} */
+        NotificationStatus: "unread" | "read" | "dismissed";
+        OfflineWorker: {
+            worker: string;
         };
         Organization: {
             _id?: string | null;
@@ -558,6 +651,12 @@ export interface components {
             token: string;
             uuid: string;
         };
+        RoleChange: {
+            new_role: components["schemas"]["OrganizationRole"];
+            old_role: components["schemas"]["OrganizationRole"];
+            organization: string;
+            user: string;
+        };
         Runner: {
             _id: string;
             display_name: string;
@@ -568,6 +667,7 @@ export interface components {
             /** Format: date-time */
             last_ping?: string | null;
             runner_version?: string | null;
+            token_hash?: string | null;
             /** Format: uuid */
             uuid: string;
         };
@@ -719,6 +819,35 @@ export interface operations {
         };
         requestBody?: never;
         responses: never;
+    };
+    get_notifications: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Notification"][];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedError"];
+                };
+            };
+        };
     };
     get_organizations: {
         parameters: {
@@ -1616,7 +1745,7 @@ export interface operations {
             };
         };
     };
-    register_runner: {
+    create_runner: {
         parameters: {
             query?: never;
             header?: never;
@@ -1654,6 +1783,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ForbiddenError"];
+                };
+            };
+        };
+    };
+    finish_runner_registration: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FinishRegistrationBody"];
+            };
+        };
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FinishRegistrationResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedError"];
                 };
             };
         };

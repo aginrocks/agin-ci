@@ -50,7 +50,7 @@ export function SelectServerRole({
                             <AlertTitle>Granting this role is dangerous</AlertTitle>
                             <AlertDescription>
                                 The admin role grants full access to the server, including the
-                                ability to change roles of every member (including you!)
+                                ability to change the roles of every member (including you!)
                             </AlertDescription>
                         </Alert>
                     )}

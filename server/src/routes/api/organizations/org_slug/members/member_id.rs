@@ -12,9 +12,9 @@ use utoipa_axum::routes;
 
 use crate::{
     axum_error::{AxumError, AxumResult},
-    database::{Membership, Organization, OrganizationRole},
+    database::{Membership, Organization, OrganizationRole, PartialNotification},
     middlewares::{
-        require_auth::{UnauthorizedError, UserId},
+        require_auth::{UnauthorizedError, UserData, UserId},
         require_org_permissions::{ForbiddenError, OrgDataAdmin},
     },
     routes::{RouteProtectionLevel, api::CreateSuccess},
@@ -162,6 +162,14 @@ async fn edit_organization_member(
             },
         )
         .await?;
+
+    let notification = PartialNotification::new_role_changed(
+        member_id,
+        org.clone().0,
+        membership.role.clone(),
+        body.role.clone(),
+    )?;
+    state.notifications.send(notification);
 
     Ok(Json(CreateSuccess {
         success: true,

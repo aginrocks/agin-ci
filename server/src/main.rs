@@ -41,6 +41,7 @@ use utoipa_scalar::{Scalar, Servable as _};
 use crate::{
     database::{init_database, init_session_store},
     middlewares::require_auth::require_auth,
+    notifications::sender::NotificationSender,
     pulsar_client::init_pulsar,
     routes::RouteProtectionLevel,
     settings::Settings,
@@ -75,11 +76,16 @@ async fn main() -> Result<()> {
 
     let (pulsar, pulsar_admin) = init_pulsar(&settings).await?;
 
+    let notifications = NotificationSender {
+        database: database.clone(),
+    };
+
     let app_state = AppState {
         database,
         settings: settings.clone(),
         pulsar,
         pulsar_admin,
+        notifications,
     };
 
     let session_layer = init_session_store(&settings).await?;

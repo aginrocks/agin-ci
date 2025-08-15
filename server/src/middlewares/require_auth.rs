@@ -40,6 +40,13 @@ impl Deref for UserId {
         &self.0
     }
 }
+impl Deref for UserData {
+    type Target = User;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
 impl Deref for GodMode {
     type Target = bool;
 

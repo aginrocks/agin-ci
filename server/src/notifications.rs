@@ -1,3 +1,5 @@
+pub mod sender;
+
 use chrono::{DateTime, Utc};
 use color_eyre::eyre::Result;
 use derive_builder::Builder;
@@ -98,20 +100,23 @@ impl Default for PartialNotification {
 // TODO: Implement more constructors
 impl PartialNotification {
     pub fn new_role_changed(
-        user: User,
+        user_id: ObjectId,
         organization: Organization,
         old_role: OrganizationRole,
         new_role: OrganizationRole,
     ) -> Result<Self> {
         let recipient = NotificationRecipientBuilder::default()
-            .user(user.id)
+            .user(user_id)
             .build()?;
 
         Ok(Self {
             title: "Your role has been updated".to_string(),
-            message: format!("Your role has been changed from {old_role:?} to {new_role:?}."),
+            message: format!(
+                "Your role in {} has been changed from {old_role:?} to {new_role:?}.",
+                organization.name
+            ),
             body: NotificationBody::RoleChanged(RoleChange {
-                user: user.id,
+                user: user_id,
                 organization: organization.id,
                 old_role,
                 new_role,

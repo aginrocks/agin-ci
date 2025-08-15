@@ -3,7 +3,7 @@ pub mod member_id;
 use axum::{Extension, Json, extract::State};
 use color_eyre::eyre;
 use futures::TryStreamExt;
-use mongodb::bson::{doc, oid::ObjectId};
+use mongodb::bson::{Document, doc, oid::ObjectId};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use utoipa_axum::routes;
@@ -94,7 +94,7 @@ async fn get_organization_members(
         .aggregate(pipeline)
         .await?;
 
-    let documents: Vec<mongodb::bson::Document> = cursor.try_collect().await?;
+    let documents: Vec<Document> = cursor.try_collect().await?;
     let results: Vec<Member> = documents
         .into_iter()
         .map(mongodb::bson::from_document)

@@ -2,6 +2,7 @@ mod axum_error;
 mod database;
 mod middlewares;
 mod mongo_id;
+mod notifications;
 mod pulsar_client;
 mod routes;
 mod runner;

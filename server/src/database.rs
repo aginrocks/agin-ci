@@ -1,4 +1,3 @@
-use crate::validators::slug_validator;
 use chrono::{DateTime, Utc};
 use color_eyre::eyre::Result;
 use mongodb::{
@@ -21,8 +20,12 @@ use uuid::Uuid;
 use validator::Validate;
 use visible::StructFields;
 
-use crate::mongo_id::{object_id_as_string, object_id_as_string_required, vec_oid_to_vec_string};
-use crate::settings::Settings;
+use crate::{
+    mongo_id::{object_id_as_string, object_id_as_string_required, vec_oid_to_vec_string},
+    notifications::{NotificationBody, NotificationRecipient},
+    settings::Settings,
+    validators::slug_validator,
+};
 
 macro_rules! database_object {
     ($name:ident { $($field:tt)* }$(, $($omitfield:ident),*)?) => {
@@ -468,6 +471,57 @@ pub struct AccessTokenCreateBody {
 
     pub scopes: Vec<Scope>,
 }
+
+#[derive(Debug, Serialize, Deserialize, ToSchema, Clone)]
+#[serde(rename_all = "lowercase")]
+pub enum InvitationStatus {
+    Pending,
+    Accepted,
+    Rejected,
+}
+
+database_object!(Invitation {
+    #[serde(rename = "_id", with = "object_id_as_string_required")]
+    #[schema(value_type = String)]
+    id: ObjectId,
+
+    status: InvitationStatus,
+
+    #[serde(with = "object_id_as_string_required")]
+    #[schema(value_type = String)]
+    inviter: ObjectId,
+
+    #[serde(with = "object_id_as_string_required")]
+    #[schema(value_type = String)]
+    invitee: ObjectId,
+
+    #[serde(with = "object_id_as_string_required")]
+    #[schema(value_type = String)]
+    organization: ObjectId,
+
+    role: OrganizationRole,
+
+    created_at: DateTime<Utc>,
+
+    action_taken_at: Option<DateTime<Utc>>,
+});
+
+database_object!(Notification {
+    #[serde(rename = "_id", with = "object_id_as_string_required")]
+    #[schema(value_type = String)]
+    id: ObjectId,
+
+    title: String,
+
+    message: String,
+
+    #[serde(flatten)]
+    body: NotificationBody,
+
+    recipients: Vec<NotificationRecipient>,
+
+    created_at: DateTime<Utc>,
+});
 
 pub async fn fetch_project(
     database: &Database,

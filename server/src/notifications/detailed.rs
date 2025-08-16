@@ -1,3 +1,4 @@
+use mongo_utils::{JoinPipeline, JoinPipelineBuilder};
 use mongodb::bson::{Document, doc, oid::ObjectId};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
@@ -48,7 +49,8 @@ pub struct DetailedRoleChange {
 }
 
 /// Organization info used in joins
-#[derive(Debug, Serialize, Deserialize, ToSchema, Clone)]
+#[derive(Debug, Serialize, Deserialize, ToSchema, Clone, JoinPipeline)]
+#[mongo_utils(collection = "organizations")]
 pub struct SimpleOrganization {
     #[serde(rename = "_id", with = "object_id_as_string_required")]
     #[schema(value_type = String)]
@@ -65,50 +67,10 @@ pub struct DetailedOfflineWorker {
     pub worker: ObjectId,
 }
 
-macro_rules! create_pipeline {
-    (collection = $collection:literal, field = $field:literal, $($fields:literal),*) => {
-        vec![
-            doc! {
-                "$lookup": {
-                    "from": $collection,
-                    "localField": format!("body.{}", $field),
-                    "foreignField": "_id",
-                    "as": format!("body.{}", $field),
-                }
-            },
-            doc! {
-                "$unwind": {
-                    "path": format!("$body.{}", $field),
-                    "preserveNullAndEmptyArrays": true,
-                }
-            },
-            doc! {
-                "$addFields": {
-                    (format!("body.{}", $field)): {
-                        "$cond": {
-                            "if": { "$ne": [format!("$body.{}", $field), null] },
-                            "then": {
-                                $(
-                                    $fields: format!("$body.{}.{}", $field, $fields)
-                                ),*
-                            },
-                            "else": null
-                        }
-                    }
-                }
-            }
-        ]
-    };
-}
-
 pub fn query_detailed_notifications() -> Vec<Document> {
-    [create_pipeline!(
-        collection = "organizations",
-        field = "organization",
+    [SimpleOrganization::join_pipeline(
+        "body.organization",
         "_id",
-        "name",
-        "slug",
-        "avatar_email"
     )]
     .concat()
 }

@@ -1,12 +1,10 @@
 use axum::{Extension, Json};
-use color_eyre::eyre::Context;
 use futures::TryStreamExt;
 use mongodb::bson::{Document, doc};
 use utoipa_axum::routes;
 
 use crate::{
     axum_error::AxumResult,
-    database::Notification,
     middlewares::require_auth::{UnauthorizedError, UserId},
     notifications::{
         Detailed, DetailedNotification, VecNotification, query_detailed_notifications,

@@ -1,3 +1,3 @@
 [workspace]
 resolver = "2"
-members = ["aginci_core", "cli", "container_runner", "git_providers", "librunner", "node_runner", "server", "api_client"]
+members = ["aginci_core", "cli", "container_runner", "git_providers", "librunner", "node_runner", "server", "api_client", "mongo_utils", "mongo_utils/mongo_utils_derive"]

@@ -6,10 +6,11 @@ use axum::{
     response::Response,
 };
 use axum_oidc::OidcClaims;
+use color_eyre::eyre::Result;
 use color_eyre::eyre::{self, ContextCompat};
 use mongodb::{
+    Database,
     bson::{doc, oid::ObjectId},
-    options::ReturnDocument,
 };
 use serde::{Deserialize, Serialize};
 use tower_sessions::Session;
@@ -18,7 +19,7 @@ use utoipa::ToSchema;
 use crate::{
     GroupClaims,
     axum_error::{AxumError, AxumResult},
-    database::{AccessToken, ServerRole, User},
+    database::{AccessToken, PartialUser, ServerRole, User},
     state::AppState,
     utils::hash_pat,
 };
@@ -53,6 +54,15 @@ impl Deref for GodMode {
     fn deref(&self) -> &Self::Target {
         &self.0
     }
+}
+
+async fn get_user_by_subject(db: &Database, sub: String) -> Result<Option<User>> {
+    let user = db
+        .collection::<User>("users")
+        .find_one(doc! { "subject": &sub })
+        .await?;
+
+    Ok(user)
 }
 
 /// Middleware that ensures the user is authenticated
@@ -105,23 +115,26 @@ pub async fn require_auth(
         .to_string();
     let email = claims.email().wrap_err("Email is required")?.to_string();
 
-    let user = state
-        .database
-        .collection::<User>("users")
-        .find_one_and_update(
-            doc! { "sub": &sub },
-            doc! {
-                "$set": {
-                    "subject": sub,
-                    "name": name,
-                    "email": email,
-                }
-            },
-        )
-        .upsert(true)
-        .return_document(ReturnDocument::After)
-        .await?
-        .wrap_err("User not found (wtf?)")?;
+    let user = get_user_by_subject(&state.database, sub.clone()).await?;
+    let user = match user {
+        Some(user) => user,
+        None => {
+            state
+                .database
+                .collection::<PartialUser>("users")
+                .insert_one(PartialUser {
+                    email,
+                    name,
+                    role: ServerRole::ReadOnly,
+                    subject: sub.clone(),
+                })
+                .await?;
+
+            get_user_by_subject(&state.database, sub.clone())
+                .await?
+                .wrap_err("Failed to create user")?
+        }
+    };
 
     let god_mode_enabled =
         session.get::<bool>("god_mode").await?.unwrap_or(false) && user.role == ServerRole::Admin;

@@ -1,4 +1,9 @@
+mod detailed;
 pub mod sender;
+mod simple;
+
+pub use detailed::*;
+pub use simple::*;
 
 use chrono::{DateTime, Utc};
 use color_eyre::eyre::Result;
@@ -8,55 +13,9 @@ use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
 use crate::{
-    database::{Organization, OrganizationRole, PartialNotification, User},
+    database::{Notification, Organization, OrganizationRole, PartialNotification, User},
     mongo_id::object_id_as_string_required,
 };
-
-#[derive(Debug, Serialize, Deserialize, ToSchema, Clone)]
-#[serde(tag = "type", content = "body", rename_all = "kebab-case")]
-pub enum NotificationBody {
-    JobFailed(JobFail),
-    ReceivedInvitation(InvitationEvent),
-    RoleChanged(RoleChange),
-    OfflineWorker(OfflineWorker),
-    Other,
-}
-
-#[derive(Debug, Serialize, Deserialize, ToSchema, Clone)]
-pub struct JobFail {
-    #[serde(with = "object_id_as_string_required")]
-    #[schema(value_type = String)]
-    job: ObjectId,
-}
-
-#[derive(Debug, Serialize, Deserialize, ToSchema, Clone)]
-pub struct InvitationEvent {
-    #[serde(with = "object_id_as_string_required")]
-    #[schema(value_type = String)]
-    invitation: ObjectId,
-}
-
-#[derive(Debug, Serialize, Deserialize, ToSchema, Clone)]
-pub struct RoleChange {
-    #[serde(with = "object_id_as_string_required")]
-    #[schema(value_type = String)]
-    user: ObjectId,
-
-    #[serde(with = "object_id_as_string_required")]
-    #[schema(value_type = String)]
-    organization: ObjectId,
-
-    old_role: OrganizationRole,
-
-    new_role: OrganizationRole,
-}
-
-#[derive(Debug, Serialize, Deserialize, ToSchema, Clone)]
-pub struct OfflineWorker {
-    #[serde(with = "object_id_as_string_required")]
-    #[schema(value_type = String)]
-    worker: ObjectId,
-}
 
 #[derive(Debug, Serialize, Deserialize, ToSchema, Clone)]
 #[serde(rename_all = "lowercase")]
@@ -85,20 +44,24 @@ pub struct NotificationRecipient {
     read_at: Option<DateTime<Utc>>,
 }
 
-impl Default for PartialNotification {
+impl Default for PartialNotification<Simple> {
     fn default() -> Self {
         Self {
             created_at: Utc::now(),
             message: "".to_string(),
             title: "".to_string(),
             recipients: vec![],
-            body: NotificationBody::Other,
+            body: Simple::Other,
         }
     }
 }
 
+#[derive(Serialize, Deserialize, ToSchema, Debug, Clone)]
+#[schema(value_type = Vec<Notification<T>>)]
+pub struct VecNotification<T: ToSchema + 'static>(Vec<Notification<T>>);
+
 // TODO: Implement more constructors
-impl PartialNotification {
+impl PartialNotification<Simple> {
     pub fn new_role_changed(
         user_id: ObjectId,
         organization: Organization,
@@ -115,7 +78,7 @@ impl PartialNotification {
                 "Your role in {} has been changed from {old_role:?} to {new_role:?}.",
                 organization.name
             ),
-            body: NotificationBody::RoleChanged(RoleChange {
+            body: Simple::RoleChanged(SimpleRoleChange {
                 user: user_id,
                 organization: organization.id,
                 old_role,
@@ -143,7 +106,7 @@ impl PartialNotification {
                 "{} invited you to join {} as {role:?}",
                 inviter.name, organization.name,
             ),
-            body: NotificationBody::ReceivedInvitation(InvitationEvent {
+            body: Simple::ReceivedInvitation(SimpleInvitationEvent {
                 invitation: invitation_id,
             }),
             recipients: vec![recipient],

@@ -7,6 +7,7 @@ use mongodb::{
 use partial_struct::Partial;
 use serde::{Deserialize, Serialize};
 use ssh_key::{Algorithm, PrivateKey, rand_core::OsRng, sec1::der::zeroize::Zeroizing};
+use std::fmt::Debug;
 use tower_sessions::{
     Expiry, SessionManagerLayer,
     cookie::{SameSite, time::Duration},
@@ -22,17 +23,17 @@ use visible::StructFields;
 
 use crate::{
     mongo_id::{object_id_as_string, object_id_as_string_required, vec_oid_to_vec_string},
-    notifications::{NotificationBody, NotificationRecipient},
+    notifications::NotificationRecipient,
     settings::Settings,
     validators::slug_validator,
 };
 
 macro_rules! database_object {
-    ($name:ident { $($field:tt)* }$(, $($omitfield:ident),*)?) => {
+    ($name:ident $(<$($gen:tt),*>)? { $($field:tt)* }$(, $($omitfield:ident),*)?) => {
         #[derive(Partial, Debug, Serialize, Deserialize, ToSchema, Clone)]
         #[partial(omit(id $(, $($omitfield),* )?), derive(Debug, Serialize, Deserialize, ToSchema, Clone))]
         #[StructFields(pub)]
-        pub struct $name {
+        pub struct $name $(<$($gen),*>)? {
             $($field)*
         }
     };
@@ -185,7 +186,7 @@ database_object!(Organization {
         rename = "_id",
         with = "object_id_as_string_required"
     )]
-    #[schema(value_type = Option<String>)]
+    #[schema(value_type = String)]
     id: ObjectId,
     name: String,
     description: String,
@@ -506,20 +507,37 @@ database_object!(Invitation {
     action_taken_at: Option<DateTime<Utc>>,
 });
 
-database_object!(Notification {
-    #[serde(rename = "_id", with = "object_id_as_string_required")]
-    #[schema(value_type = String)]
-    id: ObjectId,
+// This macro creates the Notification and PartialNotification structs
+// I use it because I don't know how to handle lifetimes when dealing
+// with structs with generics and `partial_struct` proc macro.
+// Please help
+macro_rules! notification {
+    ({ $($field:tt)* }) => {
+        #[derive(Debug, Serialize, Deserialize, ToSchema, Clone)]
+        #[StructFields(pub)]
+        pub struct Notification<T: ToSchema + 'static> {
+            #[serde(rename = "_id", with = "object_id_as_string_required")]
+            #[schema(value_type = String)]
+            id: ObjectId,
+            #[serde(flatten)]
+            body: T,
+            $($field)*
+        }
 
+        #[derive(Debug, Serialize, Deserialize, ToSchema, Clone)]
+        #[StructFields(pub)]
+        pub struct PartialNotification<T: ToSchema + 'static> {
+            #[serde(flatten)]
+            body: T,
+            $($field)*
+        }
+    };
+}
+
+notification!({
     title: String,
-
     message: String,
-
-    #[serde(flatten)]
-    body: NotificationBody,
-
     recipients: Vec<NotificationRecipient>,
-
     created_at: DateTime<Utc>,
 });
 

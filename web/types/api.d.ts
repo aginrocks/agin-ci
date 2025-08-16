@@ -507,6 +507,42 @@ export interface components {
             id: string;
             success: boolean;
         };
+        Detailed: {
+            body: components["schemas"]["DetailedJobFail"];
+            /** @enum {string} */
+            type: "job-failed";
+        } | {
+            body: components["schemas"]["DetailedInvitationEvent"];
+            /** @enum {string} */
+            type: "received-invitation";
+        } | {
+            body: components["schemas"]["DetailedRoleChange"];
+            /** @enum {string} */
+            type: "role-changed";
+        } | {
+            body: components["schemas"]["DetailedOfflineWorker"];
+            /** @enum {string} */
+            type: "offline-worker";
+        } | {
+            /** @enum {string} */
+            type: "other";
+        };
+        DetailedInvitationEvent: {
+            invitation: components["schemas"]["Invitation"];
+        };
+        DetailedJob: Record<string, never>;
+        DetailedJobFail: {
+            job: components["schemas"]["DetailedJob"];
+        };
+        DetailedOfflineWorker: {
+            worker: string;
+        };
+        DetailedRoleChange: {
+            new_role: components["schemas"]["OrganizationRole"];
+            old_role: components["schemas"]["OrganizationRole"];
+            organization: components["schemas"]["SimpleOrganization"];
+            user: string;
+        };
         EditOrgSecretBody: {
             name?: string | null;
             secret?: string | null;
@@ -539,12 +575,20 @@ export interface components {
         };
         /** @enum {string} */
         HostOS: "linux" | "macos" | "windows" | "unknown";
-        InvitationEvent: {
-            invitation: string;
+        Invitation: {
+            _id: string;
+            /** Format: date-time */
+            action_taken_at?: string | null;
+            /** Format: date-time */
+            created_at: string;
+            invitee: string;
+            inviter: string;
+            organization: string;
+            role: components["schemas"]["OrganizationRole"];
+            status: components["schemas"]["InvitationStatus"];
         };
-        JobFail: {
-            job: string;
-        };
+        /** @enum {string} */
+        InvitationStatus: "pending" | "accepted" | "rejected";
         Member: {
             _id: string;
             email: string;
@@ -562,34 +606,6 @@ export interface components {
             name: string;
             slug: string;
         };
-        Notification: components["schemas"]["NotificationBody"] & {
-            _id: string;
-            /** Format: date-time */
-            created_at: string;
-            message: string;
-            recipients: components["schemas"]["NotificationRecipient"][];
-            title: string;
-        };
-        NotificationBody: {
-            body: components["schemas"]["JobFail"];
-            /** @enum {string} */
-            type: "job-failed";
-        } | {
-            body: components["schemas"]["InvitationEvent"];
-            /** @enum {string} */
-            type: "received-invitation";
-        } | {
-            body: components["schemas"]["RoleChange"];
-            /** @enum {string} */
-            type: "role-changed";
-        } | {
-            body: components["schemas"]["OfflineWorker"];
-            /** @enum {string} */
-            type: "offline-worker";
-        } | {
-            /** @enum {string} */
-            type: "other";
-        };
         NotificationRecipient: {
             /** Format: date-time */
             read_at?: string | null;
@@ -598,11 +614,35 @@ export interface components {
         };
         /** @enum {string} */
         NotificationStatus: "unread" | "read" | "dismissed";
-        OfflineWorker: {
-            worker: string;
+        Notification_Detailed: ({
+            body: components["schemas"]["DetailedJobFail"];
+            /** @enum {string} */
+            type: "job-failed";
+        } | {
+            body: components["schemas"]["DetailedInvitationEvent"];
+            /** @enum {string} */
+            type: "received-invitation";
+        } | {
+            body: components["schemas"]["DetailedRoleChange"];
+            /** @enum {string} */
+            type: "role-changed";
+        } | {
+            body: components["schemas"]["DetailedOfflineWorker"];
+            /** @enum {string} */
+            type: "offline-worker";
+        } | {
+            /** @enum {string} */
+            type: "other";
+        }) & {
+            _id: string;
+            /** Format: date-time */
+            created_at: string;
+            message: string;
+            recipients: components["schemas"]["NotificationRecipient"][];
+            title: string;
         };
         Organization: {
-            _id?: string | null;
+            _id: string;
             avatar_email?: string | null;
             description: string;
             members: components["schemas"]["Membership"][];
@@ -651,12 +691,6 @@ export interface components {
             token: string;
             uuid: string;
         };
-        RoleChange: {
-            new_role: components["schemas"]["OrganizationRole"];
-            old_role: components["schemas"]["OrganizationRole"];
-            organization: string;
-            user: string;
-        };
         Runner: {
             _id: string;
             display_name: string;
@@ -691,6 +725,13 @@ export interface components {
         SecretScope: "organization" | "project";
         /** @enum {string} */
         ServerRole: "readonly" | "user" | "admin";
+        /** @description Organization info used in joins */
+        SimpleOrganization: {
+            _id: string;
+            avatar_email?: string | null;
+            name: string;
+            slug: string;
+        };
         /** @example {
          *       "error": "Unauthorized"
          *     } */
@@ -704,6 +745,7 @@ export interface components {
             role: components["schemas"]["ServerRole"];
             subject: string;
         };
+        VecNotification_Detailed: components["schemas"]["Notification_Detailed"][];
         /** @example {
          *       "success": true
          *     } */
@@ -835,7 +877,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Notification"][];
+                    "application/json": components["schemas"]["VecNotification_Detailed"];
                 };
             };
             /** @description Unauthorized */

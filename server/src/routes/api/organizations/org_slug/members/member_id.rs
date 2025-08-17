@@ -59,10 +59,8 @@ async fn delete_organization_member(
     State(state): State<AppState>,
     org: OrgDataAdmin,
     Extension(user_id): Extension<UserId>,
-    Path((_org_slug, member_id)): Path<(String, String)>,
+    Path((_org_slug, member_id)): Path<(String, ObjectId)>,
 ) -> AxumResult<impl IntoResponse> {
-    let member_id = ObjectId::parse_str(&member_id)?;
-
     if *user_id == member_id {
         return Err(AxumError::forbidden(eyre::eyre!(
             "Cannot remove yourself from the organization. Use the leave organization endpoint instead."
@@ -113,11 +111,9 @@ async fn edit_organization_member(
     State(state): State<AppState>,
     org: OrgDataAdmin,
     Extension(user_id): Extension<UserId>,
-    Path((_org_slug, member_id)): Path<(String, String)>,
+    Path((_org_slug, member_id)): Path<(String, ObjectId)>,
     body: Json<EditRoleBody>,
 ) -> AxumResult<Json<CreateSuccess>> {
-    let member_id = ObjectId::parse_str(&member_id)?;
-
     let membership = get_membership_details(&org.0, member_id)?;
     if membership.role == OrganizationRole::Owner {
         return Err(AxumError::forbidden(eyre::eyre!(

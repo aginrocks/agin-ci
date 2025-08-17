@@ -35,13 +35,13 @@ impl Default for NotificationStatus {
 pub struct NotificationRecipient {
     #[serde(with = "object_id_as_string_required")]
     #[schema(value_type = String)]
-    user: ObjectId,
+    pub user: ObjectId,
 
     #[builder(default)]
-    status: NotificationStatus,
+    pub status: NotificationStatus,
 
     #[builder(default)]
-    read_at: Option<DateTime<Utc>>,
+    pub read_at: Option<DateTime<Utc>>,
 }
 
 impl Default for PartialNotification<Simple> {

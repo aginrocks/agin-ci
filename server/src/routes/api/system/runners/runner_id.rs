@@ -51,11 +51,9 @@ pub fn routes() -> Vec<Route> {
 async fn edit_runner(
     State(state): State<AppState>,
     _: ServerAdmin,
-    Path(runner_id): Path<String>,
+    Path(runner_id): Path<ObjectId>,
     Valid(Json(body)): Valid<Json<super::RegisterRunnerBody>>,
 ) -> AxumResult<Json<CreateSuccess>> {
-    let runner_id = ObjectId::parse_str(&runner_id)?;
-
     let updated = state
         .database
         .collection::<PartialRunner>("runners")
@@ -100,11 +98,9 @@ async fn edit_runner(
 async fn delete_runner(
     State(state): State<AppState>,
     _: ServerAdmin,
-    Path(runner_id): Path<String>,
+    Path(runner_id): Path<ObjectId>,
 ) -> AxumResult<impl IntoResponse> {
     // TODO: Wait for all jobs to finish before deleting the runner
-    let runner_id = ObjectId::parse_str(&runner_id)?;
-
     let deleted = state
         .database
         .collection::<Runner>("runners")

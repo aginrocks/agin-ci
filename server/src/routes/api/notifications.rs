@@ -1,3 +1,5 @@
+mod notification_id;
+
 use axum::{Extension, Json};
 use futures::TryStreamExt;
 use mongodb::bson::{Document, doc};
@@ -18,10 +20,14 @@ use super::Route;
 const PATH: &str = "/api/notifications";
 
 pub fn routes() -> Vec<Route> {
-    vec![(
-        routes!(get_notifications),
-        RouteProtectionLevel::Authenticated,
-    )]
+    [
+        vec![(
+            routes!(get_notifications),
+            RouteProtectionLevel::Authenticated,
+        )],
+        notification_id::routes(),
+    ]
+    .concat()
 }
 
 /// Get notifications

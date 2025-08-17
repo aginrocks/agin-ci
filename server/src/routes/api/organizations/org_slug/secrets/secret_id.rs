@@ -52,10 +52,8 @@ pub fn routes() -> Vec<Route> {
 async fn delete_organization_secret(
     org: OrgDataMember,
     State(state): State<AppState>,
-    Path((_org_slug, secret_id)): Path<(String, String)>,
+    Path((_org_slug, secret_id)): Path<(String, ObjectId)>,
 ) -> AxumResult<impl IntoResponse> {
-    let secret_id = ObjectId::parse_str(&secret_id)?;
-
     let delete_result = state
         .database
         .collection::<Secret>("secrets")
@@ -99,11 +97,9 @@ pub struct EditOrgSecretBody {
 async fn edit_organization_secret(
     org: OrgDataMember,
     State(state): State<AppState>,
-    Path((_org_slug, secret_id)): Path<(String, String)>,
+    Path((_org_slug, secret_id)): Path<(String, ObjectId)>,
     Valid(Json(body)): Valid<Json<EditOrgSecretBody>>,
 ) -> AxumResult<Json<CreateSuccess>> {
-    let secret_id = ObjectId::parse_str(&secret_id)?;
-
     let edit_result = state
         .database
         .collection::<Secret>("secrets")

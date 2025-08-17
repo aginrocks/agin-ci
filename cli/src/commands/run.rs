@@ -14,7 +14,7 @@ use uuid::Uuid;
 use crate::{
     Cli, SelectOrgArgs, SelectProjectArgs,
     config::init_config,
-    errors::LocalOrgProjectSpecified,
+    errors::{LocalOrgProjectSpecified, WorkflowRunnerStartFailed},
     utils::{colored_exit_code, get_spinner_style},
 };
 
@@ -42,8 +42,7 @@ pub async fn handle_run(
                 workflow.name.bold().blue()
             );
 
-            let mut runner =
-                WorkflowRunner::new().map_err(|_| miette!("Failed to start workflow runner"))?;
+            let mut runner = WorkflowRunner::new().map_err(|_| WorkflowRunnerStartFailed)?;
 
             runner
                 .serve()

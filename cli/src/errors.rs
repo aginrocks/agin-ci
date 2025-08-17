@@ -32,3 +32,12 @@ pub struct ConfigSavingFailed;
     url("https://docs.agin.rocks/platform/cli/errors#{}", self.code().unwrap())
 )]
 pub struct LocalOrgProjectSpecified;
+
+#[derive(Error, Debug, Diagnostic)]
+#[error("Failed to start workflow runner")]
+#[diagnostic(
+    code(local_run::workflow_runner_start_failed),
+    help("Make sure that the Docker daemon is running and you have the necessary permissions to connect to the Docker socket."),
+    url("https://docs.agin.rocks/platform/cli/errors#{}", self.code().unwrap())
+)]
+pub struct WorkflowRunnerStartFailed;

@@ -17,12 +17,18 @@ use crate::{
     mongo_id::object_id_as_string_required,
 };
 
-#[derive(Debug, Serialize, Deserialize, ToSchema, Clone)]
+#[derive(Debug, Serialize, Deserialize, ToSchema, Clone, Eq, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum NotificationStatus {
     Unread,
     Read,
     Dismissed,
+}
+
+impl From<NotificationStatus> for mongodb::bson::Bson {
+    fn from(scope: NotificationStatus) -> Self {
+        mongodb::bson::to_bson(&scope).expect("Failed to convert to BSON")
+    }
 }
 
 impl Default for NotificationStatus {

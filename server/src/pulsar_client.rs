@@ -11,9 +11,7 @@ use pulsar_admin_sdk::{
             NamespacesCreateNamespaceError, NamespacesGrantPermissionOnNamespaceError,
             namespaces_create_namespace, namespaces_grant_permission_on_namespace,
         },
-        tenants_api::{
-            TenantsBaseCreateTenantError, tenants_base_create_tenant, tenants_base_get_tenants,
-        },
+        tenants_api::{tenants_base_create_tenant, tenants_base_get_tenants},
     },
     models::{Policies, TenantInfo},
 };
@@ -109,10 +107,6 @@ impl PulsarAdmin {
             config,
             key,
         })
-    }
-
-    pub fn get_config(&self) -> &Configuration {
-        &self.config
     }
 
     pub async fn create_namespace(

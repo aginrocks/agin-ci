@@ -2,12 +2,7 @@ use mongodb::bson::oid::ObjectId;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
-use crate::{
-    database::{Notification, OrganizationRole},
-    mongo_id::object_id_as_string_required,
-};
-
-pub type SimpleNotification = Notification<Simple>;
+use crate::{database::OrganizationRole, mongo_id::object_id_as_string_required};
 
 #[derive(Debug, Serialize, Deserialize, ToSchema, Clone)]
 #[serde(tag = "type", content = "body", rename_all = "kebab-case")]

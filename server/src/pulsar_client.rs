@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use color_eyre::eyre::Result;
+use color_eyre::eyre::{Context, Result};
 use jsonwebtoken::{Algorithm, EncodingKey, Header, encode};
 use pulsar::{Authentication, Pulsar, TokioExecutor};
 use pulsar_admin_sdk::{
@@ -11,8 +11,11 @@ use pulsar_admin_sdk::{
             NamespacesCreateNamespaceError, NamespacesGrantPermissionOnNamespaceError,
             namespaces_create_namespace, namespaces_grant_permission_on_namespace,
         },
+        tenants_api::{
+            TenantsBaseCreateTenantError, tenants_base_create_tenant, tenants_base_get_tenants,
+        },
     },
-    models::Policies,
+    models::{Policies, TenantInfo},
 };
 use serde::{Deserialize, Serialize};
 
@@ -29,6 +32,8 @@ pub async fn init_pulsar(
         &settings.pulsar.tenant,
     )?;
 
+    pulsar_admin.ensure_tenant_exists().await?;
+
     let authentication = Authentication {
         name: "token".to_string(),
         data: pulsar_admin.token.clone().into_bytes(),
@@ -44,6 +49,7 @@ pub struct PulsarAdmin {
     pub tenant: String,
     pub token: String,
     pub config: Configuration,
+    pub key: PulsarSecretKey,
 }
 
 pub struct PulsarSecretKey {
@@ -76,7 +82,7 @@ impl PulsarAdmin {
 
         let config = PulsarAdmin::generate_config(base_url, &token);
 
-        Ok(PulsarAdmin::new(tenant.to_string(), token, config))
+        Ok(PulsarAdmin::new(tenant.to_string(), token, config, key))
     }
 
     fn generate_config(base_url: &str, token: &str) -> Configuration {
@@ -91,11 +97,17 @@ impl PulsarAdmin {
         }
     }
 
-    pub fn new(tenant: String, token: String, config: Configuration) -> Arc<Self> {
+    pub fn new(
+        tenant: String,
+        token: String,
+        config: Configuration,
+        key: PulsarSecretKey,
+    ) -> Arc<Self> {
         Arc::new(Self {
             tenant,
             token,
             config,
+            key,
         })
     }
 
@@ -119,5 +131,24 @@ impl PulsarAdmin {
     ) -> Result<(), Error<NamespacesGrantPermissionOnNamespaceError>> {
         namespaces_grant_permission_on_namespace(&self.config, &self.tenant, namespace, role, body)
             .await
+    }
+
+    pub async fn ensure_tenant_exists(&self) -> Result<()> {
+        let tenants = tenants_base_get_tenants(&self.config)
+            .await
+            .wrap_err("Failed to get tenants")?;
+
+        if tenants.contains(&self.tenant) {
+            return Ok(());
+        }
+
+        let body = Some(TenantInfo {
+            admin_roles: Some(vec!["admin".to_string()]),
+            allowed_clusters: Some(vec!["standalone".to_string()]),
+        });
+
+        tenants_base_create_tenant(&self.config, &self.tenant, body)
+            .await
+            .wrap_err("Failed to create tenant")
     }
 }

@@ -3,10 +3,11 @@ use std::sync::Arc;
 use base64::{Engine, engine::general_purpose};
 use color_eyre::eyre::{ContextCompat, Result};
 use git_url_parse::GitUrl;
+use jsonwebtoken::{Algorithm, Header, encode};
 use rand::{Rng, RngCore, distr::Alphanumeric};
 use sha2::{Digest, Sha256};
 
-use crate::pulsar_client::PulsarAdmin;
+use crate::pulsar_client::{PulsarAdmin, PulsarTokenClaims};
 
 pub fn normalize_git_url(url: &str) -> Result<String> {
     if url.is_empty() {
@@ -55,16 +56,19 @@ pub fn hash_pat(pat: &str) -> String {
     format!("{:x}", Sha256::digest(pat))
 }
 
-pub async fn sign_worker_token(admin: Arc<PulsarAdmin>, worker_id: &str) -> Result<()> {
+pub async fn sign_worker_token(admin: Arc<PulsarAdmin>, worker_id: &str) -> Result<String> {
     let role = format!("worker_{worker_id}");
 
     let permissions = vec!["produce".to_string(), "consume".to_string()];
 
-    admin.create_namespace(worker_id, None).await?;
+    admin.create_namespace(worker_id, None).await.ok();
 
     admin
         .grant_permissions_on_namespace(worker_id, &role, Some(permissions))
-        .await?;
+        .await
+        .ok();
 
-    Ok(())
+    let token = admin.key.sign_token(role)?;
+
+    Ok(token)
 }

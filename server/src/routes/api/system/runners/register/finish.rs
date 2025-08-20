@@ -15,6 +15,7 @@ use crate::{
     middlewares::require_auth::UnauthorizedError,
     routes::RouteProtectionLevel,
     state::AppState,
+    utils::sign_worker_token,
 };
 
 use super::Route;
@@ -71,5 +72,11 @@ async fn finish_runner_registration(
         .wrap_err("Failed to fetch runner information")?
         .ok_or(AxumError::unauthorized(eyre!("Invalid registration token")))?;
 
-    todo!()
+    let token = sign_worker_token(state.pulsar_admin.clone(), &runner.id.to_string())
+        .await
+        .wrap_err("Failed to generate worker token")?;
+
+    Ok(Json(FinishRegistrationResponse {
+        access_token: token,
+    }))
 }

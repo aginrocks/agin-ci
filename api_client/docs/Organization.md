@@ -4,7 +4,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**_id** | Option<**String**> |  | [optional]
+**_id** | **String** |  | 
 **avatar_email** | Option<**String**> |  | [optional]
 **description** | **String** |  | 
 **members** | [**Vec<models::Membership>**](Membership.md) |  | 

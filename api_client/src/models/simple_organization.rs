@@ -11,29 +11,25 @@
 use crate::models;
 use serde::{Deserialize, Serialize};
 
+/// SimpleOrganization : Organization info used in joins
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct Organization {
+pub struct SimpleOrganization {
     #[serde(rename = "_id")]
     pub _id: String,
     #[serde(rename = "avatar_email", default, with = "::serde_with::rust::double_option", skip_serializing_if = "Option::is_none")]
     pub avatar_email: Option<Option<String>>,
-    #[serde(rename = "description")]
-    pub description: String,
-    #[serde(rename = "members")]
-    pub members: Vec<models::Membership>,
     #[serde(rename = "name")]
     pub name: String,
     #[serde(rename = "slug")]
     pub slug: String,
 }
 
-impl Organization {
-    pub fn new(_id: String, description: String, members: Vec<models::Membership>, name: String, slug: String) -> Organization {
-        Organization {
+impl SimpleOrganization {
+    /// Organization info used in joins
+    pub fn new(_id: String, name: String, slug: String) -> SimpleOrganization {
+        SimpleOrganization {
             _id,
             avatar_email: None,
-            description,
-            members,
             name,
             slug,
         }

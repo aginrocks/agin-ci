@@ -23,6 +23,7 @@ pub enum GetHealthError {
 }
 
 
+/// This endpoint returns `ok`
 pub async fn get_health(configuration: &configuration::Configuration, ) -> Result<String, Error<GetHealthError>> {
 
     let uri_str = format!("{}/api/health", configuration.base_path);

@@ -28,6 +28,11 @@ Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
 *AuthApi* | [**get_user**](docs/AuthApi.md#get_user) | **GET** /api/user | Get user details
 *AuthApi* | [**log_in**](docs/AuthApi.md#log_in) | **GET** /api/login | Log in
+*GodModeApi* | [**change_god_mode**](docs/GodModeApi.md#change_god_mode) | **PATCH** /api/god | Change God Mode status
+*GodModeApi* | [**get_god_mode**](docs/GodModeApi.md#get_god_mode) | **GET** /api/god | Get God Mode status
+*NotificationsApi* | [**edit_notification_status**](docs/NotificationsApi.md#edit_notification_status) | **PATCH** /api/notifications/{notification_id} | Edit notification status
+*NotificationsApi* | [**get_notification**](docs/NotificationsApi.md#get_notification) | **GET** /api/notifications/{notification_id} | Get notification
+*NotificationsApi* | [**get_notifications**](docs/NotificationsApi.md#get_notifications) | **GET** /api/notifications | Get notifications
 *OrganizationApi* | [**add_organization_member**](docs/OrganizationApi.md#add_organization_member) | **PUT** /api/organizations/{org_slug}/members | Add org member
 *OrganizationApi* | [**delete_organization**](docs/OrganizationApi.md#delete_organization) | **DELETE** /api/organizations/{org_slug} | Delete org
 *OrganizationApi* | [**delete_organization_member**](docs/OrganizationApi.md#delete_organization_member) | **DELETE** /api/organizations/{org_slug}/members/{member_id} | Delete org member
@@ -37,7 +42,7 @@ Class | Method | HTTP request | Description
 *OrganizationApi* | [**get_organization_members**](docs/OrganizationApi.md#get_organization_members) | **GET** /api/organizations/{org_slug}/members | Get org members
 *OrganizationsApi* | [**create_organization**](docs/OrganizationsApi.md#create_organization) | **POST** /api/organizations | Create a new organization
 *OrganizationsApi* | [**get_organizations**](docs/OrganizationsApi.md#get_organizations) | **GET** /api/organizations | Get all organizations
-*OtherApi* | [**get_health**](docs/OtherApi.md#get_health) | **GET** /api/health | Get health of the service (returns \"ok\")
+*OtherApi* | [**get_health**](docs/OtherApi.md#get_health) | **GET** /api/health | Check server health
 *ProjectApi* | [**delete_project**](docs/ProjectApi.md#delete_project) | **DELETE** /api/organizations/{org_slug}/projects/{project_slug} | Delete project
 *ProjectApi* | [**edit_project**](docs/ProjectApi.md#edit_project) | **PATCH** /api/organizations/{org_slug}/projects/{project_slug} | Edit project
 *ProjectApi* | [**get_project**](docs/ProjectApi.md#get_project) | **GET** /api/organizations/{org_slug}/projects/{project_slug} | Get project
@@ -50,6 +55,13 @@ Class | Method | HTTP request | Description
 *SecretsApi* | [**delete_organization_secret**](docs/SecretsApi.md#delete_organization_secret) | **DELETE** /api/organizations/{org_slug}/secrets/{secret_id} | Delete org secret
 *SecretsApi* | [**edit_organization_secret**](docs/SecretsApi.md#edit_organization_secret) | **PATCH** /api/organizations/{org_slug}/secrets/{secret_id} | Edit org secret
 *SecretsApi* | [**get_organization_secrets**](docs/SecretsApi.md#get_organization_secrets) | **GET** /api/organizations/{org_slug}/secrets | Get org secrets
+*SystemApi* | [**create_runner**](docs/SystemApi.md#create_runner) | **POST** /api/system/runners | Create runner
+*SystemApi* | [**delete_runner**](docs/SystemApi.md#delete_runner) | **DELETE** /api/system/runners/{runner_id} | Delete runner
+*SystemApi* | [**edit_runner**](docs/SystemApi.md#edit_runner) | **PATCH** /api/system/runners/{runner_id} | Edit runner
+*SystemApi* | [**edit_system_user**](docs/SystemApi.md#edit_system_user) | **PATCH** /api/system/users/{user_id} | Edit user's role
+*SystemApi* | [**finish_runner_registration**](docs/SystemApi.md#finish_runner_registration) | **POST** /api/system/runners/register/finish | Finish runner registration
+*SystemApi* | [**get_runners**](docs/SystemApi.md#get_runners) | **GET** /api/system/runners | Get runners
+*SystemApi* | [**get_system_users**](docs/SystemApi.md#get_system_users) | **GET** /api/system/users | Get all users
 *TokensApi* | [**create_token**](docs/TokensApi.md#create_token) | **POST** /api/tokens | Create token
 *TokensApi* | [**get_tokens**](docs/TokensApi.md#get_tokens) | **GET** /api/tokens | Get tokens
 *WebhookHandlersApi* | [**gitea_webhook_handler**](docs/WebhookHandlersApi.md#gitea_webhook_handler) | **POST** /api/webhooks/{project_id}/gitea | Forgejo or Gitea Webhook handler
@@ -64,12 +76,34 @@ Class | Method | HTTP request | Description
  - [CreateProjectBody](docs/CreateProjectBody.md)
  - [CreateProjectBodyRepository](docs/CreateProjectBodyRepository.md)
  - [CreateSuccess](docs/CreateSuccess.md)
+ - [Detailed](docs/Detailed.md)
+ - [DetailedInvitationEvent](docs/DetailedInvitationEvent.md)
+ - [DetailedJobFail](docs/DetailedJobFail.md)
+ - [DetailedOfflineWorker](docs/DetailedOfflineWorker.md)
+ - [DetailedOneOf](docs/DetailedOneOf.md)
+ - [DetailedOneOf1](docs/DetailedOneOf1.md)
+ - [DetailedOneOf2](docs/DetailedOneOf2.md)
+ - [DetailedOneOf3](docs/DetailedOneOf3.md)
+ - [DetailedOneOf4](docs/DetailedOneOf4.md)
+ - [DetailedRoleChange](docs/DetailedRoleChange.md)
+ - [EditNotificationBody](docs/EditNotificationBody.md)
  - [EditOrgSecretBody](docs/EditOrgSecretBody.md)
  - [EditRoleBody](docs/EditRoleBody.md)
+ - [EditServerRoleBody](docs/EditServerRoleBody.md)
+ - [FinishRegistrationBody](docs/FinishRegistrationBody.md)
+ - [FinishRegistrationResponse](docs/FinishRegistrationResponse.md)
  - [ForbiddenError](docs/ForbiddenError.md)
+ - [GodModeBody](docs/GodModeBody.md)
+ - [GodModeStatus](docs/GodModeStatus.md)
+ - [HostOs](docs/HostOs.md)
+ - [Invitation](docs/Invitation.md)
+ - [InvitationStatus](docs/InvitationStatus.md)
  - [Member](docs/Member.md)
  - [Membership](docs/Membership.md)
  - [MutableOrganization](docs/MutableOrganization.md)
+ - [NotificationDetailed](docs/NotificationDetailed.md)
+ - [NotificationRecipient](docs/NotificationRecipient.md)
+ - [NotificationStatus](docs/NotificationStatus.md)
  - [Organization](docs/Organization.md)
  - [OrganizationRole](docs/OrganizationRole.md)
  - [Permission](docs/Permission.md)
@@ -78,12 +112,17 @@ Class | Method | HTTP request | Description
  - [PublicProjectRepository](docs/PublicProjectRepository.md)
  - [PublicSecret](docs/PublicSecret.md)
  - [RegenerateSecretResponse](docs/RegenerateSecretResponse.md)
+ - [RegisterRunnerBody](docs/RegisterRunnerBody.md)
+ - [RegisterRunnerResponse](docs/RegisterRunnerResponse.md)
+ - [Runner](docs/Runner.md)
  - [Scope](docs/Scope.md)
  - [ScopeType](docs/ScopeType.md)
  - [ScopeTypeOneOf](docs/ScopeTypeOneOf.md)
  - [ScopeTypeOneOf1](docs/ScopeTypeOneOf1.md)
  - [ScopeTypeOneOf2](docs/ScopeTypeOneOf2.md)
  - [SecretScope](docs/SecretScope.md)
+ - [ServerRole](docs/ServerRole.md)
+ - [SimpleOrganization](docs/SimpleOrganization.md)
  - [UnauthorizedError](docs/UnauthorizedError.md)
  - [User](docs/User.md)
  - [WebhookHandlerSuccess](docs/WebhookHandlerSuccess.md)

@@ -12,27 +12,15 @@ use crate::models;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct User {
-    #[serde(rename = "_id")]
-    pub _id: String,
-    #[serde(rename = "email")]
-    pub email: String,
-    #[serde(rename = "name")]
-    pub name: String,
+pub struct EditServerRoleBody {
     #[serde(rename = "role")]
     pub role: models::ServerRole,
-    #[serde(rename = "subject")]
-    pub subject: String,
 }
 
-impl User {
-    pub fn new(_id: String, email: String, name: String, role: models::ServerRole, subject: String) -> User {
-        User {
-            _id,
-            email,
-            name,
+impl EditServerRoleBody {
+    pub fn new(role: models::ServerRole) -> EditServerRoleBody {
+        EditServerRoleBody {
             role,
-            subject,
         }
     }
 }

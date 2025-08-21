@@ -36,6 +36,9 @@ pub fn routes() -> Vec<Route> {
 #[utoipa::path(
     method(get),
     path = PATH,
+    params(
+        ("notification_id" = String, Path, description = "Notification ID")
+    ),
     responses(
         (status = OK, description = "Success", body = Notification<Detailed>, content_type = "application/json"),
         (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError, content_type = "application/json"),
@@ -92,6 +95,9 @@ pub struct EditNotificationBody {
 #[utoipa::path(
     method(patch),
     path = PATH,
+    params(
+        ("notification_id" = String, Path, description = "Notification ID")
+    ),
     responses(
         (status = OK, description = "Success", body = CreateSuccess, content_type = "application/json"),
         (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError, content_type = "application/json"),

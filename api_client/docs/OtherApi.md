@@ -4,14 +4,16 @@ All URIs are relative to *http://localhost*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**get_health**](OtherApi.md#get_health) | **GET** /api/health | Get health of the service (returns \"ok\")
+[**get_health**](OtherApi.md#get_health) | **GET** /api/health | Check server health
 
 
 
 ## get_health
 
 > String get_health()
-Get health of the service (returns \"ok\")
+Check server health
+
+This endpoint returns `ok`
 
 ### Parameters
 

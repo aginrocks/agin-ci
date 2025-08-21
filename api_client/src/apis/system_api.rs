@@ -15,82 +15,81 @@ use crate::{apis::ResponseContent, models};
 use super::{Error, configuration, ContentType};
 
 
-/// struct for typed errors of method [`add_organization_member`]
+/// struct for typed errors of method [`create_runner`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum AddOrganizationMemberError {
+pub enum CreateRunnerError {
     Status401(models::UnauthorizedError),
     Status403(models::ForbiddenError),
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`delete_organization`]
+/// struct for typed errors of method [`delete_runner`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum DeleteOrganizationError {
+pub enum DeleteRunnerError {
     Status401(models::UnauthorizedError),
     Status403(models::ForbiddenError),
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`delete_organization_member`]
+/// struct for typed errors of method [`edit_runner`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum DeleteOrganizationMemberError {
+pub enum EditRunnerError {
     Status401(models::UnauthorizedError),
     Status403(models::ForbiddenError),
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`edit_organization`]
+/// struct for typed errors of method [`edit_system_user`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum EditOrganizationError {
+pub enum EditSystemUserError {
     Status401(models::UnauthorizedError),
     Status403(models::ForbiddenError),
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`edit_organization_member`]
+/// struct for typed errors of method [`finish_runner_registration`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum EditOrganizationMemberError {
+pub enum FinishRunnerRegistrationError {
+    Status401(models::UnauthorizedError),
+    UnknownValue(serde_json::Value),
+}
+
+/// struct for typed errors of method [`get_runners`]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum GetRunnersError {
     Status401(models::UnauthorizedError),
     Status403(models::ForbiddenError),
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_organization`]
+/// struct for typed errors of method [`get_system_users`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum GetOrganizationError {
-    Status401(models::UnauthorizedError),
-    Status403(models::ForbiddenError),
-    UnknownValue(serde_json::Value),
-}
-
-/// struct for typed errors of method [`get_organization_members`]
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum GetOrganizationMembersError {
+pub enum GetSystemUsersError {
     Status401(models::UnauthorizedError),
     Status403(models::ForbiddenError),
     UnknownValue(serde_json::Value),
 }
 
 
-pub async fn add_organization_member(configuration: &configuration::Configuration, org_slug: &str, membership: models::Membership) -> Result<models::CreateSuccess, Error<AddOrganizationMemberError>> {
+/// Creates a new runner in the system. Returns a token that the runner can use to register itself.
+pub async fn create_runner(configuration: &configuration::Configuration, register_runner_body: models::RegisterRunnerBody) -> Result<models::RegisterRunnerResponse, Error<CreateRunnerError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org_slug = org_slug;
-    let p_membership = membership;
+    let p_register_runner_body = register_runner_body;
 
-    let uri_str = format!("{}/api/organizations/{org_slug}/members", configuration.base_path, org_slug=crate::apis::urlencode(p_org_slug));
-    let mut req_builder = configuration.client.request(reqwest::Method::PUT, &uri_str);
+    let uri_str = format!("{}/api/system/runners", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    req_builder = req_builder.json(&p_membership);
+    req_builder = req_builder.json(&p_register_runner_body);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -107,22 +106,22 @@ pub async fn add_organization_member(configuration: &configuration::Configuratio
         let content = resp.text().await?;
         match content_type {
             ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::CreateSuccess`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::CreateSuccess`")))),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::RegisterRunnerResponse`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::RegisterRunnerResponse`")))),
         }
     } else {
         let content = resp.text().await?;
-        let entity: Option<AddOrganizationMemberError> = serde_json::from_str(&content).ok();
+        let entity: Option<CreateRunnerError> = serde_json::from_str(&content).ok();
         Err(Error::ResponseError(ResponseContent { status, content, entity }))
     }
 }
 
-/// Dangerous!
-pub async fn delete_organization(configuration: &configuration::Configuration, org_slug: &str) -> Result<(), Error<DeleteOrganizationError>> {
+/// Permanently delete a runner without deleting the job runs associated with it.
+pub async fn delete_runner(configuration: &configuration::Configuration, runner_id: &str) -> Result<(), Error<DeleteRunnerError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org_slug = org_slug;
+    let p_runner_id = runner_id;
 
-    let uri_str = format!("{}/api/organizations/{org_slug}", configuration.base_path, org_slug=crate::apis::urlencode(p_org_slug));
+    let uri_str = format!("{}/api/system/runners/{runner_id}", configuration.base_path, runner_id=crate::apis::urlencode(p_runner_id));
     let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -138,49 +137,24 @@ pub async fn delete_organization(configuration: &configuration::Configuration, o
         Ok(())
     } else {
         let content = resp.text().await?;
-        let entity: Option<DeleteOrganizationError> = serde_json::from_str(&content).ok();
+        let entity: Option<DeleteRunnerError> = serde_json::from_str(&content).ok();
         Err(Error::ResponseError(ResponseContent { status, content, entity }))
     }
 }
 
-pub async fn delete_organization_member(configuration: &configuration::Configuration, org_slug: &str, member_id: &str) -> Result<(), Error<DeleteOrganizationMemberError>> {
+/// Edit runner's details.
+pub async fn edit_runner(configuration: &configuration::Configuration, runner_id: &str, register_runner_body: models::RegisterRunnerBody) -> Result<models::CreateSuccess, Error<EditRunnerError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org_slug = org_slug;
-    let p_member_id = member_id;
+    let p_runner_id = runner_id;
+    let p_register_runner_body = register_runner_body;
 
-    let uri_str = format!("{}/api/organizations/{org_slug}/members/{member_id}", configuration.base_path, org_slug=crate::apis::urlencode(p_org_slug), member_id=crate::apis::urlencode(p_member_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<DeleteOrganizationMemberError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn edit_organization(configuration: &configuration::Configuration, org_slug: &str, mutable_organization: models::MutableOrganization) -> Result<models::CreateSuccess, Error<EditOrganizationError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_org_slug = org_slug;
-    let p_mutable_organization = mutable_organization;
-
-    let uri_str = format!("{}/api/organizations/{org_slug}", configuration.base_path, org_slug=crate::apis::urlencode(p_org_slug));
+    let uri_str = format!("{}/api/system/runners/{runner_id}", configuration.base_path, runner_id=crate::apis::urlencode(p_runner_id));
     let mut req_builder = configuration.client.request(reqwest::Method::PATCH, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    req_builder = req_builder.json(&p_mutable_organization);
+    req_builder = req_builder.json(&p_register_runner_body);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -202,24 +176,23 @@ pub async fn edit_organization(configuration: &configuration::Configuration, org
         }
     } else {
         let content = resp.text().await?;
-        let entity: Option<EditOrganizationError> = serde_json::from_str(&content).ok();
+        let entity: Option<EditRunnerError> = serde_json::from_str(&content).ok();
         Err(Error::ResponseError(ResponseContent { status, content, entity }))
     }
 }
 
-pub async fn edit_organization_member(configuration: &configuration::Configuration, org_slug: &str, member_id: &str, edit_role_body: models::EditRoleBody) -> Result<models::CreateSuccess, Error<EditOrganizationMemberError>> {
+pub async fn edit_system_user(configuration: &configuration::Configuration, user_id: &str, edit_server_role_body: models::EditServerRoleBody) -> Result<Vec<models::User>, Error<EditSystemUserError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org_slug = org_slug;
-    let p_member_id = member_id;
-    let p_edit_role_body = edit_role_body;
+    let p_user_id = user_id;
+    let p_edit_server_role_body = edit_server_role_body;
 
-    let uri_str = format!("{}/api/organizations/{org_slug}/members/{member_id}", configuration.base_path, org_slug=crate::apis::urlencode(p_org_slug), member_id=crate::apis::urlencode(p_member_id));
+    let uri_str = format!("{}/api/system/users/{user_id}", configuration.base_path, user_id=crate::apis::urlencode(p_user_id));
     let mut req_builder = configuration.client.request(reqwest::Method::PATCH, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    req_builder = req_builder.json(&p_edit_role_body);
+    req_builder = req_builder.json(&p_edit_server_role_body);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -236,21 +209,58 @@ pub async fn edit_organization_member(configuration: &configuration::Configurati
         let content = resp.text().await?;
         match content_type {
             ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::CreateSuccess`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::CreateSuccess`")))),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::User&gt;`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `Vec&lt;models::User&gt;`")))),
         }
     } else {
         let content = resp.text().await?;
-        let entity: Option<EditOrganizationMemberError> = serde_json::from_str(&content).ok();
+        let entity: Option<EditSystemUserError> = serde_json::from_str(&content).ok();
         Err(Error::ResponseError(ResponseContent { status, content, entity }))
     }
 }
 
-pub async fn get_organization(configuration: &configuration::Configuration, org_slug: &str) -> Result<models::Organization, Error<GetOrganizationError>> {
+/// This endpoint allows to exchange the registration token for a long-lived access token. The token can be used to authenticate directly to Apache Pulsar.  No normal authentication is required, but the registration token must be valid.
+pub async fn finish_runner_registration(configuration: &configuration::Configuration, finish_registration_body: models::FinishRegistrationBody) -> Result<models::FinishRegistrationResponse, Error<FinishRunnerRegistrationError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org_slug = org_slug;
+    let p_finish_registration_body = finish_registration_body;
 
-    let uri_str = format!("{}/api/organizations/{org_slug}", configuration.base_path, org_slug=crate::apis::urlencode(p_org_slug));
+    let uri_str = format!("{}/api/system/runners/register/finish", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    req_builder = req_builder.json(&p_finish_registration_body);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::FinishRegistrationResponse`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::FinishRegistrationResponse`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<FinishRunnerRegistrationError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+/// This endpoint returns all runners that are registered in the system.
+pub async fn get_runners(configuration: &configuration::Configuration, ) -> Result<Vec<models::Runner>, Error<GetRunnersError>> {
+
+    let uri_str = format!("{}/api/system/runners", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -272,21 +282,20 @@ pub async fn get_organization(configuration: &configuration::Configuration, org_
         let content = resp.text().await?;
         match content_type {
             ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::Organization`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::Organization`")))),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::Runner&gt;`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `Vec&lt;models::Runner&gt;`")))),
         }
     } else {
         let content = resp.text().await?;
-        let entity: Option<GetOrganizationError> = serde_json::from_str(&content).ok();
+        let entity: Option<GetRunnersError> = serde_json::from_str(&content).ok();
         Err(Error::ResponseError(ResponseContent { status, content, entity }))
     }
 }
 
-pub async fn get_organization_members(configuration: &configuration::Configuration, org_slug: &str) -> Result<Vec<models::Member>, Error<GetOrganizationMembersError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_org_slug = org_slug;
+/// Returns every user in the system.
+pub async fn get_system_users(configuration: &configuration::Configuration, ) -> Result<Vec<models::User>, Error<GetSystemUsersError>> {
 
-    let uri_str = format!("{}/api/organizations/{org_slug}/members", configuration.base_path, org_slug=crate::apis::urlencode(p_org_slug));
+    let uri_str = format!("{}/api/system/users", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -308,12 +317,12 @@ pub async fn get_organization_members(configuration: &configuration::Configurati
         let content = resp.text().await?;
         match content_type {
             ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::Member&gt;`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `Vec&lt;models::Member&gt;`")))),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::User&gt;`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `Vec&lt;models::User&gt;`")))),
         }
     } else {
         let content = resp.text().await?;
-        let entity: Option<GetOrganizationMembersError> = serde_json::from_str(&content).ok();
+        let entity: Option<GetSystemUsersError> = serde_json::from_str(&content).ok();
         Err(Error::ResponseError(ResponseContent { status, content, entity }))
     }
 }

@@ -112,6 +112,8 @@ impl From<&str> for ContentType {
 }
 
 pub mod auth_api;
+pub mod god_mode_api;
+pub mod notifications_api;
 pub mod organization_api;
 pub mod organizations_api;
 pub mod other_api;
@@ -119,6 +121,7 @@ pub mod project_api;
 pub mod projects_api;
 pub mod schema_api;
 pub mod secrets_api;
+pub mod system_api;
 pub mod tokens_api;
 pub mod webhook_handlers_api;
 

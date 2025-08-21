@@ -46,6 +46,10 @@ The listen address can be a single address or an array of addresses. The server 
 
 #### `public_url`
 
+<Callout type="warning">
+Changing the public URL can have unintended side effects. For example, all runner registration tokens will be invalidated.
+</Callout>
+
 This is the public URL of the Agin CI server (FQDN). It is used to generate links and OIDC redirects. Make sure to set it correctly, especially if you are running the server behind a reverse proxy.
 
 

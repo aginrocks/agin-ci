@@ -111,7 +111,13 @@ async fn create_runner(
     let uuid = Uuid::new_v4();
 
     let registration = RunnerRegistration::new_random(RunnerRegistrationMetadata::new(
-        state.settings.general.public_url.to_string(),
+        state
+            .settings
+            .general
+            .public_url
+            .to_string()
+            .trim_end_matches('/')
+            .to_string(),
     ));
 
     let token = registration

@@ -7,7 +7,7 @@ use serde_json::Error;
 pub mod runner_messages;
 pub mod workflow;
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct RunnerRegistrationMetadata {
     #[serde(rename = "url")]
     pub public_url: String,

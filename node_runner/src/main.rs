@@ -1,3 +1,6 @@
+mod auth;
+mod config;
+
 use aginci_core::{
     runner_messages::report_progress::ProgressReport,
     workflow::{
@@ -15,9 +18,13 @@ use tracing_error::ErrorLayer;
 use tracing_subscriber::{fmt::format::FmtSpan, layer::SubscriberExt, util::SubscriberInitExt};
 use uuid::Uuid;
 
+use crate::{auth::init_auth, config::init_config};
+
 #[tokio::main]
 async fn main() -> Result<()> {
     color_eyre::install()?;
+
+    dotenvy::dotenv().ok();
 
     init_tracing().wrap_err("failed to set global tracing subscriber")?;
 
@@ -27,51 +34,12 @@ async fn main() -> Result<()> {
         env!("CARGO_PKG_VERSION"),
     );
 
+    let (token, metadata) = init_auth().await?;
+    info!("Initialized authentication");
+
     let mut runner = WorkflowRunner::new()?;
-
-    info!("Initialized workflow runner");
-
     runner.serve().await.wrap_err("Failed to start server")?;
-
-    let mut progress = runner
-        .run_workflow(JobRun {
-            id: Uuid::new_v4(),
-            job: Job {
-                base_image: Some("rust:latest".to_string()),
-                name: Some("Example Job".to_string()),
-                runs_on: OS::Linux,
-                steps: vec![Step::Run(RunStep {
-                    run: "ls".to_string(),
-                    uses: aginci_core::workflow::steps::run::UsesRunStep::Value,
-                    id: Some("example_step".to_string()),
-                    name: Some("Run".to_string()),
-                    continue_on_error: Some(false),
-                    working_directory: None,
-                    env: None,
-                    with: Some(RunStepWith {
-                        shell: Some("nu".to_string()),
-                        user: None,
-                    }),
-                })],
-            },
-        })
-        .await?;
-
-    while let Ok(report) = progress.recv().await {
-        match report {
-            ProgressReport::Output(output) => {
-                info!("Received output: {:?}", output);
-                // Handle stdout/stderr
-            }
-            ProgressReport::Exit(exit) => {
-                info!("Received exit: {:?}", exit);
-                // Handle exit code
-            }
-            ProgressReport::Step(step) => {
-                info!("Running step: {:?}", step);
-            }
-        }
-    }
+    info!("Initialized workflow runner");
 
     // Simulating queue connection for now
     tokio::time::sleep(std::time::Duration::MAX).await;

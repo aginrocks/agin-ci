@@ -69,6 +69,7 @@ pub struct Oidc {
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Pulsar {
     pub connection_string: String,
+    pub public_connection_string: Option<String>,
     pub admin_url: String,
     pub tenant: String,
     pub secret_key: String,
@@ -167,6 +168,7 @@ impl Settings {
             },
             pulsar: Pulsar {
                 connection_string: "pulsar://localhost:6650".to_string(),
+                public_connection_string: Some("pulsar://example.com:6650".to_string()),
                 admin_url: "http://localhost:8080".to_string(),
                 tenant: "aginci".to_string(),
                 secret_key: "./token-secret.key".to_string(),

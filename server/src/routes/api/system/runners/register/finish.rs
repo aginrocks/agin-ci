@@ -40,6 +40,8 @@ pub struct FinishRegistrationBody {
 pub struct FinishRegistrationResponse {
     /// Access token that can be used to authenticate directly to Apache Pulsar
     access_token: String,
+    /// Conenction string that should be used to connect to Apache Pulsar
+    connection_string: String,
 }
 
 /// Finish runner registration
@@ -76,7 +78,15 @@ async fn finish_runner_registration(
         .await
         .wrap_err("Failed to generate worker token")?;
 
+    let connection_string = state
+        .settings
+        .pulsar
+        .public_connection_string
+        .clone()
+        .unwrap_or(state.settings.pulsar.connection_string.clone());
+
     Ok(Json(FinishRegistrationResponse {
         access_token: token,
+        connection_string,
     }))
 }

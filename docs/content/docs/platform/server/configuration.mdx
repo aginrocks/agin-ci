@@ -31,6 +31,7 @@ connection_string = "redis://localhost:6379"
 
 [pulsar]
 connection_string = "pulsar://localhost:6650"
+public_connection_string = "pulsar://example.com:6650"
 admin_url = "http://localhost:8080"
 tenant = "aginci"
 token = ""
@@ -108,6 +109,10 @@ Agin CI relise on Apache Pulsar for event streaming. This section contains setti
 #### `connection_string`
 
 The connection string for the Pulsar cluster. This should be a valid Pulsar connection string, such as `pulsar://localhost:6650`.
+
+#### `public_connection_string`
+
+The connection string that workers will use to connect to the Pulsar cluster. This is usually the same as `connection_string`, but it can be different if you are running the Pulsar cluster behind a load balancer or reverse proxy. For example, if your Pulsar cluster is accessible at `pulsar://example.com:6650`, you should set this to that value. This field is optional and defaults to `connection_string` if not set.
 
 #### `admin_url`
 

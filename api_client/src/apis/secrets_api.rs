@@ -54,16 +54,16 @@ pub enum GetOrganizationSecretsError {
 
 pub async fn create_organization_secret(configuration: &configuration::Configuration, org_slug: &str, create_org_secret_body: models::CreateOrgSecretBody) -> Result<models::CreateSuccess, Error<CreateOrganizationSecretError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org_slug = org_slug;
-    let p_create_org_secret_body = create_org_secret_body;
+    let p_path_org_slug = org_slug;
+    let p_body_create_org_secret_body = create_org_secret_body;
 
-    let uri_str = format!("{}/api/organizations/{org_slug}/secrets", configuration.base_path, org_slug=crate::apis::urlencode(p_org_slug));
+    let uri_str = format!("{}/api/organizations/{org_slug}/secrets", configuration.base_path, org_slug=crate::apis::urlencode(p_path_org_slug));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    req_builder = req_builder.json(&p_create_org_secret_body);
+    req_builder = req_builder.json(&p_body_create_org_secret_body);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -92,10 +92,10 @@ pub async fn create_organization_secret(configuration: &configuration::Configura
 
 pub async fn delete_organization_secret(configuration: &configuration::Configuration, org_slug: &str, secret_id: &str) -> Result<(), Error<DeleteOrganizationSecretError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org_slug = org_slug;
-    let p_secret_id = secret_id;
+    let p_path_org_slug = org_slug;
+    let p_path_secret_id = secret_id;
 
-    let uri_str = format!("{}/api/organizations/{org_slug}/secrets/{secret_id}", configuration.base_path, org_slug=crate::apis::urlencode(p_org_slug), secret_id=crate::apis::urlencode(p_secret_id));
+    let uri_str = format!("{}/api/organizations/{org_slug}/secrets/{secret_id}", configuration.base_path, org_slug=crate::apis::urlencode(p_path_org_slug), secret_id=crate::apis::urlencode(p_path_secret_id));
     let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -118,17 +118,17 @@ pub async fn delete_organization_secret(configuration: &configuration::Configura
 
 pub async fn edit_organization_secret(configuration: &configuration::Configuration, org_slug: &str, secret_id: &str, edit_org_secret_body: models::EditOrgSecretBody) -> Result<models::CreateSuccess, Error<EditOrganizationSecretError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org_slug = org_slug;
-    let p_secret_id = secret_id;
-    let p_edit_org_secret_body = edit_org_secret_body;
+    let p_path_org_slug = org_slug;
+    let p_path_secret_id = secret_id;
+    let p_body_edit_org_secret_body = edit_org_secret_body;
 
-    let uri_str = format!("{}/api/organizations/{org_slug}/secrets/{secret_id}", configuration.base_path, org_slug=crate::apis::urlencode(p_org_slug), secret_id=crate::apis::urlencode(p_secret_id));
+    let uri_str = format!("{}/api/organizations/{org_slug}/secrets/{secret_id}", configuration.base_path, org_slug=crate::apis::urlencode(p_path_org_slug), secret_id=crate::apis::urlencode(p_path_secret_id));
     let mut req_builder = configuration.client.request(reqwest::Method::PATCH, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    req_builder = req_builder.json(&p_edit_org_secret_body);
+    req_builder = req_builder.json(&p_body_edit_org_secret_body);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -157,9 +157,9 @@ pub async fn edit_organization_secret(configuration: &configuration::Configurati
 
 pub async fn get_organization_secrets(configuration: &configuration::Configuration, org_slug: &str) -> Result<Vec<models::PublicSecret>, Error<GetOrganizationSecretsError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org_slug = org_slug;
+    let p_path_org_slug = org_slug;
 
-    let uri_str = format!("{}/api/organizations/{org_slug}/secrets", configuration.base_path, org_slug=crate::apis::urlencode(p_org_slug));
+    let uri_str = format!("{}/api/organizations/{org_slug}/secrets", configuration.base_path, org_slug=crate::apis::urlencode(p_path_org_slug));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {

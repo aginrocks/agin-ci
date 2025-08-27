@@ -16,12 +16,16 @@ pub struct FinishRegistrationResponse {
     /// Access token that can be used to authenticate directly to Apache Pulsar
     #[serde(rename = "access_token")]
     pub access_token: String,
+    /// Conenction string that should be used to connect to Apache Pulsar
+    #[serde(rename = "connection_string")]
+    pub connection_string: String,
 }
 
 impl FinishRegistrationResponse {
-    pub fn new(access_token: String) -> FinishRegistrationResponse {
+    pub fn new(access_token: String, connection_string: String) -> FinishRegistrationResponse {
         FinishRegistrationResponse {
             access_token,
+            connection_string,
         }
     }
 }

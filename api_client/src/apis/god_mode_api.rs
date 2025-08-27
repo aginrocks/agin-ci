@@ -36,7 +36,7 @@ pub enum GetGodModeError {
 /// Enable or disable God Mode.
 pub async fn change_god_mode(configuration: &configuration::Configuration, god_mode_body: models::GodModeBody) -> Result<models::GodModeStatus, Error<ChangeGodModeError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_god_mode_body = god_mode_body;
+    let p_body_god_mode_body = god_mode_body;
 
     let uri_str = format!("{}/api/god", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::PATCH, &uri_str);
@@ -44,7 +44,7 @@ pub async fn change_god_mode(configuration: &configuration::Configuration, god_m
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    req_builder = req_builder.json(&p_god_mode_body);
+    req_builder = req_builder.json(&p_body_god_mode_body);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;

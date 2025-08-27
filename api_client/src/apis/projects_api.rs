@@ -36,16 +36,16 @@ pub enum GetProjectsError {
 
 pub async fn create_project(configuration: &configuration::Configuration, org_slug: &str, create_project_body: models::CreateProjectBody) -> Result<models::CreateSuccess, Error<CreateProjectError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org_slug = org_slug;
-    let p_create_project_body = create_project_body;
+    let p_path_org_slug = org_slug;
+    let p_body_create_project_body = create_project_body;
 
-    let uri_str = format!("{}/api/organizations/{org_slug}/projects", configuration.base_path, org_slug=crate::apis::urlencode(p_org_slug));
+    let uri_str = format!("{}/api/organizations/{org_slug}/projects", configuration.base_path, org_slug=crate::apis::urlencode(p_path_org_slug));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    req_builder = req_builder.json(&p_create_project_body);
+    req_builder = req_builder.json(&p_body_create_project_body);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -74,9 +74,9 @@ pub async fn create_project(configuration: &configuration::Configuration, org_sl
 
 pub async fn get_projects(configuration: &configuration::Configuration, org_slug: &str) -> Result<Vec<models::PublicProject>, Error<GetProjectsError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org_slug = org_slug;
+    let p_path_org_slug = org_slug;
 
-    let uri_str = format!("{}/api/organizations/{org_slug}/projects", configuration.base_path, org_slug=crate::apis::urlencode(p_org_slug));
+    let uri_str = format!("{}/api/organizations/{org_slug}/projects", configuration.base_path, org_slug=crate::apis::urlencode(p_path_org_slug));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {

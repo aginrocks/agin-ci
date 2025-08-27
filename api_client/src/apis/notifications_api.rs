@@ -44,16 +44,16 @@ pub enum GetNotificationsError {
 
 pub async fn edit_notification_status(configuration: &configuration::Configuration, notification_id: &str, edit_notification_body: models::EditNotificationBody) -> Result<models::CreateSuccess, Error<EditNotificationStatusError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_notification_id = notification_id;
-    let p_edit_notification_body = edit_notification_body;
+    let p_path_notification_id = notification_id;
+    let p_body_edit_notification_body = edit_notification_body;
 
-    let uri_str = format!("{}/api/notifications/{notification_id}", configuration.base_path, notification_id=crate::apis::urlencode(p_notification_id));
+    let uri_str = format!("{}/api/notifications/{notification_id}", configuration.base_path, notification_id=crate::apis::urlencode(p_path_notification_id));
     let mut req_builder = configuration.client.request(reqwest::Method::PATCH, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    req_builder = req_builder.json(&p_edit_notification_body);
+    req_builder = req_builder.json(&p_body_edit_notification_body);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -82,9 +82,9 @@ pub async fn edit_notification_status(configuration: &configuration::Configurati
 
 pub async fn get_notification(configuration: &configuration::Configuration, notification_id: &str) -> Result<models::NotificationDetailed, Error<GetNotificationError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_notification_id = notification_id;
+    let p_path_notification_id = notification_id;
 
-    let uri_str = format!("{}/api/notifications/{notification_id}", configuration.base_path, notification_id=crate::apis::urlencode(p_notification_id));
+    let uri_str = format!("{}/api/notifications/{notification_id}", configuration.base_path, notification_id=crate::apis::urlencode(p_path_notification_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {

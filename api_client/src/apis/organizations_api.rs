@@ -34,7 +34,7 @@ pub enum GetOrganizationsError {
 
 pub async fn create_organization(configuration: &configuration::Configuration, mutable_organization: models::MutableOrganization) -> Result<models::CreateSuccess, Error<CreateOrganizationError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_mutable_organization = mutable_organization;
+    let p_body_mutable_organization = mutable_organization;
 
     let uri_str = format!("{}/api/organizations", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -42,7 +42,7 @@ pub async fn create_organization(configuration: &configuration::Configuration, m
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    req_builder = req_builder.json(&p_mutable_organization);
+    req_builder = req_builder.json(&p_body_mutable_organization);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;

@@ -81,7 +81,7 @@ pub enum GetSystemUsersError {
 /// Creates a new runner in the system. Returns a token that the runner can use to register itself.
 pub async fn create_runner(configuration: &configuration::Configuration, register_runner_body: models::RegisterRunnerBody) -> Result<models::RegisterRunnerResponse, Error<CreateRunnerError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_register_runner_body = register_runner_body;
+    let p_body_register_runner_body = register_runner_body;
 
     let uri_str = format!("{}/api/system/runners", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -89,7 +89,7 @@ pub async fn create_runner(configuration: &configuration::Configuration, registe
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    req_builder = req_builder.json(&p_register_runner_body);
+    req_builder = req_builder.json(&p_body_register_runner_body);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -119,9 +119,9 @@ pub async fn create_runner(configuration: &configuration::Configuration, registe
 /// Permanently delete a runner without deleting the job runs associated with it.
 pub async fn delete_runner(configuration: &configuration::Configuration, runner_id: &str) -> Result<(), Error<DeleteRunnerError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_runner_id = runner_id;
+    let p_path_runner_id = runner_id;
 
-    let uri_str = format!("{}/api/system/runners/{runner_id}", configuration.base_path, runner_id=crate::apis::urlencode(p_runner_id));
+    let uri_str = format!("{}/api/system/runners/{runner_id}", configuration.base_path, runner_id=crate::apis::urlencode(p_path_runner_id));
     let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -145,16 +145,16 @@ pub async fn delete_runner(configuration: &configuration::Configuration, runner_
 /// Edit runner's details.
 pub async fn edit_runner(configuration: &configuration::Configuration, runner_id: &str, register_runner_body: models::RegisterRunnerBody) -> Result<models::CreateSuccess, Error<EditRunnerError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_runner_id = runner_id;
-    let p_register_runner_body = register_runner_body;
+    let p_path_runner_id = runner_id;
+    let p_body_register_runner_body = register_runner_body;
 
-    let uri_str = format!("{}/api/system/runners/{runner_id}", configuration.base_path, runner_id=crate::apis::urlencode(p_runner_id));
+    let uri_str = format!("{}/api/system/runners/{runner_id}", configuration.base_path, runner_id=crate::apis::urlencode(p_path_runner_id));
     let mut req_builder = configuration.client.request(reqwest::Method::PATCH, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    req_builder = req_builder.json(&p_register_runner_body);
+    req_builder = req_builder.json(&p_body_register_runner_body);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -183,16 +183,16 @@ pub async fn edit_runner(configuration: &configuration::Configuration, runner_id
 
 pub async fn edit_system_user(configuration: &configuration::Configuration, user_id: &str, edit_server_role_body: models::EditServerRoleBody) -> Result<Vec<models::User>, Error<EditSystemUserError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_user_id = user_id;
-    let p_edit_server_role_body = edit_server_role_body;
+    let p_path_user_id = user_id;
+    let p_body_edit_server_role_body = edit_server_role_body;
 
-    let uri_str = format!("{}/api/system/users/{user_id}", configuration.base_path, user_id=crate::apis::urlencode(p_user_id));
+    let uri_str = format!("{}/api/system/users/{user_id}", configuration.base_path, user_id=crate::apis::urlencode(p_path_user_id));
     let mut req_builder = configuration.client.request(reqwest::Method::PATCH, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    req_builder = req_builder.json(&p_edit_server_role_body);
+    req_builder = req_builder.json(&p_body_edit_server_role_body);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -222,7 +222,7 @@ pub async fn edit_system_user(configuration: &configuration::Configuration, user
 /// This endpoint allows to exchange the registration token for a long-lived access token. The token can be used to authenticate directly to Apache Pulsar.  No normal authentication is required, but the registration token must be valid.
 pub async fn finish_runner_registration(configuration: &configuration::Configuration, finish_registration_body: models::FinishRegistrationBody) -> Result<models::FinishRegistrationResponse, Error<FinishRunnerRegistrationError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_finish_registration_body = finish_registration_body;
+    let p_body_finish_registration_body = finish_registration_body;
 
     let uri_str = format!("{}/api/system/runners/register/finish", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -230,7 +230,7 @@ pub async fn finish_runner_registration(configuration: &configuration::Configura
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    req_builder = req_builder.json(&p_finish_registration_body);
+    req_builder = req_builder.json(&p_body_finish_registration_body);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;

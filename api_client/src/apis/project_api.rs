@@ -63,10 +63,10 @@ pub enum RegenerateWebhookSecretError {
 
 pub async fn delete_project(configuration: &configuration::Configuration, org_slug: &str, project_slug: &str) -> Result<(), Error<DeleteProjectError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org_slug = org_slug;
-    let p_project_slug = project_slug;
+    let p_path_org_slug = org_slug;
+    let p_path_project_slug = project_slug;
 
-    let uri_str = format!("{}/api/organizations/{org_slug}/projects/{project_slug}", configuration.base_path, org_slug=crate::apis::urlencode(p_org_slug), project_slug=crate::apis::urlencode(p_project_slug));
+    let uri_str = format!("{}/api/organizations/{org_slug}/projects/{project_slug}", configuration.base_path, org_slug=crate::apis::urlencode(p_path_org_slug), project_slug=crate::apis::urlencode(p_path_project_slug));
     let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -89,17 +89,17 @@ pub async fn delete_project(configuration: &configuration::Configuration, org_sl
 
 pub async fn edit_project(configuration: &configuration::Configuration, org_slug: &str, project_slug: &str, create_project_body: models::CreateProjectBody) -> Result<models::CreateSuccess, Error<EditProjectError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org_slug = org_slug;
-    let p_project_slug = project_slug;
-    let p_create_project_body = create_project_body;
+    let p_path_org_slug = org_slug;
+    let p_path_project_slug = project_slug;
+    let p_body_create_project_body = create_project_body;
 
-    let uri_str = format!("{}/api/organizations/{org_slug}/projects/{project_slug}", configuration.base_path, org_slug=crate::apis::urlencode(p_org_slug), project_slug=crate::apis::urlencode(p_project_slug));
+    let uri_str = format!("{}/api/organizations/{org_slug}/projects/{project_slug}", configuration.base_path, org_slug=crate::apis::urlencode(p_path_org_slug), project_slug=crate::apis::urlencode(p_path_project_slug));
     let mut req_builder = configuration.client.request(reqwest::Method::PATCH, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    req_builder = req_builder.json(&p_create_project_body);
+    req_builder = req_builder.json(&p_body_create_project_body);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -128,10 +128,10 @@ pub async fn edit_project(configuration: &configuration::Configuration, org_slug
 
 pub async fn get_project(configuration: &configuration::Configuration, org_slug: &str, project_slug: &str) -> Result<models::PublicProject, Error<GetProjectError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org_slug = org_slug;
-    let p_project_slug = project_slug;
+    let p_path_org_slug = org_slug;
+    let p_path_project_slug = project_slug;
 
-    let uri_str = format!("{}/api/organizations/{org_slug}/projects/{project_slug}", configuration.base_path, org_slug=crate::apis::urlencode(p_org_slug), project_slug=crate::apis::urlencode(p_project_slug));
+    let uri_str = format!("{}/api/organizations/{org_slug}/projects/{project_slug}", configuration.base_path, org_slug=crate::apis::urlencode(p_path_org_slug), project_slug=crate::apis::urlencode(p_path_project_slug));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -166,10 +166,10 @@ pub async fn get_project(configuration: &configuration::Configuration, org_slug:
 /// These keys are used to pull the repository. You can get the public key from the project details.
 pub async fn regenerate_project_keys(configuration: &configuration::Configuration, org_slug: &str, project_slug: &str) -> Result<models::PublicProject, Error<RegenerateProjectKeysError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org_slug = org_slug;
-    let p_project_slug = project_slug;
+    let p_path_org_slug = org_slug;
+    let p_path_project_slug = project_slug;
 
-    let uri_str = format!("{}/api/organizations/{org_slug}/projects/{project_slug}/regenerate-keys", configuration.base_path, org_slug=crate::apis::urlencode(p_org_slug), project_slug=crate::apis::urlencode(p_project_slug));
+    let uri_str = format!("{}/api/organizations/{org_slug}/projects/{project_slug}/regenerate-keys", configuration.base_path, org_slug=crate::apis::urlencode(p_path_org_slug), project_slug=crate::apis::urlencode(p_path_project_slug));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -204,10 +204,10 @@ pub async fn regenerate_project_keys(configuration: &configuration::Configuratio
 /// This secret is used to verify the authenticity of webhooks sent by the repository service. You won't be able to view it again after this call.
 pub async fn regenerate_webhook_secret(configuration: &configuration::Configuration, org_slug: &str, project_slug: &str) -> Result<models::RegenerateSecretResponse, Error<RegenerateWebhookSecretError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org_slug = org_slug;
-    let p_project_slug = project_slug;
+    let p_path_org_slug = org_slug;
+    let p_path_project_slug = project_slug;
 
-    let uri_str = format!("{}/api/organizations/{org_slug}/projects/{project_slug}/regenerate-webhook-secret", configuration.base_path, org_slug=crate::apis::urlencode(p_org_slug), project_slug=crate::apis::urlencode(p_project_slug));
+    let uri_str = format!("{}/api/organizations/{org_slug}/projects/{project_slug}/regenerate-webhook-secret", configuration.base_path, org_slug=crate::apis::urlencode(p_path_org_slug), project_slug=crate::apis::urlencode(p_path_project_slug));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {

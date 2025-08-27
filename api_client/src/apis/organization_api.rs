@@ -81,16 +81,16 @@ pub enum GetOrganizationMembersError {
 
 pub async fn add_organization_member(configuration: &configuration::Configuration, org_slug: &str, membership: models::Membership) -> Result<models::CreateSuccess, Error<AddOrganizationMemberError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org_slug = org_slug;
-    let p_membership = membership;
+    let p_path_org_slug = org_slug;
+    let p_body_membership = membership;
 
-    let uri_str = format!("{}/api/organizations/{org_slug}/members", configuration.base_path, org_slug=crate::apis::urlencode(p_org_slug));
+    let uri_str = format!("{}/api/organizations/{org_slug}/members", configuration.base_path, org_slug=crate::apis::urlencode(p_path_org_slug));
     let mut req_builder = configuration.client.request(reqwest::Method::PUT, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    req_builder = req_builder.json(&p_membership);
+    req_builder = req_builder.json(&p_body_membership);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -120,9 +120,9 @@ pub async fn add_organization_member(configuration: &configuration::Configuratio
 /// Dangerous!
 pub async fn delete_organization(configuration: &configuration::Configuration, org_slug: &str) -> Result<(), Error<DeleteOrganizationError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org_slug = org_slug;
+    let p_path_org_slug = org_slug;
 
-    let uri_str = format!("{}/api/organizations/{org_slug}", configuration.base_path, org_slug=crate::apis::urlencode(p_org_slug));
+    let uri_str = format!("{}/api/organizations/{org_slug}", configuration.base_path, org_slug=crate::apis::urlencode(p_path_org_slug));
     let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -145,10 +145,10 @@ pub async fn delete_organization(configuration: &configuration::Configuration, o
 
 pub async fn delete_organization_member(configuration: &configuration::Configuration, org_slug: &str, member_id: &str) -> Result<(), Error<DeleteOrganizationMemberError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org_slug = org_slug;
-    let p_member_id = member_id;
+    let p_path_org_slug = org_slug;
+    let p_path_member_id = member_id;
 
-    let uri_str = format!("{}/api/organizations/{org_slug}/members/{member_id}", configuration.base_path, org_slug=crate::apis::urlencode(p_org_slug), member_id=crate::apis::urlencode(p_member_id));
+    let uri_str = format!("{}/api/organizations/{org_slug}/members/{member_id}", configuration.base_path, org_slug=crate::apis::urlencode(p_path_org_slug), member_id=crate::apis::urlencode(p_path_member_id));
     let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -171,16 +171,16 @@ pub async fn delete_organization_member(configuration: &configuration::Configura
 
 pub async fn edit_organization(configuration: &configuration::Configuration, org_slug: &str, mutable_organization: models::MutableOrganization) -> Result<models::CreateSuccess, Error<EditOrganizationError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org_slug = org_slug;
-    let p_mutable_organization = mutable_organization;
+    let p_path_org_slug = org_slug;
+    let p_body_mutable_organization = mutable_organization;
 
-    let uri_str = format!("{}/api/organizations/{org_slug}", configuration.base_path, org_slug=crate::apis::urlencode(p_org_slug));
+    let uri_str = format!("{}/api/organizations/{org_slug}", configuration.base_path, org_slug=crate::apis::urlencode(p_path_org_slug));
     let mut req_builder = configuration.client.request(reqwest::Method::PATCH, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    req_builder = req_builder.json(&p_mutable_organization);
+    req_builder = req_builder.json(&p_body_mutable_organization);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -209,17 +209,17 @@ pub async fn edit_organization(configuration: &configuration::Configuration, org
 
 pub async fn edit_organization_member(configuration: &configuration::Configuration, org_slug: &str, member_id: &str, edit_role_body: models::EditRoleBody) -> Result<models::CreateSuccess, Error<EditOrganizationMemberError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org_slug = org_slug;
-    let p_member_id = member_id;
-    let p_edit_role_body = edit_role_body;
+    let p_path_org_slug = org_slug;
+    let p_path_member_id = member_id;
+    let p_body_edit_role_body = edit_role_body;
 
-    let uri_str = format!("{}/api/organizations/{org_slug}/members/{member_id}", configuration.base_path, org_slug=crate::apis::urlencode(p_org_slug), member_id=crate::apis::urlencode(p_member_id));
+    let uri_str = format!("{}/api/organizations/{org_slug}/members/{member_id}", configuration.base_path, org_slug=crate::apis::urlencode(p_path_org_slug), member_id=crate::apis::urlencode(p_path_member_id));
     let mut req_builder = configuration.client.request(reqwest::Method::PATCH, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    req_builder = req_builder.json(&p_edit_role_body);
+    req_builder = req_builder.json(&p_body_edit_role_body);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -248,9 +248,9 @@ pub async fn edit_organization_member(configuration: &configuration::Configurati
 
 pub async fn get_organization(configuration: &configuration::Configuration, org_slug: &str) -> Result<models::Organization, Error<GetOrganizationError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org_slug = org_slug;
+    let p_path_org_slug = org_slug;
 
-    let uri_str = format!("{}/api/organizations/{org_slug}", configuration.base_path, org_slug=crate::apis::urlencode(p_org_slug));
+    let uri_str = format!("{}/api/organizations/{org_slug}", configuration.base_path, org_slug=crate::apis::urlencode(p_path_org_slug));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -284,9 +284,9 @@ pub async fn get_organization(configuration: &configuration::Configuration, org_
 
 pub async fn get_organization_members(configuration: &configuration::Configuration, org_slug: &str) -> Result<Vec<models::Member>, Error<GetOrganizationMembersError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org_slug = org_slug;
+    let p_path_org_slug = org_slug;
 
-    let uri_str = format!("{}/api/organizations/{org_slug}/members", configuration.base_path, org_slug=crate::apis::urlencode(p_org_slug));
+    let uri_str = format!("{}/api/organizations/{org_slug}/members", configuration.base_path, org_slug=crate::apis::urlencode(p_path_org_slug));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {

@@ -34,7 +34,7 @@ pub enum GetTokensError {
 
 pub async fn create_token(configuration: &configuration::Configuration, access_token_create_body: models::AccessTokenCreateBody) -> Result<models::AccessTokenCreateResponse, Error<CreateTokenError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_access_token_create_body = access_token_create_body;
+    let p_body_access_token_create_body = access_token_create_body;
 
     let uri_str = format!("{}/api/tokens", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -42,7 +42,7 @@ pub async fn create_token(configuration: &configuration::Configuration, access_t
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    req_builder = req_builder.json(&p_access_token_create_body);
+    req_builder = req_builder.json(&p_body_access_token_create_body);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;

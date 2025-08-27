@@ -33,16 +33,16 @@ pub enum GithubWebhookHandlerError {
 /// Handles incoming Forgejo or Gitea webhooks
 pub async fn gitea_webhook_handler(configuration: &configuration::Configuration, project_id: &str, body: &str) -> Result<models::WebhookHandlerSuccess, Error<GiteaWebhookHandlerError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_project_id = project_id;
-    let p_body = body;
+    let p_path_project_id = project_id;
+    let p_body_body = body;
 
-    let uri_str = format!("{}/api/webhooks/{project_id}/gitea", configuration.base_path, project_id=crate::apis::urlencode(p_project_id));
+    let uri_str = format!("{}/api/webhooks/{project_id}/gitea", configuration.base_path, project_id=crate::apis::urlencode(p_path_project_id));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    req_builder = req_builder.json(&p_body);
+    req_builder = req_builder.json(&p_body_body);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -72,16 +72,16 @@ pub async fn gitea_webhook_handler(configuration: &configuration::Configuration,
 /// Handles incoming GitHub webhooks
 pub async fn github_webhook_handler(configuration: &configuration::Configuration, project_id: &str, body: &str) -> Result<models::WebhookHandlerSuccess, Error<GithubWebhookHandlerError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_project_id = project_id;
-    let p_body = body;
+    let p_path_project_id = project_id;
+    let p_body_body = body;
 
-    let uri_str = format!("{}/api/webhooks/{project_id}/github", configuration.base_path, project_id=crate::apis::urlencode(p_project_id));
+    let uri_str = format!("{}/api/webhooks/{project_id}/github", configuration.base_path, project_id=crate::apis::urlencode(p_path_project_id));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    req_builder = req_builder.json(&p_body);
+    req_builder = req_builder.json(&p_body_body);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;

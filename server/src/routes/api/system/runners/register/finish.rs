@@ -74,7 +74,7 @@ async fn finish_runner_registration(
         .wrap_err("Failed to fetch runner information")?
         .ok_or(AxumError::unauthorized(eyre!("Invalid registration token")))?;
 
-    let token = sign_worker_token(state.pulsar_admin.clone(), &runner.id.to_string())
+    let token = sign_worker_token(state.pulsar_admin.clone(), &runner.uuid.to_string())
         .await
         .wrap_err("Failed to generate worker token")?;
 

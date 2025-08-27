@@ -14,6 +14,9 @@ pub struct AppConfig {
     pub registration_token_hash: String,
 
     pub metadata: RunnerRegistrationMetadata,
+
+    /// Pulsar connection string
+    pub connection_string: String,
 }
 
 impl AppConfig {

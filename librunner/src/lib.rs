@@ -2,7 +2,7 @@ pub mod session;
 mod socket;
 pub mod tokens_manager;
 
-use aginci_core::runner_messages::report_progress::ProgressReport;
+use aginci_core::{runner_messages::report_progress::ProgressReport, workflow::JobRun};
 use axum::{Router, http::StatusCode, response::IntoResponse, routing::get};
 use bollard::{
     Docker,
@@ -16,11 +16,7 @@ use std::{collections::BTreeMap, sync::Arc};
 use tokio::sync::{RwLock, broadcast};
 use tracing::{debug, error, info_span};
 
-use crate::{
-    session::SessionManager,
-    socket::init_io,
-    tokens_manager::{JobRun, TokensManager},
-};
+use crate::{session::SessionManager, socket::init_io, tokens_manager::TokensManager};
 
 #[derive(Clone)]
 pub struct JobEventsBuffer {

@@ -6,6 +6,7 @@ use schemars::{JsonSchema, schema_for};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::{collections::HashMap, path::PathBuf, sync::LazyLock};
+use uuid::Uuid;
 
 use crate::workflow::steps::Step;
 
@@ -97,4 +98,10 @@ pub async fn read_workflow_by_name(name: String) -> Result<Workflow> {
     let workflow = read_workflow(workflow_path).await?;
 
     Ok(workflow)
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct JobRun {
+    pub id: Uuid,
+    pub job: Job,
 }

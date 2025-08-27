@@ -9,6 +9,7 @@ step_executor = ["tokio", "dep:tracing"]
 reader = ["tokio", "serde_yaml"]
 tokio = ["dep:tokio"]
 utoipa = ["dep:utoipa"]
+pulsar = ["dep:pulsar"]
 
 [dependencies]
 async-trait = "0.1.88"
@@ -16,6 +17,7 @@ base64 = "0.22.1"
 color-eyre = "0.6.5"
 enum_dispatch = "0.3.13"
 paste = "1.0.15"
+pulsar = { version = "6.3.1", optional = true }
 rand = "0.9.2"
 schemars = { version = "1.0.4", features = ["preserve_order"] }
 serde = { version = "1.0.219", features = ["derive"] }
@@ -24,4 +26,5 @@ serde_yaml = { version = "0.9.34", optional = true }
 tokio = { version = "1.46.1", features = ["full"], optional = true }
 tracing = { version = "0.1.41", optional = true }
 utoipa = { version = "5.4.0", optional = true }
+uuid = { version = "1.18.0", features = ["serde", "v4"] }
 visible = "0.0.1"

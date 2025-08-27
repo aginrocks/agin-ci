@@ -60,7 +60,7 @@ pub async fn sign_worker_token(admin: Arc<PulsarAdmin>, worker_id: &str) -> Resu
 
     let permissions = vec!["produce".to_string(), "consume".to_string()];
 
-    admin.create_namespace(worker_id, None).await.ok();
+    admin.create_namespace(worker_id, None).await?;
 
     admin
         .grant_permissions_on_namespace(worker_id, &role, Some(permissions))

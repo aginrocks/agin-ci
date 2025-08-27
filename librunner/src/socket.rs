@@ -3,7 +3,10 @@ mod report_progress;
 
 use std::{ops::Deref, sync::Arc};
 
-use aginci_core::runner_messages::{auth::Auth, report_progress::ProgressReport};
+use aginci_core::{
+    runner_messages::{auth::Auth, report_progress::ProgressReport},
+    workflow::JobRun,
+};
 use color_eyre::eyre::{Result, bail};
 use socketioxide::{
     SocketIo,
@@ -14,7 +17,6 @@ use tokio::sync::broadcast;
 use tracing::debug;
 
 use crate::AppState;
-use crate::tokens_manager::JobRun;
 
 pub async fn init_io(io: &SocketIo) -> Result<()> {
     io.ns("/", on_connection.with(authenticate_middleware));

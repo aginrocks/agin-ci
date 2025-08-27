@@ -3,7 +3,7 @@ use std::env;
 use aginci_core::{RunnerRegistration, RunnerRegistrationMetadata};
 use api_client::{
     apis::{configuration::Configuration, system_api},
-    models::FinishRegistrationBody,
+    models::{FinishRegistrationBody, FinishRegistrationResponse},
 };
 use color_eyre::eyre::{Context, Result};
 use sha2::{Digest, Sha256};
@@ -14,7 +14,7 @@ use crate::config::{AppConfig, init_config};
 pub async fn exchange_token(
     token: String,
     metadata: &RunnerRegistrationMetadata,
-) -> Result<String> {
+) -> Result<FinishRegistrationResponse> {
     let config = Configuration {
         base_path: metadata.public_url.clone(),
         user_agent: Some(format!(
@@ -28,14 +28,14 @@ pub async fn exchange_token(
 
     let result = system_api::finish_runner_registration(&config, body).await?;
 
-    Ok(result.access_token)
+    Ok(result)
 }
 
 /// Initializes authentication by exchanging a registration token for an access token.
 /// If the configuration is already initialized, it will use the existing token.
 ///
 /// Returns the access token on success.
-pub async fn init_auth() -> Result<(String, RunnerRegistrationMetadata)> {
+pub async fn init_auth() -> Result<(FinishRegistrationResponse, RunnerRegistrationMetadata)> {
     let registration_token = env::var("REGISTRATION_TOKEN");
     if let Ok(config) = init_config().await {
         let hash_matched = {
@@ -47,7 +47,11 @@ pub async fn init_auth() -> Result<(String, RunnerRegistrationMetadata)> {
             }
         };
         if hash_matched {
-            return Ok((config.pulsar_token.clone(), config.metadata.clone()));
+            let registration = FinishRegistrationResponse::new(
+                config.pulsar_token.clone(),
+                config.connection_string.clone(),
+            );
+            return Ok((registration, config.metadata.clone()));
         } else {
             warn!("Registration token has changed");
         }
@@ -60,12 +64,13 @@ pub async fn init_auth() -> Result<(String, RunnerRegistrationMetadata)> {
     let decoded = RunnerRegistration::decode(&registration_token)
         .wrap_err("Failed to decode registration token")?;
 
-    let pulsar_token = exchange_token(registration_token.clone(), &decoded.metadata).await?;
+    let registration = exchange_token(registration_token.clone(), &decoded.metadata).await?;
 
     let config = AppConfig {
-        pulsar_token: pulsar_token.clone(),
+        pulsar_token: registration.access_token.clone(),
         registration_token_hash: format!("{:x}", Sha256::digest(registration_token)),
         metadata: decoded.metadata.clone(),
+        connection_string: registration.connection_string.clone(),
     };
     config
         .save()
@@ -73,5 +78,5 @@ pub async fn init_auth() -> Result<(String, RunnerRegistrationMetadata)> {
         .map_err(|_| warn!("Failed to save config. Registration token will be used on every restart until it expires. This is not recommended for production use."))
         .ok();
 
-    Ok((pulsar_token, decoded.metadata))
+    Ok((registration, decoded.metadata))
 }

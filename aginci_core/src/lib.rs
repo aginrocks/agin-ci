@@ -3,7 +3,11 @@ use color_eyre::eyre::{Result, bail};
 use rand::{Rng, distr::Alphanumeric};
 use serde::{Deserialize, Serialize};
 use serde_json::Error;
+use uuid::Uuid;
 
+use crate::workflow::Job;
+
+pub mod pulsar;
 pub mod runner_messages;
 pub mod workflow;
 
@@ -14,13 +18,17 @@ pub struct RunnerRegistrationMetadata {
 
     #[serde(rename = "v")]
     pub core_version: String,
+
+    #[serde(rename = "id")]
+    pub runner_id: Uuid,
 }
 
 impl RunnerRegistrationMetadata {
-    pub fn new(public_url: String) -> Self {
+    pub fn new(public_url: String, runner_id: Uuid) -> Self {
         Self {
             public_url,
             core_version: env!("CARGO_PKG_VERSION").to_string(),
+            runner_id,
         }
     }
 

@@ -1,14 +1,8 @@
 use std::collections::HashMap;
 
-use aginci_core::workflow::Job;
+use aginci_core::workflow::{Job, JobRun};
 use rand::{Rng, distr::Alphanumeric};
 use uuid::Uuid;
-
-#[derive(Clone)]
-pub struct JobRun {
-    pub id: Uuid,
-    pub job: Job,
-}
 
 /// TokensManager stores data per-token
 pub(crate) struct TokensManager {

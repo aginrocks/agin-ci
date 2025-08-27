@@ -118,6 +118,7 @@ async fn create_runner(
             .to_string()
             .trim_end_matches('/')
             .to_string(),
+        uuid,
     ));
 
     let token = registration

@@ -1,24 +1,17 @@
 mod auth;
 mod config;
+mod pulsar_client;
 
-use aginci_core::{
-    runner_messages::report_progress::ProgressReport,
-    workflow::{
-        Job, OS,
-        steps::{
-            Step,
-            run::{RunStep, RunStepWith},
-        },
-    },
-};
+use aginci_core::pulsar::ToWorkerMessage;
 use color_eyre::eyre::{Context, Result};
-use librunner::{WorkflowRunner, tokens_manager::JobRun};
-use tracing::{info, level_filters::LevelFilter};
+use futures::TryStreamExt;
+use librunner::WorkflowRunner;
+use pulsar::{Consumer, TokioExecutor, consumer::Message};
+use tracing::{error, info, level_filters::LevelFilter};
 use tracing_error::ErrorLayer;
 use tracing_subscriber::{fmt::format::FmtSpan, layer::SubscriberExt, util::SubscriberInitExt};
-use uuid::Uuid;
 
-use crate::{auth::init_auth, config::init_config};
+use crate::{auth::init_auth, pulsar_client::init_pulsar};
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -34,15 +27,48 @@ async fn main() -> Result<()> {
         env!("CARGO_PKG_VERSION"),
     );
 
-    let (token, metadata) = init_auth().await?;
+    let (registration, metadata) = init_auth().await?;
     info!("Initialized authentication");
 
     let mut runner = WorkflowRunner::new()?;
     runner.serve().await.wrap_err("Failed to start server")?;
     info!("Initialized workflow runner");
 
-    // Simulating queue connection for now
-    tokio::time::sleep(std::time::Duration::MAX).await;
+    let pulsar = init_pulsar(registration).await?;
+    info!("Initialized Pulsar client");
+
+    // Start listening for jobs
+    let topic = format!("persistent://aginci/{}/jobs", metadata.runner_id);
+    dbg!(&topic);
+    let consumer_name = format!("{}/{}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
+    let mut consumer: Consumer<ToWorkerMessage, _> = pulsar
+        .consumer()
+        .with_topic(topic)
+        .with_consumer_name(consumer_name)
+        .build()
+        .await?;
+
+    info!("Listening for jobs...");
+
+    while let Some(msg) = consumer.try_next().await? {
+        handle_message(&mut consumer, msg)
+            .await
+            .map_err(|e| {
+                error!(error = %e, "An error occurred while handling a message");
+            })
+            .ok();
+    }
+
+    Ok(())
+}
+
+async fn handle_message(
+    consumer: &mut Consumer<ToWorkerMessage, TokioExecutor>,
+    msg: Message<ToWorkerMessage>,
+) -> Result<()> {
+    consumer.ack(&msg).await?;
+    let data = msg.deserialize()?;
+    dbg!(&data);
 
     Ok(())
 }

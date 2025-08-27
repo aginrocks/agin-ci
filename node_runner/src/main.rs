@@ -1,17 +1,18 @@
 mod auth;
 mod config;
+mod handler;
 mod pulsar_client;
 
 use aginci_core::pulsar::ToWorkerMessage;
 use color_eyre::eyre::{Context, Result};
 use futures::TryStreamExt;
 use librunner::WorkflowRunner;
-use pulsar::{Consumer, TokioExecutor, consumer::Message};
+use pulsar::Consumer;
 use tracing::{error, info, level_filters::LevelFilter};
 use tracing_error::ErrorLayer;
 use tracing_subscriber::{fmt::format::FmtSpan, layer::SubscriberExt, util::SubscriberInitExt};
 
-use crate::{auth::init_auth, pulsar_client::init_pulsar};
+use crate::{auth::init_auth, handler::handle_message, pulsar_client::init_pulsar};
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -58,17 +59,6 @@ async fn main() -> Result<()> {
             })
             .ok();
     }
-
-    Ok(())
-}
-
-async fn handle_message(
-    consumer: &mut Consumer<ToWorkerMessage, TokioExecutor>,
-    msg: Message<ToWorkerMessage>,
-) -> Result<()> {
-    consumer.ack(&msg).await?;
-    let data = msg.deserialize()?;
-    dbg!(&data);
 
     Ok(())
 }

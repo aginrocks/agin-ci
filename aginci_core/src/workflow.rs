@@ -105,3 +105,8 @@ pub struct JobRun {
     pub id: Uuid,
     pub job: Job,
 }
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct CancelJob {
+    pub id: Uuid,
+}

@@ -1,5 +1,6 @@
 mod axum_error;
 mod database;
+mod job_manager;
 mod middlewares;
 mod mongo_id;
 mod notifications;

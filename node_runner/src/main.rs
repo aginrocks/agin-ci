@@ -3,6 +3,8 @@ mod config;
 mod handler;
 mod pulsar_client;
 
+use std::sync::Arc;
+
 use aginci_core::pulsar::ToWorkerMessage;
 use color_eyre::eyre::{Context, Result};
 use futures::TryStreamExt;
@@ -33,12 +35,14 @@ async fn main() -> Result<()> {
 
     let mut runner = WorkflowRunner::new()?;
     runner.serve().await.wrap_err("Failed to start server")?;
+    let runner = Arc::new(runner);
     info!("Initialized workflow runner");
 
     let pulsar = init_pulsar(registration).await?;
     info!("Initialized Pulsar client");
 
     // Start listening for jobs
+    // TODO: Handle different tenant names
     let topic = format!("persistent://aginci/{}/jobs", metadata.runner_id);
     dbg!(&topic);
     let consumer_name = format!("{}/{}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
@@ -52,7 +56,7 @@ async fn main() -> Result<()> {
     info!("Listening for jobs...");
 
     while let Some(msg) = consumer.try_next().await? {
-        handle_message(&mut consumer, msg)
+        handle_message(&mut consumer, &runner, msg)
             .await
             .map_err(|e| {
                 error!(error = %e, "An error occurred while handling a message");

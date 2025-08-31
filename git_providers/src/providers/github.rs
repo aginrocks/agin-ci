@@ -41,6 +41,7 @@ impl GitProvider for GitHubProvider {
         path: String,
         r#ref: String,
     ) -> Result<Vec<Content>> {
+        dbg!(&owner, &repo, &path, &r#ref);
         let result = self
             .client
             .repos(owner, repo)

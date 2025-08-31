@@ -27,6 +27,3 @@ tracing-subscriber = { version = "0.3.19", features = [
 url = "2.5.4"
 v = "0.1.0"
 openssl = { version = "0.10", features = ["vendored"] }
-
-[patch.crates-io]
-openssl = { version = "0.10", features = ["vendored"] }

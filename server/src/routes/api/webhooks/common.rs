@@ -171,7 +171,9 @@ pub async fn process_webhook_event(
 
     let matching_workflows = match event {
         WebhookEvent::Push(event) => {
-            let workflows = reader.read_workflows(event.branch.clone()).await?;
+            let workflows = reader
+                .read_workflows(format!("refs/heads/{}", event.branch.clone()))
+                .await?;
 
             workflows
                 .into_iter()

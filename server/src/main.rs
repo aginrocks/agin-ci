@@ -23,6 +23,7 @@ use axum_oidc::{
 };
 use color_eyre::Result;
 use color_eyre::eyre::WrapErr;
+use rustls::crypto::{CryptoProvider, aws_lc_rs};
 use serde::{Deserialize, Serialize};
 use tokio::net::TcpListener;
 use tower::ServiceBuilder;
@@ -65,6 +66,9 @@ async fn main() -> Result<()> {
 
     dotenvy::dotenv().ok();
     init_tracing().wrap_err("failed to set global tracing subscriber")?;
+
+    CryptoProvider::install_default(aws_lc_rs::default_provider())
+        .expect("Failed to install default crypto provider");
 
     info!(
         "Starting {} {}...",

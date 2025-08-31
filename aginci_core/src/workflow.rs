@@ -9,7 +9,7 @@ use serde_json::Value;
 use std::{collections::HashMap, path::PathBuf, sync::LazyLock};
 use uuid::Uuid;
 
-use crate::workflow::steps::Step;
+use crate::workflow::{steps::Step, triggers::Triggers};
 
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug)]
 #[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
@@ -39,6 +39,8 @@ pub struct Job {
 pub struct Workflow {
     /// The name of the workflow. It is shown in the UI.
     pub name: String,
+
+    pub on: Triggers,
 
     #[serde(rename = "run-name", skip_serializing_if = "Option::is_none")]
     pub run_name: Option<String>,

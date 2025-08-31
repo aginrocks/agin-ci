@@ -19,7 +19,7 @@ pub struct GitHubProvider {
 
 #[async_trait]
 impl GitProvider for GitHubProvider {
-    fn new(options: GitProviderCreateOptions) -> Result<Self> {
+    fn new(options: GitProviderCreateOptions) -> Result<Box<dyn GitProvider>> {
         let base_url = options
             .base_url
             .unwrap_or_else(|| "https://api.github.com".to_string());
@@ -29,10 +29,10 @@ impl GitProvider for GitHubProvider {
             .base_uri(base_url)?
             .build()?;
 
-        Ok(GitHubProvider {
+        Ok(Box::new(GitHubProvider {
             client: Arc::new(client),
             token: options.token,
-        })
+        }))
     }
     async fn get_folder_contents(
         &self,

@@ -1,7 +1,7 @@
 use axum::{Extension, Json, body::Bytes, extract::Path};
 use color_eyre::eyre::{self, ContextCompat};
 use http::HeaderMap;
-use octocrab::models::webhook_events::WebhookEvent;
+use octocrab::models::webhook_events::{WebhookEvent, WebhookEventPayload, WebhookEventType};
 use tracing::info;
 use utoipa_axum::routes;
 
@@ -79,6 +79,8 @@ async fn github_webhook_handler(
 
     info!("Received GitHub event: {:?}", event.kind);
     info!("REPO {git_url}");
+
+    if let WebhookEventPayload::Push(payload) = event.specific {}
 
     Ok(Json(WebhookHandlerSuccess { success: true }))
 }

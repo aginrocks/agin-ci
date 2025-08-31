@@ -19,17 +19,17 @@ pub struct GiteaProvider {
 
 #[async_trait]
 impl GitProvider for GiteaProvider {
-    fn new(options: GitProviderCreateOptions) -> Result<Self> {
+    fn new(options: GitProviderCreateOptions) -> Result<Box<dyn GitProvider>> {
         let base_url = options
             .base_url
             .unwrap_or_else(|| "https://codeberg.org".to_string());
 
         let client = Client::new(base_url.clone(), Auth::Token(options.token.clone()));
 
-        Ok(GiteaProvider {
+        Ok(Box::new(GiteaProvider {
             client: Arc::new(client),
             token: options.token,
-        })
+        }))
     }
     async fn get_folder_contents(
         &self,

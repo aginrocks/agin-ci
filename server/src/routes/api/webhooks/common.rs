@@ -1,6 +1,11 @@
 use aginci_core::workflow;
 use color_eyre::eyre::{self, Context, ContextCompat, Result};
-use git_providers::git_provider::GitProvider;
+use git_providers::{
+    git_provider::{GitProvider, GitProviderCreateOptions},
+    providers::{gitea::GiteaProvider, github::GitHubProvider},
+    webhook_actions::WebhookEvent,
+};
+use git_url_parse::GitUrl;
 use hmac::{Hmac, Mac};
 use mongodb::{
     Database,
@@ -11,7 +16,7 @@ use tracing::error;
 
 use crate::{
     axum_error::{AxumError, AxumResult},
-    database::Project,
+    database::{Project, ProjectRepositorySource, Workflow},
     utils::normalize_git_url,
 };
 
@@ -71,20 +76,14 @@ pub fn verify_repostiory(webhook_claimed_url: &str, repository_url: &str) -> Axu
     Ok(())
 }
 
-pub struct WorkflowReader<T>
-where
-    T: GitProvider + Sync,
-{
-    provider: T,
+pub struct WorkflowReader {
+    provider: Box<dyn GitProvider>,
     owner: String,
     repo: String,
 }
 
-impl<T> WorkflowReader<T>
-where
-    T: GitProvider + Sync,
-{
-    pub fn new(provider: T, owner: String, repo: String) -> Self {
+impl WorkflowReader {
+    pub fn new(provider: Box<dyn GitProvider>, owner: String, repo: String) -> Self {
         Self {
             provider,
             owner,
@@ -130,4 +129,70 @@ where
             serde_yaml::from_str(&content).wrap_err("Invalid workflow file")?;
         Ok(workflow)
     }
+}
+
+/// Processes a webhook event by reading workflows from the repository, filtering them based on the event, and executing them.
+pub async fn process_webhook_event(
+    database: Database,
+    project: &Project,
+    event: WebhookEvent,
+) -> Result<()> {
+    // Extract access token from project repository
+    let token = project
+        .repository
+        .access_token
+        .as_ref()
+        .ok_or_else(|| eyre::eyre!("No access token configured for this repository"))?
+        .clone();
+
+    let options = GitProviderCreateOptions {
+        token,
+        base_url: None,
+    };
+
+    let provider = match project.repository.source {
+        ProjectRepositorySource::GitHub => GitHubProvider::new(options)?,
+        ProjectRepositorySource::Gitea => GiteaProvider::new(options)?,
+        ProjectRepositorySource::GenericGit => {
+            return Err(eyre::eyre!("Generic Git is not supported for webhooks"));
+        }
+    };
+
+    let parsed_url = GitUrl::parse(&project.repository.url)?;
+    let owner = parsed_url
+        .owner
+        .ok_or_else(|| eyre::eyre!("Could not extract owner from repository URL"))?;
+    let repo = parsed_url.name;
+
+    let reader = WorkflowReader::new(provider, owner, repo);
+
+    let matching_workflows = match event {
+        WebhookEvent::Push(event) => {
+            let workflows = reader.read_workflows(event.branch.clone()).await?;
+
+            workflows
+                .into_iter()
+                .filter(|w| {
+                    // Only run workflows that have a push trigger
+                    if w.on.push.is_none() {
+                        return false;
+                    }
+
+                    let push = w.on.push.as_ref().unwrap();
+
+                    // If the workflow has a branch specified, only run it if the branch matches
+                    if let Some(branches) = &push.branches
+                        && !branches.contains(&event.branch)
+                    {
+                        return false;
+                    }
+
+                    // TODO: Implement tags
+                    true
+                })
+                .collect::<Vec<_>>()
+        }
+    };
+
+    Ok(())
 }

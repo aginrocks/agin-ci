@@ -19,7 +19,7 @@ pub struct GiteaProvider {
 
 #[async_trait]
 impl GitProvider for GiteaProvider {
-    fn new(options: GitProviderCreateOptions) -> Result<Box<dyn GitProvider>> {
+    fn new_boxed(options: GitProviderCreateOptions) -> Result<Box<dyn GitProvider>> {
         let base_url = options
             .base_url
             .unwrap_or_else(|| "https://codeberg.org".to_string());

@@ -1,5 +1,6 @@
 use axum::{Extension, Json, body::Bytes, extract::Path};
 use color_eyre::eyre::{self, ContextCompat};
+use git_providers::webhook_actions;
 use http::HeaderMap;
 use octocrab::models::webhook_events::{WebhookEvent, WebhookEventPayload, WebhookEventType};
 use tracing::info;
@@ -11,7 +12,9 @@ use crate::{
         RouteProtectionLevel,
         api::webhooks::{
             WebhookHandlerSuccess,
-            common::{get_project_secret, verify_repostiory, verify_signature},
+            common::{
+                get_project_secret, process_webhook_event, verify_repostiory, verify_signature,
+            },
         },
     },
     state::AppState,
@@ -80,7 +83,35 @@ async fn github_webhook_handler(
     info!("Received GitHub event: {:?}", event.kind);
     info!("REPO {git_url}");
 
-    if let WebhookEventPayload::Push(payload) = event.specific {}
+    if let WebhookEventPayload::Push(payload) = event.specific {
+        let branch = payload
+            .r#ref
+            .strip_prefix("refs/heads/")
+            .wrap_err("No branch found")?
+            .to_string();
+
+        let head_commit_id = payload.head_commit.wrap_err("No head commit found")?.id;
+
+        let mut added = Vec::new();
+        let mut removed = Vec::new();
+        let mut modified = Vec::new();
+
+        payload.commits.iter().for_each(|commit| {
+            added.extend(commit.added.clone());
+            removed.extend(commit.removed.clone());
+            modified.extend(commit.modified.clone());
+        });
+
+        let event = webhook_actions::WebhookEvent::Push(webhook_actions::Push {
+            branch,
+            head_commit_id,
+            added,
+            removed,
+            modified,
+        });
+
+        process_webhook_event(&project, event).await?;
+    }
 
     Ok(Json(WebhookHandlerSuccess { success: true }))
 }

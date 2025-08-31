@@ -132,11 +132,7 @@ impl WorkflowReader {
 }
 
 /// Processes a webhook event by reading workflows from the repository, filtering them based on the event, and executing them.
-pub async fn process_webhook_event(
-    database: Database,
-    project: &Project,
-    event: WebhookEvent,
-) -> Result<()> {
+pub async fn process_webhook_event(project: &Project, event: WebhookEvent) -> Result<()> {
     // Extract access token from project repository
     let token = project
         .repository
@@ -151,8 +147,8 @@ pub async fn process_webhook_event(
     };
 
     let provider = match project.repository.source {
-        ProjectRepositorySource::GitHub => GitHubProvider::new(options)?,
-        ProjectRepositorySource::Gitea => GiteaProvider::new(options)?,
+        ProjectRepositorySource::GitHub => GitHubProvider::new_boxed(options)?,
+        ProjectRepositorySource::Gitea => GiteaProvider::new_boxed(options)?,
         ProjectRepositorySource::GenericGit => {
             return Err(eyre::eyre!("Generic Git is not supported for webhooks"));
         }
@@ -193,6 +189,8 @@ pub async fn process_webhook_event(
                 .collect::<Vec<_>>()
         }
     };
+
+    for workflow in matching_workflows {}
 
     Ok(())
 }

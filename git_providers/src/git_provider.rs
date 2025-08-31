@@ -10,7 +10,7 @@ pub struct GitProviderCreateOptions {
 #[async_trait]
 #[async_trait]
 pub trait GitProvider: Send + Sync {
-    fn new(options: GitProviderCreateOptions) -> Result<Box<dyn GitProvider>>
+    fn new_boxed(options: GitProviderCreateOptions) -> Result<Box<dyn GitProvider>>
     where
         Self: Sized;
     async fn get_folder_contents(

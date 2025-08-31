@@ -1,10 +1,13 @@
-use color_eyre::eyre::{self, Context};
+use aginci_core::workflow;
+use color_eyre::eyre::{self, Context, ContextCompat, Result};
+use git_providers::git_provider::GitProvider;
 use hmac::{Hmac, Mac};
 use mongodb::{
     Database,
     bson::{doc, oid::ObjectId},
 };
 use sha2::Sha256;
+use tracing::error;
 
 use crate::{
     axum_error::{AxumError, AxumResult},
@@ -66,4 +69,65 @@ pub fn verify_repostiory(webhook_claimed_url: &str, repository_url: &str) -> Axu
     }
 
     Ok(())
+}
+
+pub struct WorkflowReader<T>
+where
+    T: GitProvider + Sync,
+{
+    provider: T,
+    owner: String,
+    repo: String,
+}
+
+impl<T> WorkflowReader<T>
+where
+    T: GitProvider + Sync,
+{
+    pub fn new(provider: T, owner: String, repo: String) -> Self {
+        Self {
+            provider,
+            owner,
+            repo,
+        }
+    }
+
+    pub async fn read_workflows(&self, r#ref: String) -> Result<Vec<workflow::Workflow>> {
+        let files = self
+            .provider
+            .get_folder_contents(
+                self.owner.clone(),
+                self.repo.clone(),
+                ".aginci/workflows".to_string(),
+                r#ref,
+            )
+            .await?;
+
+        let workflow_files = files
+            .into_iter()
+            .filter(|f| f.name.ends_with(".yaml"))
+            .collect::<Vec<_>>();
+
+        let mut workflows = Vec::new();
+        for file in workflow_files {
+            let workflow = self.read_workflow(file.download_url).await;
+            match workflow {
+                Ok(workflow) => workflows.push(workflow),
+                Err(err) => {
+                    error!(error = %err, "Failed to read workflow file");
+                }
+            }
+        }
+
+        Ok(workflows)
+    }
+
+    pub async fn read_workflow(&self, download_url: Option<String>) -> Result<workflow::Workflow> {
+        let download_url = download_url.wrap_err("No download URL")?;
+        let content = self.provider.raw_file(download_url).await?;
+
+        let workflow: workflow::Workflow =
+            serde_yaml::from_str(&content).wrap_err("Invalid workflow file")?;
+        Ok(workflow)
+    }
 }

@@ -1,5 +1,6 @@
 pub mod step_executor;
 pub mod steps;
+pub mod triggers;
 
 use color_eyre::eyre::Result;
 use schemars::{JsonSchema, schema_for};

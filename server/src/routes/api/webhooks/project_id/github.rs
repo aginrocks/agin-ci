@@ -2,7 +2,7 @@ use axum::{Extension, Json, body::Bytes, extract::Path};
 use color_eyre::eyre::{self, ContextCompat};
 use git_providers::webhook_actions;
 use http::HeaderMap;
-use octocrab::models::webhook_events::{WebhookEvent, WebhookEventPayload, WebhookEventType};
+use octocrab::models::webhook_events::{WebhookEvent, WebhookEventPayload};
 use tracing::info;
 use utoipa_axum::routes;
 
@@ -110,7 +110,7 @@ async fn github_webhook_handler(
             modified,
         });
 
-        process_webhook_event(&project, event).await?;
+        process_webhook_event(state.manager.clone(), &project, event).await?;
     }
 
     Ok(Json(WebhookHandlerSuccess { success: true }))

@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use aginci_core::workflow;
 use color_eyre::eyre::{self, Context, ContextCompat, Result};
 use git_providers::{
@@ -12,11 +14,12 @@ use mongodb::{
     bson::{doc, oid::ObjectId},
 };
 use sha2::Sha256;
-use tracing::error;
+use tracing::{error, info};
 
 use crate::{
     axum_error::{AxumError, AxumResult},
     database::{Project, ProjectRepositorySource, Workflow},
+    job_manager::JobManager,
     utils::normalize_git_url,
 };
 
@@ -132,7 +135,11 @@ impl WorkflowReader {
 }
 
 /// Processes a webhook event by reading workflows from the repository, filtering them based on the event, and executing them.
-pub async fn process_webhook_event(project: &Project, event: WebhookEvent) -> Result<()> {
+pub async fn process_webhook_event(
+    manager: Arc<JobManager>,
+    project: &Project,
+    event: WebhookEvent,
+) -> Result<()> {
     // Extract access token from project repository
     let token = project
         .repository
@@ -190,7 +197,10 @@ pub async fn process_webhook_event(project: &Project, event: WebhookEvent) -> Re
         }
     };
 
-    for workflow in matching_workflows {}
+    for workflow in matching_workflows {
+        info!(?workflow, "Dispatching workflow");
+        manager.dispatch_workflow(workflow).await?;
+    }
 
     Ok(())
 }

@@ -26,6 +26,16 @@ impl JobManager {
         Self { pulsar, database }
     }
 
+    pub async fn dispatch_workflow(&self, workflow: workflow::Workflow) -> Result<()> {
+        // TODO: Wait for previous jobs before startijng next ones, implement matrix jobs, etc.
+        // For now, we just dispatch all jobs in the workflow.
+        // This is a naive implementation and should be improved.
+        for (_job_name, job_data) in workflow.jobs {
+            self.dispatch_job(job_data).await?;
+        }
+        Ok(())
+    }
+
     pub async fn dispatch_job(&self, job: Job) -> Result<()> {
         // TODO: Write a scheduling algorithm to select the best worker.
         // For now, we just select the first worker.

@@ -8,6 +8,7 @@ import { ModalComponentBindings, ModalDefinition } from './types';
 import { SelectServerRole } from '../SelectServerRole';
 import { ServerRole } from '@/types/server-role';
 import { EditRunner, RunnerEditBody } from '../EditRunner';
+import { EnterToken } from '../EnterToken';
 
 export type Modals = {
     ConfirmDeletion: ModalDefinition<{
@@ -56,6 +57,12 @@ export type Modals = {
         };
         returnValue: RunnerEditBody;
     }>;
+    EnterToken: ModalDefinition<{
+        payload: {
+            isUpdating: boolean;
+        };
+        returnValue: string;
+    }>;
 };
 
 export const ModalsBinding: ModalComponentBindings = {
@@ -65,4 +72,5 @@ export const ModalsBinding: ModalComponentBindings = {
     SelectRole: SelectRole,
     SelectServerRole: SelectServerRole,
     EditRunner: EditRunner,
+    EnterToken: EnterToken,
 };

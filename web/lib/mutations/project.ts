@@ -66,15 +66,15 @@ export function useProjectMutation(params: AdditionalParams) {
     return mutation;
 }
 
-export function useProjectKeysMutation(params: AdditionalParams) {
+export function useSetTokenMutation(params: AdditionalParams) {
     const queryClient = useQueryClient();
 
     const mutation = $api.useMutation(
-        'get',
-        '/api/organizations/{org_slug}/projects/{project_slug}/regenerate-keys',
+        'patch',
+        '/api/organizations/{org_slug}/projects/{project_slug}/access-token',
         {
             onSuccess: (data, options) => {
-                toast.success('Deploy Key generated successfully');
+                toast.success('Access Token updated successfully');
                 invalidateProject(
                     queryClient,
                     options.params.path.org_slug,
@@ -83,7 +83,7 @@ export function useProjectKeysMutation(params: AdditionalParams) {
                 params?.onSuccess?.();
             },
             onError: (error) => {
-                toast.error('Failed to generate the Deploy Key', {
+                toast.error('Failed to update access token', {
                     description: error.error,
                 });
                 params?.onError?.();

@@ -11,11 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { DISPLAY_NAME, REPO_URL, WEBHOOKS_SUPPORTED } from '@lib/constants';
 import { useOrg, useProject } from '@lib/hooks';
 import { useModals } from '@lib/modals/ModalsManager';
-import {
-    useProjectKeysMutation,
-    useProjectMutation,
-    useWebhookSecretMutation,
-} from '@lib/mutations';
+import { useSetTokenMutation, useProjectMutation, useWebhookSecretMutation } from '@lib/mutations';
 import { useClipboard } from '@mantine/hooks';
 import {
     IconBrandGit,
@@ -26,6 +22,7 @@ import {
     IconGitBranch,
     IconKey,
     IconLink,
+    IconPencil,
     IconRefresh,
     IconServer,
     IconWebhook,
@@ -38,7 +35,6 @@ export default function Page() {
     const { thisOrgSlug } = useOrg();
     const { thisProject, thisProjectSlug } = useProject();
     const modals = useModals();
-    const deployKeyClipboard = useClipboard({ timeout: 3000 });
     const webhookClipboard = useClipboard({ timeout: 3000 });
 
     const repositoryForm = useForm<FormSchema>({
@@ -58,7 +54,7 @@ export default function Page() {
     });
 
     const { mutate } = useProjectMutation({});
-    const keys = useProjectKeysMutation({});
+    const tokenMutation = useSetTokenMutation({});
     const webhookSecret = useWebhookSecretMutation({});
 
     const repoProvider = repositoryForm.watch('repository.source');
@@ -66,28 +62,6 @@ export default function Page() {
         repoProvider && thisProject?._id
             ? `${typeof window !== 'undefined' ? window.location.origin : ''}/api/webhooks/${thisProject?._id}/${repoProvider}`
             : '';
-
-    const generateDeployKey = useCallback(async () => {
-        const regenerating = thisProject?.repository.deploy_key_generated;
-
-        const confirmed = await modals.show('Confirm', {
-            title: `${regenerating ? 'Reg' : 'G'}enerate Deploy Key`,
-            description: regenerating
-                ? "Are you sure you want to generate a new deploy key? This will replace the existing one. You can't undo this action."
-                : `Deploy Keys allow you to grant ${DISPLAY_NAME} read access to your repository. You don't need to generate a deploy key if your repository is public.`,
-            confirmText: regenerating ? 'Regenerate' : 'Generate',
-        });
-        if (!confirmed) return;
-
-        keys.mutate({
-            params: {
-                path: {
-                    org_slug: thisOrgSlug,
-                    project_slug: thisProjectSlug,
-                },
-            },
-        });
-    }, [thisProject?.repository.deploy_key_generated, thisOrgSlug, thisProjectSlug]);
 
     const generateWebhookSecret = useCallback(async () => {
         const regenerating = thisProject?.repository.webhook_secret_generated;
@@ -111,6 +85,24 @@ export default function Page() {
             },
         });
     }, [thisProject?.repository.webhook_secret_generated, thisOrgSlug, thisProjectSlug]);
+
+    const setAccessTokenAsk = useCallback(async () => {
+        const token = await modals.show('EnterToken', {
+            isUpdating: thisProject?.repository.access_token_set || false,
+        });
+
+        if (!token) return;
+
+        tokenMutation.mutate({
+            params: {
+                path: {
+                    org_slug: thisOrgSlug,
+                    project_slug: thisProjectSlug,
+                },
+            },
+            body: { access_token: token },
+        });
+    }, [thisProject?.repository.access_token_set, thisOrgSlug, thisProjectSlug]);
 
     return (
         <Form {...repositoryForm}>
@@ -165,10 +157,10 @@ export default function Page() {
                         placeholder={`${REPO_URL}.git`}
                         description={
                             <>
-                                You can provide any valid Git clone URL, however we recommend using{' '}
+                                You can provide a Git clone URL to a{' '}
                                 {WEBHOOKS_SUPPORTED.slice(0, -1).join(', ')} or{' '}
-                                {WEBHOOKS_SUPPORTED.slice(-1)} for automated workflow runs. If your
-                                provider is not supported, feel free to{' '}
+                                {WEBHOOKS_SUPPORTED.slice(-1)} instance. If your provider is not
+                                supported, feel free to{' '}
                                 <a
                                     href={`${REPO_URL}/issues/new`}
                                     target="_blank"
@@ -190,40 +182,21 @@ export default function Page() {
                         icon={IconLink}
                     />
                     <div>
-                        <SettingLikeHeader title="Deploy Key" className="mt-4" icon={IconKey} />
+                        <SettingLikeHeader title="Access Token" className="mt-4" icon={IconKey} />
                         <SettingAction
-                            description={`Deploy Keys allow you to grant ${DISPLAY_NAME} read access to your repository.`}
+                            description={`Access Tokens allow you to grant ${DISPLAY_NAME} access to your repository. Access token is ${thisProject?.repository.access_token_set ? '' : 'not '} currently set.`}
                             className="mt-3"
                             rightSection={
                                 <div className="flex gap-2">
-                                    {thisProject?.repository.deploy_key_generated && (
-                                        <Button
-                                            variant="outline"
-                                            type="button"
-                                            onClick={() => {
-                                                deployKeyClipboard.copy(
-                                                    thisProject.repository.deploy_public_key
-                                                );
-                                                toast.success('Deploy key copied to clipboard');
-                                            }}
-                                        >
-                                            {deployKeyClipboard.copied ? (
-                                                <IconCheck />
-                                            ) : (
-                                                <IconCopy />
-                                            )}
-                                            Copy
-                                        </Button>
-                                    )}
                                     <Button
                                         variant="outline"
                                         type="button"
-                                        onClick={generateDeployKey}
+                                        onClick={setAccessTokenAsk}
                                     >
-                                        <IconRefresh />
-                                        {thisProject?.repository.deploy_key_generated
-                                            ? 'Regenerate'
-                                            : 'Generate'}
+                                        <IconPencil />
+                                        {thisProject?.repository.access_token_set
+                                            ? 'Change Token'
+                                            : 'Set Token'}
                                     </Button>
                                 </div>
                             }

@@ -1,5 +1,5 @@
 'use client';
-import { formSchema, FormSchema } from '@/app/app/(global)/orgs/new/page';
+import { formSchema, FormSchema } from '@/app/app/(global)/orgs/new/schema';
 import { PageHeader } from '@components/page-header';
 import { SettingsSection } from '@components/settings/section';
 import { Setting } from '@components/settings/setting';

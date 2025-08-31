@@ -1,4 +1,5 @@
 'use client';
+import { InlineAvatar } from '@/app/app/(global)/system/users/avatar';
 import { paths } from '@/types/api';
 import { OrgRole } from '@/types/org-role';
 import { DataTable } from '@components/data-table';
@@ -101,15 +102,11 @@ export default function Page() {
                 accessorKey: 'name',
                 header: 'Name',
                 cell: ({ row }) => {
-                    const avatar = useAvatar(row.original.email);
                     const username = row.original.name || row.original.email;
 
                     return (
                         <div className="flex items-center gap-2">
-                            <Avatar>
-                                <AvatarImage src={avatar} />
-                                <AvatarFallback>{username?.charAt(0).toUpperCase()}</AvatarFallback>
-                            </Avatar>
+                            <InlineAvatar username={username} email={row.original.email} />
                             <div>{username}</div>
                         </div>
                     );

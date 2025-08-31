@@ -1,5 +1,5 @@
 'use client';
-import { formSchema, FormSchema } from '@/app/app/(orgs)/orgs/[org_slug]/projects/new/page';
+import { formSchema, FormSchema } from '@/app/app/(orgs)/orgs/[org_slug]/projects/new/schema';
 import { SettingsSection } from '@components/settings/section';
 import { Setting } from '@components/settings/setting';
 import { SettingAction } from '@components/settings/setting-action';

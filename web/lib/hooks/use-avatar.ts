@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 
-let cache: Record<string, string> = {};
+const cache: Record<string, string> = {};
 
 export function useAvatar(email: string | undefined, defaultAvatar?: string): string | undefined {
     const [avatarUrl, setAvatarUrl] = useState<string | undefined>(defaultAvatar);

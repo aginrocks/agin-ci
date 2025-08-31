@@ -22,6 +22,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
 import clsx from 'clsx';
 import { useCallback, useMemo } from 'react';
+import { InlineAvatar } from './avatar';
 
 type User =
     paths['/api/system/users']['get']['responses']['200']['content']['application/json'][number];
@@ -62,15 +63,11 @@ export default function Page() {
                 accessorKey: 'name',
                 header: 'Name',
                 cell: ({ row }) => {
-                    const avatar = useAvatar(row.original.email);
                     const username = row.original.name || row.original.email;
 
                     return (
                         <div className="flex items-center gap-2">
-                            <Avatar>
-                                <AvatarImage src={avatar} />
-                                <AvatarFallback>{username?.charAt(0).toUpperCase()}</AvatarFallback>
-                            </Avatar>
+                            <InlineAvatar username={username} email={row.original.email} />
                             <div>{username}</div>
                         </div>
                     );

@@ -41,6 +41,7 @@ use utoipa_scalar::{Scalar, Servable as _};
 
 use crate::{
     database::{init_database, init_session_store},
+    job_manager::JobManager,
     middlewares::require_auth::require_auth,
     notifications::sender::NotificationSender,
     pulsar_client::init_pulsar,
@@ -81,12 +82,16 @@ async fn main() -> Result<()> {
         database: database.clone(),
     };
 
+    let manager = JobManager::new(pulsar.clone(), database.clone());
+    let manager = Arc::new(manager);
+
     let app_state = AppState {
         database,
         settings: settings.clone(),
         pulsar,
         pulsar_admin,
         notifications,
+        manager,
     };
 
     let session_layer = init_session_store(&settings).await?;

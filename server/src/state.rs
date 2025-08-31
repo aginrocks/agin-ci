@@ -4,7 +4,8 @@ use mongodb::Database;
 use pulsar::{Pulsar, TokioExecutor};
 
 use crate::{
-    notifications::sender::NotificationSender, pulsar_client::PulsarAdmin, settings::Settings,
+    job_manager::JobManager, notifications::sender::NotificationSender, pulsar_client::PulsarAdmin,
+    settings::Settings,
 };
 
 #[derive(Clone)]
@@ -14,4 +15,5 @@ pub struct AppState {
     pub pulsar: Arc<Pulsar<TokioExecutor>>,
     pub pulsar_admin: Arc<PulsarAdmin>,
     pub notifications: NotificationSender,
+    pub manager: Arc<JobManager>,
 }

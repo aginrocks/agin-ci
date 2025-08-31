@@ -45,7 +45,7 @@ async fn main() -> Result<()> {
     // TODO: Handle different tenant names
     let topic = format!("persistent://aginci/{}/jobs", metadata.runner_id);
     dbg!(&topic);
-    let consumer_name = format!("{}/{}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
+    let consumer_name = format!("runner/{}", metadata.runner_id);
     let mut consumer: Consumer<ToWorkerMessage, _> = pulsar
         .consumer()
         .with_topic(topic)

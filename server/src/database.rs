@@ -232,22 +232,7 @@ pub struct ProjectRepository {
     pub url: String,
     pub source: ProjectRepositorySource,
     pub webhook_secret: Option<String>,
-    pub deploy_private_key: Option<String>,
-    pub deploy_public_key: Option<String>,
-}
-
-// TODO: Encryption of the private key
-impl ProjectRepository {
-    pub fn generate_deploy_keys(&self) -> Result<(String, Zeroizing<String>)> {
-        let mut rng = OsRng;
-        let private_key = PrivateKey::random(&mut rng, Algorithm::Ed25519)?;
-        let public_key = private_key.public_key();
-
-        let public_key_openssh = public_key.to_openssh()?;
-        let private_key_openssh = private_key.to_openssh(ssh_key::LineEnding::LF)?;
-
-        Ok((public_key_openssh, private_key_openssh))
-    }
+    pub access_token: Option<String>,
 }
 
 database_object!(Project {
@@ -277,8 +262,7 @@ impl Project {
                 url: self.repository.url.clone(),
                 source: self.repository.source.clone(),
                 webhook_secret_generated: self.repository.webhook_secret.is_some(),
-                deploy_key_generated: self.repository.deploy_private_key.is_some(),
-                deploy_public_key: self.repository.deploy_public_key.clone(),
+                access_token_set: self.repository.access_token.is_some(),
             },
         }
     }
@@ -290,8 +274,7 @@ pub struct PublicProjectRepository {
     pub url: String,
     pub source: ProjectRepositorySource,
     pub webhook_secret_generated: bool,
-    pub deploy_key_generated: bool,
-    pub deploy_public_key: Option<String>,
+    pub access_token_set: bool,
 }
 
 /// Project object that can be safely sent to the client

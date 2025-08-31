@@ -1,4 +1,4 @@
-mod regenerate_keys;
+mod access_token;
 mod regenerate_webhook_secret;
 
 use axum::{
@@ -34,8 +34,8 @@ pub fn routes() -> Vec<Route> {
             routes!(get_project, edit_project, delete_project),
             RouteProtectionLevel::Authenticated,
         )],
-        regenerate_keys::routes(),
         regenerate_webhook_secret::routes(),
+        access_token::routes(),
     ]
     .concat()
 }
@@ -113,8 +113,7 @@ async fn edit_project(
             url: normalize_git_url(&body.repository.url)?,
             source: body.repository.source,
             webhook_secret: None,
-            deploy_private_key: None,
-            deploy_public_key: None,
+            access_token: None,
         },
     };
 

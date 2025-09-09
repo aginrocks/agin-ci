@@ -1,54 +1,59 @@
 services:
-    api:
-        platform: linux/amd64
-        build:
-            context: .
-            dockerfile: server/Dockerfile
-            args:
-                PROJECT_NAME: server
-                BUILDPLATFORM: linux/amd64
-        image: ghcr.io/aginrocks/agin-ci:latest
-    web:
-        platform: linux/amd64
-        build:
-            context: web
-            dockerfile: Dockerfile
-        image: ghcr.io/aginrocks/agin-ci-web:latest
-    valkey:
-        image: valkey/valkey:latest
-        restart: unless-stopped
-        volumes:
-            - ./data/valkey:/data
-    mongodb:
-        image: mongodb/mongodb-community-server:6.0.19-ubi8
-        volumes:
-            - ./data/mongo:/data/db
-        restart: always
-        user: 1000:1000
-    pulsar:
-        image: apachepulsar/pulsar:3.2.0
-        container_name: pulsar
-        command: bin/pulsar standalone
-        ports:
-            - "6650:6650"
-            - "8094:8080"
-        volumes:
-            - ./data/pulsar:/pulsar/data
-            - ./token-secret.key:/pulsar/token-secret.key:ro
-        environment:
-            PULSAR_PREFIX_authenticationEnabled: "true"
-            PULSAR_PREFIX_authorizationEnabled: "true"
-            PULSAR_PREFIX_authenticationProviders: "org.apache.pulsar.broker.authentication.AuthenticationProviderToken"
-            PULSAR_PREFIX_superUserRoles: "admin"
-            PULSAR_PREFIX_tokenSecretKey: "file:///pulsar/token-secret.key"
-        healthcheck:
-            test:
-                [
-                    "CMD",
-                    "curl",
-                    "-f",
-                    "http://localhost:8080/admin/v2/brokers/health",
-                ]
-            interval: 30s
-            timeout: 10s
-            retries: 5
+  api:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      args:
+        PROJECT_NAME: server
+        BUILDPLATFORM: linux/amd64
+    image: ghcr.io/aginrocks/agin-ci:latest
+    labels:
+      traefik.enable: true
+      traefik.port: 8080
+      traefik.http.services.aginci-api.loadbalancer.server.port: "8080"
+      traefik.http.routers.aginci-api.rule: "Host(`ci.agin.rocks`) && (PathPrefix(`/api`) || PathPrefix(`/oidc`))"
+  web:
+    platform: linux/amd64
+    build:
+      context: web
+      dockerfile: Dockerfile
+    image: ghcr.io/aginrocks/agin-ci-web:latest
+    labels:
+      traefik.enable: true
+      traefik.port: 3000
+      traefik.http.services.aginci-web.loadbalancer.server.port: "3000"
+      traefik.http.routers.aginci-web.rule: "Host(`ci.agin.rocks`)"
+  valkey:
+    image: valkey/valkey:latest
+    restart: unless-stopped
+    volumes:
+      - ./data/valkey:/data
+  mongodb:
+    image: mongodb/mongodb-community-server:6.0.19-ubi8
+    volumes:
+      - ./data/mongo:/data/db
+    restart: always
+    user: 1000:1000
+  pulsar:
+    image: apachepulsar/pulsar:3.2.0
+    container_name: pulsar
+    command: bin/pulsar standalone
+    ports:
+      - "6650:6650"
+      - "8094:8080"
+    volumes:
+      - ./data/pulsar:/pulsar/data
+      - ./token-secret.key:/pulsar/token-secret.key:ro
+    environment:
+      PULSAR_PREFIX_authenticationEnabled: "true"
+      PULSAR_PREFIX_authorizationEnabled: "true"
+      PULSAR_PREFIX_authenticationProviders: "org.apache.pulsar.broker.authentication.AuthenticationProviderToken"
+      PULSAR_PREFIX_superUserRoles: "admin"
+      PULSAR_PREFIX_tokenSecretKey: "file:///pulsar/token-secret.key"
+    healthcheck:
+      test:
+        ["CMD", "curl", "-f", "http://localhost:8080/admin/v2/brokers/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
